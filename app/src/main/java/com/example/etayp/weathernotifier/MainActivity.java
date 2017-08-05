@@ -13,12 +13,10 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -38,7 +36,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.etayp.weathernotifier.dummy.DummyContent;
 import com.google.android.gms.awareness.Awareness;
@@ -47,14 +44,7 @@ import com.google.android.gms.awareness.snapshot.WeatherResult;
 import com.google.android.gms.awareness.state.Weather;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.SettingsClient;
-
-import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
 public class MainActivity extends AppCompatActivity implements
         MainFragment.OnFragmentInteractionListener, NotificationSettingsFragment.OnFragmentInteractionListener
@@ -62,6 +52,8 @@ public class MainActivity extends AppCompatActivity implements
 
     private String mAddressOutput;
     private Address mAddress;
+    private Address addressForLocationFragment;
+    private Location resultLocation;
 
     class AddressResultReceiver extends ResultReceiver {
         public AddressResultReceiver(Handler handler) {
@@ -74,9 +66,21 @@ public class MainActivity extends AppCompatActivity implements
             // Display the address string
             // or an error message sent from the intent service.
             if (resultCode == Constants.SUCCESS_RESULT) {
-                mAddressOutput = resultData.getString(Constants.RESULT_DATA_KEY);
-                displayAddressOutput();
-                mAddress = resultData.getParcelable("address");
+                switch (resultData.getInt(Constants.RECEIVE_TYPE_EXTRA)) {
+                    case Constants.RECEIVE_TO_MAIN:
+                        mAddressOutput = resultData.getString(Constants.RESULT_DATA_KEY);
+                        displayAddressOutput();
+                        mAddress = resultData.getParcelable("address");
+                        break;
+                    case Constants.RECEIVE_TO_FRAGMENT:
+                        Address address = resultData.getParcelable("address");
+                        locationFragment.getRecyclerViewAdapter().addItem(new DummyContent.DummyItem(
+                                String.valueOf(locationFragment.getRecyclerViewAdapter().getItemCount()),
+                                address.getAddressLine(address.getMaxAddressLineIndex()-1),
+                                "100"
+                        ));
+                        break;
+                }
             }
         }
     }
@@ -97,6 +101,8 @@ public class MainActivity extends AppCompatActivity implements
     private final String FENCE_RECEIVER_ACTION =
             BuildConfig.APPLICATION_ID + "FENCE_RECEIVER_ACTION";
     private final String FENCE_KEY = "fence_key";
+
+    LocationsFragment locationFragment;
 
     @Override
     protected void onPause() {
@@ -222,7 +228,21 @@ public class MainActivity extends AppCompatActivity implements
 
     private void updateWeather() {
         ((TextView) findViewById(R.id.temperature_value)).setText("" + weather.getTemperature(2));
-        ((TextView) findViewById(R.id.umidity_value)).setText("" + weather.getHumidity());
+        ((TextView) findViewById(R.id.Humidity_value)).setText("" + weather.getHumidity());
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            resultLocation = data.getExtras().getParcelable("NewLocation");
+            Intent intent = new Intent(this, FetchAddressIntentService.class);
+            intent.putExtra(Constants.RECEIVER, mResultReceiver);
+            intent.putExtra(Constants.LOCATION_DATA_EXTRA, resultLocation);
+            intent.putExtra(Constants.ADDRESS_TYPE_EXTRA, Constants.WHOLE_ADDRESS);
+            intent.putExtra(Constants.RECEIVE_TYPE_EXTRA,Constants.RECEIVE_TO_FRAGMENT);
+            startService(intent);
+        }
     }
 
     @Override
@@ -273,8 +293,8 @@ public class MainActivity extends AppCompatActivity implements
             return true;
         }
         if (id == R.id.define_location) {
-            LocationsFragment fragment = new LocationsFragment();
-            changeFragment(fragment, true, true);
+            locationFragment = new LocationsFragment();
+            changeFragment(locationFragment, true, true);
             return true;
         }
 
@@ -338,7 +358,7 @@ public class MainActivity extends AppCompatActivity implements
         Intent intent = new Intent(this, FetchAddressIntentService.class);
         intent.putExtra(Constants.RECEIVER, mResultReceiver);
         intent.putExtra(Constants.LOCATION_DATA_EXTRA, mLastLocation);
-        intent.putExtra(Constants.ADDRESS_TYPE_EXTRA, Constants.WHOLE_ADRESS);
+        intent.putExtra(Constants.ADDRESS_TYPE_EXTRA, Constants.WHOLE_ADDRESS);
         startService(intent);
     }
 

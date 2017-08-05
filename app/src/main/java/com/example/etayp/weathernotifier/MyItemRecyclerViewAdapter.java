@@ -53,6 +53,12 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
     }
 
 
+
+    public void addItem(DummyItem item){
+        mValues.add(item);
+        notifyItemInserted(mValues.size());
+    }
+
     @Override
     public int getItemCount() {
         return mValues.size();
@@ -89,5 +95,6 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
             notifyItemRemoved(position);
             notifyItemRangeChanged(position, mValues.size());
         }
+
     }
 }

@@ -33,6 +33,7 @@ public class LocationsFragment extends Fragment {
     private OnListFragmentInteractionListener mListener;
     Location location;
     Address address;
+    RecyclerView recyclerView;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -71,6 +72,7 @@ public class LocationsFragment extends Fragment {
             ViewGroup viewGroup = ((ViewGroup) view);
             for (int i = 0; i < viewGroup.getChildCount(); i++) {
                 if (viewGroup.getChildAt(i) instanceof RecyclerView) {
+                    recyclerView = (RecyclerView) viewGroup.getChildAt(i);
                     Context context = viewGroup.getChildAt(i).getContext();
                     RecyclerView recyclerView = (RecyclerView) viewGroup.getChildAt(i);
                     if (mColumnCount <= 1) {
@@ -91,7 +93,7 @@ public class LocationsFragment extends Fragment {
                 Intent intent = new Intent(getContext(), DefineLocationActivity.class);
                 intent.putExtra("Location", location);
                 intent.putExtra("Address", address);
-                startActivity(intent);
+                startActivityForResult(intent,100);
             }
         });
         return view;
@@ -128,5 +130,9 @@ public class LocationsFragment extends Fragment {
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
         void onListFragmentInteraction(DummyItem item);
+    }
+
+    public MyItemRecyclerViewAdapter getRecyclerViewAdapter(){
+        return (MyItemRecyclerViewAdapter) recyclerView.getAdapter();
     }
 }

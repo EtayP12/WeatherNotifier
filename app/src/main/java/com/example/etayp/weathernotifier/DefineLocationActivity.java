@@ -1,9 +1,11 @@
 package com.example.etayp.weathernotifier;
 
+import android.content.Intent;
 import android.location.Address;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -17,6 +19,7 @@ public class DefineLocationActivity extends FragmentActivity implements OnMapRea
 
     private GoogleMap mMap;
     Location location;
+    Location newLocation;
     Address address;
     Marker marker;
 
@@ -30,6 +33,15 @@ public class DefineLocationActivity extends FragmentActivity implements OnMapRea
         mapFragment.getMapAsync(this);
         location = getIntent().getParcelableExtra("Location");
         address = getIntent().getParcelableExtra("Address");
+        findViewById(R.id.add_location_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.putExtra("NewLocation", newLocation);
+                setResult(RESULT_OK, intent);
+                finish();
+            }
+        });
     }
 
 
@@ -50,7 +62,7 @@ public class DefineLocationActivity extends FragmentActivity implements OnMapRea
 
         if (location != null) {
             LatLng currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-            String city = address.getAddressLine(address.getMaxAddressLineIndex()-1);
+            String city = address.getAddressLine(address.getMaxAddressLineIndex() - 1);
             mMap.addMarker(new MarkerOptions().position(currentLocation).title(city));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 10));
         }
@@ -63,7 +75,11 @@ public class DefineLocationActivity extends FragmentActivity implements OnMapRea
             public void onMapClick(LatLng latLng) {
                 if (marker != null) marker.remove();
                 marker = mMap.addMarker(new MarkerOptions().position(latLng).title("New location"));
-//                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+
+                newLocation = new Location("");
+                newLocation.setLatitude(latLng.latitude);
+                newLocation.setLongitude(latLng.longitude);
+
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
             }
         });
