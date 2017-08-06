@@ -13,10 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.etayp.weathernotifier.dummy.DummyContent;
-import com.example.etayp.weathernotifier.dummy.DummyContent.DummyItem;
-
-import java.util.List;
+import com.example.etayp.weathernotifier.dummy.RecyclerItems;
+import com.example.etayp.weathernotifier.dummy.RecyclerItems.RecyclerItem;
 
 /**
  * A fragment representing a list of Items.
@@ -80,7 +78,7 @@ public class LocationsFragment extends Fragment {
                     } else {
                         recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
                     }
-                    recyclerView.setAdapter(new MyItemRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+                    recyclerView.setAdapter(new LocationsRecyclerViewAdapter(RecyclerItems.ITEMS, mListener));
                 }
             }
         }
@@ -93,7 +91,8 @@ public class LocationsFragment extends Fragment {
                 Intent intent = new Intent(getContext(), DefineLocationActivity.class);
                 intent.putExtra("Location", location);
                 intent.putExtra("Address", address);
-                startActivityForResult(intent,100);
+                //TODO fix id interaction
+                startActivityForResult(intent, 100);
             }
         });
         return view;
@@ -129,10 +128,10 @@ public class LocationsFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+        void onListFragmentInteraction(RecyclerItem item);
     }
 
-    public MyItemRecyclerViewAdapter getRecyclerViewAdapter(){
-        return (MyItemRecyclerViewAdapter) recyclerView.getAdapter();
+    public LocationsRecyclerViewAdapter getRecyclerViewAdapter() {
+        return (LocationsRecyclerViewAdapter) recyclerView.getAdapter();
     }
 }

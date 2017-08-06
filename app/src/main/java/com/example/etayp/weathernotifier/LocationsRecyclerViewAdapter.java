@@ -8,21 +8,23 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.etayp.weathernotifier.LocationsFragment.OnListFragmentInteractionListener;
-import com.example.etayp.weathernotifier.dummy.DummyContent.DummyItem;
+import com.example.etayp.weathernotifier.dummy.RecyclerItems.RecyclerItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
+ * {@link RecyclerView.Adapter} that can display a {@link RecyclerItem} and makes a call to the
  * specified {@link OnListFragmentInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */
-public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecyclerViewAdapter.ViewHolder> {
+public class LocationsRecyclerViewAdapter extends RecyclerView.Adapter<LocationsRecyclerViewAdapter.ViewHolder> {
 
-    private final List<DummyItem> mValues;
+    private final List<RecyclerItem> mValues;
     private final OnListFragmentInteractionListener mListener;
+    private final ArrayList<ViewHolder> viewHolders = new ArrayList<>();
 
-    public MyItemRecyclerViewAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
+    public LocationsRecyclerViewAdapter(List<RecyclerItem> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -31,7 +33,9 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.fragment_locations, parent, false);
-        return new ViewHolder(view);
+        ViewHolder viewHolder = new ViewHolder(view);
+        viewHolders.add(viewHolder);
+        return viewHolder;
     }
 
     @Override
@@ -39,24 +43,6 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
         holder.mItem = mValues.get(position);
         holder.mIdView.setText(mValues.get(position).id);
         holder.mContentView.setText(mValues.get(position).content);
-
-        holder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(holder.mItem);
-                }
-            }
-        });
-    }
-
-
-
-    public void addItem(DummyItem item){
-        mValues.add(item);
-        notifyItemInserted(mValues.size());
     }
 
     @Override
@@ -69,7 +55,7 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
         public final TextView mIdView;
         public final TextView mContentView;
         public final Button mButton;
-        public DummyItem mItem;
+        public RecyclerItem mItem;
 
         public ViewHolder(View view) {
             super(view);
@@ -81,6 +67,7 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
                 @Override
                 public void onClick(View v) {
                     removeAt(getAdapterPosition());
+                    if (null != mListener) mListener.onListFragmentInteraction(mItem);
                 }
             });
         }
@@ -94,6 +81,10 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
             mValues.remove(position);
             notifyItemRemoved(position);
             notifyItemRangeChanged(position, mValues.size());
+            for (int i = mValues.size(); i > position; i--) {
+                mValues.get(i-1).id = String.valueOf(i);
+                viewHolders.get(i-1).mIdView.setText(String.valueOf(i));
+            }
         }
 
     }

@@ -4,7 +4,6 @@ package com.example.etayp.weathernotifier;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -37,14 +36,16 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.example.etayp.weathernotifier.dummy.DummyContent;
+import com.example.etayp.weathernotifier.dummy.RecyclerItems;
 import com.google.android.gms.awareness.Awareness;
 import com.google.android.gms.awareness.fence.FenceState;
 import com.google.android.gms.awareness.snapshot.WeatherResult;
 import com.google.android.gms.awareness.state.Weather;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.location.LocationRequest;
+
+import java.util.HashMap;
+
 
 public class MainActivity extends AppCompatActivity implements
         MainFragment.OnFragmentInteractionListener, NotificationSettingsFragment.OnFragmentInteractionListener
@@ -52,77 +53,26 @@ public class MainActivity extends AppCompatActivity implements
 
     private String mAddressOutput;
     private Address mAddress;
-    private Address addressForLocationFragment;
-    private Location resultLocation;
 
-    class AddressResultReceiver extends ResultReceiver {
-        public AddressResultReceiver(Handler handler) {
-            super(handler);
-        }
-
-        @Override
-        protected void onReceiveResult(int resultCode, Bundle resultData) {
-
-            // Display the address string
-            // or an error message sent from the intent service.
-            if (resultCode == Constants.SUCCESS_RESULT) {
-                switch (resultData.getInt(Constants.RECEIVE_TYPE_EXTRA)) {
-                    case Constants.RECEIVE_TO_MAIN:
-                        mAddressOutput = resultData.getString(Constants.RESULT_DATA_KEY);
-                        displayAddressOutput();
-                        mAddress = resultData.getParcelable("address");
-                        break;
-                    case Constants.RECEIVE_TO_FRAGMENT:
-                        Address address = resultData.getParcelable("address");
-                        locationFragment.getRecyclerViewAdapter().addItem(new DummyContent.DummyItem(
-                                String.valueOf(locationFragment.getRecyclerViewAdapter().getItemCount()),
-                                address.getAddressLine(address.getMaxAddressLineIndex()-1),
-                                "100"
-                        ));
-                        break;
-                }
-            }
-        }
-    }
+    HashMap<String, Address> addressHashMap;
 
     private static final String TAG = "MainActivity";
     private SharedPreferences sharedPreferences;
-    private SharedPreferences.Editor sharedPreferencesEditor;
 
+    private SharedPreferences.Editor sharedPreferencesEditor;
     protected Location mLastLocation;
     private AddressResultReceiver mResultReceiver;
-    private LocationRequest mLocationRequest;
 
     private FenceReceiver mFenceReceiver;
-    private PendingIntent mPendingIntent;
     private GoogleApiClient mApiClient;
-    Weather weather;
 
+    Weather weather;
     private final String FENCE_RECEIVER_ACTION =
             BuildConfig.APPLICATION_ID + "FENCE_RECEIVER_ACTION";
+
     private final String FENCE_KEY = "fence_key";
 
     LocationsFragment locationFragment;
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        final Intent intent = new Intent(this, NotificationSender.class);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    startService(intent);
-                    try {
-                        Thread.sleep(10000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }).start();
-        unregisterReceiver(mFenceReceiver);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,22 +89,13 @@ public class MainActivity extends AppCompatActivity implements
                         .setAction("Action", null).show();
             }
         });
+        addressHashMap = new HashMap<>();
 
-
-        // Check whether the activity is using the layout version with
-        // the fragment_container FrameLayout. If so, we must add the first fragment
         if (findViewById(R.id.fragment_container) != null) {
-
-            // However, if we're being restored from a previous state,
-            // then we don't need to do anything and should return or else
-            // we could end up with overlapping fragments.
             if (savedInstanceState != null) {
                 return;
             }
-
             MainFragment mainFragment = new MainFragment();
-            // In case this activity was started with special instructions from an Intent,
-            // pass the Intent's extras to the fragment as arguments
             mainFragment.setArguments(getIntent().getExtras());
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, mainFragment).commit();
@@ -167,7 +108,6 @@ public class MainActivity extends AppCompatActivity implements
         sharedPreferences = getSharedPreferences(MainActivity.class.getSimpleName(), MODE_PRIVATE);
         sharedPreferencesEditor = sharedPreferences.edit();
 
-//        startLocationUpdates();
 
         Context context = this;
         mApiClient = new GoogleApiClient.Builder(context)
@@ -176,12 +116,6 @@ public class MainActivity extends AppCompatActivity implements
                 .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
                     @Override
                     public void onConnected(@Nullable Bundle bundle) {
-                        // Set up the PendingIntent that will be fired when the fence is triggered.
-                        Intent intent = new Intent(FENCE_RECEIVER_ACTION);
-                        mPendingIntent =
-                                PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);
-
-                        // The broadcast receiver that will receive intents when a fence is triggered.
                         mFenceReceiver = new FenceReceiver();
                         registerReceiver(mFenceReceiver, new IntentFilter(FENCE_RECEIVER_ACTION));
                     }
@@ -220,6 +154,59 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
+    private class AddressResultReceiver extends ResultReceiver {
+
+        AddressResultReceiver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+
+            // Display the address string
+            // or an error message sent from the intent service.
+            if (resultCode == Constants.SUCCESS_RESULT) {
+                switch (resultData.getInt(Constants.RECEIVE_TYPE_EXTRA)) {
+                    case Constants.RECEIVE_TO_MAIN:
+                        mAddressOutput = resultData.getString(Constants.RESULT_DATA_KEY);
+                        displayAddressOutput();
+                        mAddress = resultData.getParcelable("address");
+                        break;
+                    case Constants.RECEIVE_TO_FRAGMENT:
+                        Address address = resultData.getParcelable("address");
+                        addressHashMap.put(String.valueOf(RecyclerItems.ITEMS.size() + 1), address);
+                        new RecyclerItems.RecyclerItem(
+                                String.valueOf(RecyclerItems.ITEMS.size() + 1),
+                                address.getAddressLine(address.getMaxAddressLineIndex() - 1)
+                        );
+                        locationFragment.getRecyclerViewAdapter().notifyItemInserted(RecyclerItems.ITEMS.size());
+                        break;
+                }
+            }
+        }
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        final Intent intent = new Intent(this, NotificationSender.class);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    startService(intent);
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+        unregisterReceiver(mFenceReceiver);
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -235,12 +222,12 @@ public class MainActivity extends AppCompatActivity implements
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            resultLocation = data.getExtras().getParcelable("NewLocation");
+            Location resultLocation = data.getExtras().getParcelable("NewLocation");
             Intent intent = new Intent(this, FetchAddressIntentService.class);
             intent.putExtra(Constants.RECEIVER, mResultReceiver);
             intent.putExtra(Constants.LOCATION_DATA_EXTRA, resultLocation);
             intent.putExtra(Constants.ADDRESS_TYPE_EXTRA, Constants.WHOLE_ADDRESS);
-            intent.putExtra(Constants.RECEIVE_TYPE_EXTRA,Constants.RECEIVE_TO_FRAGMENT);
+            intent.putExtra(Constants.RECEIVE_TYPE_EXTRA, Constants.RECEIVE_TO_FRAGMENT);
             startService(intent);
         }
     }
@@ -363,8 +350,15 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onListFragmentInteraction(DummyContent.DummyItem item) {
-
+    public void onListFragmentInteraction(RecyclerItems.RecyclerItem item) {
+        RecyclerItems.ITEMS.remove(item);
+        RecyclerItems.ITEM_MAP.remove(item.id);
+        addressHashMap.remove(item.id);
+        int itemRemoved = Integer.parseInt(item.id);
+        for (int i = itemRemoved; i <= RecyclerItems.ITEM_MAP.size(); i++) {
+            RecyclerItems.ITEM_MAP.put(String.valueOf(i),RecyclerItems.ITEM_MAP.remove(String.valueOf(i+1)));
+            addressHashMap.put(String.valueOf(i), addressHashMap.remove(String.valueOf(i+1)));
+        }
     }
 
     private class FenceReceiver extends BroadcastReceiver {
