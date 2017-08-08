@@ -12,6 +12,13 @@
         <item>3 Hours</item>
         <item>24 Hours</item>
     </string-array>
+    <array name="update_times_millis">
+        <item>600000</item>
+        <item>1800000</item>
+        <item>3600000</item>
+        <item>10800000</item>
+        <item>86400000</item>
+    </array>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

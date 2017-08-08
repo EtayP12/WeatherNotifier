@@ -43,8 +43,18 @@ import com.google.android.gms.awareness.snapshot.WeatherResult;
 import com.google.android.gms.awareness.state.Weather;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.gson.Gson;
+import com.johnhiott.darkskyandroidlib.ForecastApi;
+import com.johnhiott.darkskyandroidlib.RequestBuilder;
+import com.johnhiott.darkskyandroidlib.models.Request;
+import com.johnhiott.darkskyandroidlib.models.WeatherResponse;
 
 import java.util.HashMap;
+import java.util.Set;
+
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 
 public class MainActivity extends AppCompatActivity implements
@@ -73,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements
     private final String FENCE_KEY = "fence_key";
 
     LocationsFragment locationFragment;
+    private boolean activityIsActive = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        ForecastApi.create("4e687457bbdb40a25dd4a30b8d92ec0c");
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -89,7 +101,6 @@ public class MainActivity extends AppCompatActivity implements
                         .setAction("Action", null).show();
             }
         });
-        addressHashMap = new HashMap<>();
 
         if (findViewById(R.id.fragment_container) != null) {
             if (savedInstanceState != null) {
@@ -108,6 +119,7 @@ public class MainActivity extends AppCompatActivity implements
         sharedPreferences = getSharedPreferences(MainActivity.class.getSimpleName(), MODE_PRIVATE);
         sharedPreferencesEditor = sharedPreferences.edit();
 
+        addressesHashMapSetup();
 
         Context context = this;
         mApiClient = new GoogleApiClient.Builder(context)
@@ -131,7 +143,11 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public void onResult(@NonNull com.google.android.gms.awareness.snapshot.LocationResult locationResult) {
                 mLastLocation = locationResult.getLocation();
-                startIntentService();
+                if (mLastLocation != null) {
+                    startIntentService();
+                } else {
+                    Log.d(TAG, "onResult: unable to get location");
+                }
             }
         });
 
@@ -152,6 +168,42 @@ public class MainActivity extends AppCompatActivity implements
                     });
         }
 
+    }
+
+    private void weatherRequestBuilder(final Intent intent, String lat, String lng) {
+        RequestBuilder weather = new RequestBuilder();
+
+        Request request = new Request();
+        request.setLat(lat);
+        request.setLng(lng);
+        request.setUnits(Request.Units.SI);
+        request.setLanguage(Request.Language.ENGLISH);
+        request.addExcludeBlock(Request.Block.CURRENTLY);
+
+        weather.getWeather(request, new Callback<WeatherResponse>() {
+            @Override
+            public void success(WeatherResponse weatherResponse, Response response) {
+                intent.putExtra(Constants.WEATHER_RESPONSE_DATA, (new Gson()).toJson(weatherResponse));
+                startService(intent);
+            }
+
+            @Override
+            public void failure(RetrofitError retrofitError) {
+                Log.d(TAG, "Error while calling: " + retrofitError.getUrl());
+            }
+        });
+    }
+
+    private void addressesHashMapSetup() {
+        addressHashMap = new HashMap<>();
+        SharedPreferences addressesSharedPreferences = getSharedPreferences(Constants.ADDRESSES_PREFERENCE, MODE_PRIVATE);
+        int numberOfAddresses = addressesSharedPreferences.getInt(Constants.NUMBER_OF_ADDRESSES, 0);
+        for (int i = 0; i < numberOfAddresses; i++) {
+            addressHashMap.put(
+                    String.valueOf(i + 1)
+                    , PublicMethods.getSavedObjectFromPreference(this, Constants.ADDRESSES_PREFERENCE, String.valueOf(i + 1), Address.class)
+            );
+        }
     }
 
     private class AddressResultReceiver extends ResultReceiver {
@@ -190,14 +242,23 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onPause() {
         super.onPause();
+        activityIsActive = false;
+        saveAddressesToPreference();
+        int[] updateTimeMillis = getResources().getIntArray(R.array.update_times_millis);
+        final long selectedUpdateTime = (long) updateTimeMillis[sharedPreferences.getInt(Constants.UPDATE_TIME_SELECTION, 0)];
         final Intent intent = new Intent(this, NotificationSender.class);
         new Thread(new Runnable() {
             @Override
             public void run() {
-                while (true) {
-                    startService(intent);
+                while (!activityIsActive && !addressHashMap.isEmpty()) {
+                    for (String key : addressHashMap.keySet()){
+                        String lat = String.valueOf(addressHashMap.get(key).getLatitude());
+                        String lng = String.valueOf(addressHashMap.get(key).getLongitude());
+                        intent.putExtra(Constants.ADDRESS_ID,key);
+                        weatherRequestBuilder(intent,lat,lng);
+                    }
                     try {
-                        Thread.sleep(10000);
+                        Thread.sleep(selectedUpdateTime);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -207,10 +268,27 @@ public class MainActivity extends AppCompatActivity implements
         unregisterReceiver(mFenceReceiver);
     }
 
+    private void saveAddressesToPreference() {
+        int numberOfAddresses = addressHashMap.size();
+        SharedPreferences addressesSharedPreferences = getSharedPreferences(Constants.ADDRESSES_PREFERENCE, MODE_PRIVATE);
+        SharedPreferences.Editor editor = addressesSharedPreferences.edit();
+        editor.clear().commit();
+        for (int i = 0; i < numberOfAddresses; i++) {
+            PublicMethods.saveObjectToSharedPreference(
+                    this
+                    , Constants.ADDRESSES_PREFERENCE
+                    , String.valueOf(i + 1)
+                    , addressHashMap.get(String.valueOf(i + 1))
+            );
+        }
+        editor.putInt(Constants.NUMBER_OF_ADDRESSES, numberOfAddresses).apply();
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
-        registerReceiver(mFenceReceiver, new IntentFilter(FENCE_RECEIVER_ACTION));
+//        registerReceiver(mFenceReceiver, new IntentFilter(FENCE_RECEIVER_ACTION));
+        activityIsActive = true;
     }
 
     private void updateWeather() {
@@ -252,7 +330,7 @@ public class MainActivity extends AppCompatActivity implements
         }
         if (id == R.id.set_update_time) {
             final AlertDialog alertDialog = new AlertDialog.Builder(this)
-                    .setTitle("Set update time")
+                    .setTitle(Constants.ALERT_DIALOG_TITLE)
                     .setCancelable(false).create();
             alertDialog.setView(getLayoutInflater().inflate(R.layout.alert_dialog_layout, null));
             alertDialog.show();
@@ -262,11 +340,11 @@ public class MainActivity extends AppCompatActivity implements
                             this, R.array.update_times, android.R.layout.simple_spinner_dropdown_item)
                     );
             updateTimeSpinner
-                    .setSelection(sharedPreferences.getInt("update time", 0));
+                    .setSelection(sharedPreferences.getInt(Constants.UPDATE_TIME_SELECTION, 0));
             alertDialog.findViewById(R.id.set_button).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    sharedPreferencesEditor.putInt("update time"
+                    sharedPreferencesEditor.putInt(Constants.UPDATE_TIME_SELECTION
                             , updateTimeSpinner.getSelectedItemPosition())
                             .commit();
                     alertDialog.dismiss();
@@ -356,8 +434,8 @@ public class MainActivity extends AppCompatActivity implements
         addressHashMap.remove(item.id);
         int itemRemoved = Integer.parseInt(item.id);
         for (int i = itemRemoved; i <= RecyclerItems.ITEM_MAP.size(); i++) {
-            RecyclerItems.ITEM_MAP.put(String.valueOf(i),RecyclerItems.ITEM_MAP.remove(String.valueOf(i+1)));
-            addressHashMap.put(String.valueOf(i), addressHashMap.remove(String.valueOf(i+1)));
+            RecyclerItems.ITEM_MAP.put(String.valueOf(i), RecyclerItems.ITEM_MAP.remove(String.valueOf(i + 1)));
+            addressHashMap.put(String.valueOf(i), addressHashMap.remove(String.valueOf(i + 1)));
         }
     }
 

@@ -25,4 +25,10 @@ final class Constants {
     static final String RECEIVE_TYPE_EXTRA = PACKAGE_NAME +
             ".RECEIVE_TYPE_EXTRA";
 
+    public static final String UPDATE_TIME_SELECTION = "update time";
+    public static final String ALERT_DIALOG_TITLE = "Set update time";
+    public static final String NUMBER_OF_ADDRESSES = "number of addresses";
+    public static final String ADDRESSES_PREFERENCE = "addresses preference";
+    public static final String WEATHER_RESPONSE_DATA = "weather response data";
+    public static final String ADDRESS_ID = "address id";
 }
