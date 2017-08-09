@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements
 
     LocationsFragment locationFragment;
     private boolean activityIsActive = true;
+    private Thread thread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        ForecastApi.create("4e687457bbdb40a25dd4a30b8d92ec0c");
+        ForecastApi.create("ba5b4ae760ee1d74eea0e5d70514cdf4");
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -247,15 +248,15 @@ public class MainActivity extends AppCompatActivity implements
         int[] updateTimeMillis = getResources().getIntArray(R.array.update_times_millis);
         final long selectedUpdateTime = (long) updateTimeMillis[sharedPreferences.getInt(Constants.UPDATE_TIME_SELECTION, 0)];
         final Intent intent = new Intent(this, NotificationSender.class);
-        new Thread(new Runnable() {
+        thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 while (!activityIsActive && !addressHashMap.isEmpty()) {
-                    for (String key : addressHashMap.keySet()){
+                    for (String key : addressHashMap.keySet()) {
                         String lat = String.valueOf(addressHashMap.get(key).getLatitude());
                         String lng = String.valueOf(addressHashMap.get(key).getLongitude());
-                        intent.putExtra(Constants.ADDRESS_ID,key);
-                        weatherRequestBuilder(intent,lat,lng);
+                        intent.putExtra(Constants.ADDRESS_ID, key);
+                        weatherRequestBuilder(intent, lat, lng);
                     }
                     try {
                         Thread.sleep(selectedUpdateTime);
@@ -264,7 +265,8 @@ public class MainActivity extends AppCompatActivity implements
                     }
                 }
             }
-        }).start();
+        });
+        thread.start();
         unregisterReceiver(mFenceReceiver);
     }
 
