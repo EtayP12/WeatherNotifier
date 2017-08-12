@@ -32,4 +32,5 @@ final class Constants {
     public static final String WEATHER_RESPONSE_DATA = "weather response data";
     public static final String ADDRESS_ID = "address id";
     public static final String API_KEY1 = "4e687457bbdb40a25dd4a30b8d92ec0c";
+    public static final String API_KEY2 = "ba5b4ae760ee1d74eea0e5d70514cdf4";
 }

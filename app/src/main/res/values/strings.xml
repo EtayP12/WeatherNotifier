@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">WeatherNotifier</string>
+    <string name="app_name">Weather\nNotifier</string>
     <string name="action_settings">Settings</string>
     <string name="set_alarm_time">set alarm time</string>
     <string name="define_locations">define locations</string>

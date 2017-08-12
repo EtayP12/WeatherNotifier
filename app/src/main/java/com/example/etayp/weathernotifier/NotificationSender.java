@@ -5,17 +5,25 @@ import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Address;
+import android.location.Geocoder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 
 import com.google.gson.Gson;
 import com.johnhiott.darkskyandroidlib.models.WeatherResponse;
 
+import java.io.IOException;
+import java.util.Locale;
+import java.util.Objects;
+
 /**
  * Created by EtayP on 04-Aug-17.
  */
 
 public class NotificationSender extends IntentService {
+
+    private Address address;
+
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
      *
@@ -37,8 +45,17 @@ public class NotificationSender extends IntentService {
                         , WeatherResponse.class
                 );
         String key = intent.getStringExtra(Constants.ADDRESS_ID);
-        SharedPreferences sharedPreferences = getSharedPreferences(Constants.ADDRESSES_PREFERENCE, MODE_PRIVATE);
-        Address address = (new Gson()).fromJson(sharedPreferences.getString(key, ""), Address.class);
+        if (Objects.equals(key, "0")) {
+            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+            try {
+                address = geocoder.getFromLocation(weatherResponse.getLatitude(), weatherResponse.getLongitude(), 1).get(0);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            SharedPreferences sharedPreferences = getSharedPreferences(Constants.ADDRESSES_PREFERENCE, MODE_PRIVATE);
+            address = (new Gson()).fromJson(sharedPreferences.getString(key, ""), Address.class);
+        }
         double temperature = weatherResponse.getHourly().getData().get(0).getTemperature();
 
         NotificationCompat.Builder mBuilder =

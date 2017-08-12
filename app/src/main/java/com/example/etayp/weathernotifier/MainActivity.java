@@ -3,6 +3,8 @@
 package com.example.etayp.weathernotifier;
 
 import android.Manifest;
+import android.app.ActivityManager;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -43,6 +45,9 @@ import com.google.android.gms.awareness.snapshot.WeatherResult;
 import com.google.android.gms.awareness.state.Weather;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.gson.Gson;
 import com.johnhiott.darkskyandroidlib.ForecastApi;
 import com.johnhiott.darkskyandroidlib.RequestBuilder;
@@ -50,7 +55,7 @@ import com.johnhiott.darkskyandroidlib.models.Request;
 import com.johnhiott.darkskyandroidlib.models.WeatherResponse;
 
 import java.util.HashMap;
-import java.util.Set;
+import java.util.List;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -60,6 +65,8 @@ import retrofit.client.Response;
 public class MainActivity extends AppCompatActivity implements
         MainFragment.OnFragmentInteractionListener, NotificationSettingsFragment.OnFragmentInteractionListener
         , LocationsFragment.OnListFragmentInteractionListener {
+
+    private FusedLocationProviderClient mFusedLocationClient;
 
     private String mAddressOutput;
     private Address mAddress;
@@ -92,7 +99,10 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        ForecastApi.create("ba5b4ae760ee1d74eea0e5d70514cdf4");
+        ForecastApi.create(Constants.API_KEY2);
+
+//        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -115,15 +125,16 @@ public class MainActivity extends AppCompatActivity implements
 
         // for addresses
         mResultReceiver = new AddressResultReceiver(new Handler());
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         // for data saving and loading
         sharedPreferences = getSharedPreferences(MainActivity.class.getSimpleName(), MODE_PRIVATE);
         sharedPreferencesEditor = sharedPreferences.edit();
 
         addressesHashMapSetup();
+        recyclerViewSetup();
 
-        Context context = this;
-        mApiClient = new GoogleApiClient.Builder(context)
+        mApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Awareness.API)
                 .enableAutoManage(this, 1, null)
                 .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
@@ -171,7 +182,13 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-    private void weatherRequestBuilder(final Intent intent, String lat, String lng) {
+    private void recyclerViewSetup() {
+        for (String key : addressHashMap.keySet()) {
+            new RecyclerItems.RecyclerItem(key, addressHashMap.get(key).getAddressLine(addressHashMap.get(key).getMaxAddressLineIndex() - 1));
+        }
+    }
+
+    private void weatherRequestBuilder(final Intent intent, String lat, String lng, final String key) {
         RequestBuilder weather = new RequestBuilder();
 
         Request request = new Request();
@@ -180,12 +197,14 @@ public class MainActivity extends AppCompatActivity implements
         request.setUnits(Request.Units.SI);
         request.setLanguage(Request.Language.ENGLISH);
         request.addExcludeBlock(Request.Block.CURRENTLY);
-
+        Log.d(TAG, "weatherRequestBuilder: request");
         weather.getWeather(request, new Callback<WeatherResponse>() {
             @Override
             public void success(WeatherResponse weatherResponse, Response response) {
                 intent.putExtra(Constants.WEATHER_RESPONSE_DATA, (new Gson()).toJson(weatherResponse));
+                intent.putExtra(Constants.ADDRESS_ID, key);
                 startService(intent);
+                Log.d(TAG, "success: sent to service");
             }
 
             @Override
@@ -248,16 +267,37 @@ public class MainActivity extends AppCompatActivity implements
         int[] updateTimeMillis = getResources().getIntArray(R.array.update_times_millis);
         final long selectedUpdateTime = (long) updateTimeMillis[sharedPreferences.getInt(Constants.UPDATE_TIME_SELECTION, 0)];
         final Intent intent = new Intent(this, NotificationSender.class);
+        final Context context = this;
         thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (!activityIsActive && !addressHashMap.isEmpty()) {
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+                Log.d(TAG, "run: pausing");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                while (!activityIsActive && isBackgroundRunning(context)) {
+                    Log.d(TAG, "run: background");
                     for (String key : addressHashMap.keySet()) {
                         String lat = String.valueOf(addressHashMap.get(key).getLatitude());
                         String lng = String.valueOf(addressHashMap.get(key).getLongitude());
-                        intent.putExtra(Constants.ADDRESS_ID, key);
-                        weatherRequestBuilder(intent, lat, lng);
+                        weatherRequestBuilder(intent, lat, lng, key);
                     }
+                    mFusedLocationClient.getLastLocation()
+                            .addOnSuccessListener(new OnSuccessListener<Location>() {
+                                @Override
+                                public void onSuccess(Location location) {
+                                    if (location != null) {
+                                        String lat = String.valueOf(location.getLatitude());
+                                        String lng = String.valueOf(location.getLongitude());
+                                        weatherRequestBuilder(intent, lat, lng, "0");
+                                    }
+                                }
+                            });
                     try {
                         Thread.sleep(selectedUpdateTime);
                     } catch (InterruptedException e) {
@@ -267,7 +307,25 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
         thread.start();
-        unregisterReceiver(mFenceReceiver);
+//        unregisterReceiver(mFenceReceiver);
+    }
+
+    public static boolean isBackgroundRunning(Context context) {
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> runningProcesses = am.getRunningAppProcesses();
+        for (ActivityManager.RunningAppProcessInfo processInfo : runningProcesses) {
+            if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+                for (String activeProcess : processInfo.pkgList) {
+                    if (activeProcess.equals(context.getPackageName())) {
+                        //If your app is the process in foreground, then it's not in running in background
+                        return false;
+                    }
+                }
+            }
+        }
+
+
+        return true;
     }
 
     private void saveAddressesToPreference() {
