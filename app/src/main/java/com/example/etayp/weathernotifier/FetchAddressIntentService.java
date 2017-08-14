@@ -55,7 +55,7 @@ public class FetchAddressIntentService extends IntentService {
             addresses = geocoder.getFromLocation(
                     location.getLatitude(),
                     location.getLongitude(),
-                    // In this sample, get just a single address.
+                    // In this sample, get just a single currentAddress.
                     1);
         } catch (IOException ioException) {
             // Catch network or other I/O problems.
@@ -69,7 +69,7 @@ public class FetchAddressIntentService extends IntentService {
                     ", Longitude = " +
                     location.getLongitude(), illegalArgumentException);
         }
-        // Handle case where no address was found.
+        // Handle case where no currentAddress was found.
         if (addresses == null || addresses.size() == 0) {
             if (errorMessage.isEmpty()) {
                 errorMessage = getString(R.string.no_address_found);
@@ -80,7 +80,7 @@ public class FetchAddressIntentService extends IntentService {
             Address address = addresses.get(0);
             ArrayList<String> addressFragments = new ArrayList<String>();
 
-            // Fetch the address lines using getAddressLine,
+            // Fetch the currentAddress lines using getAddressLine,
             // join them, and send them to the thread.
             switch (addressType) {
                 case Constants.WHOLE_ADDRESS:
@@ -102,7 +102,7 @@ public class FetchAddressIntentService extends IntentService {
 
     private void deliverResultToReceiver(int resultCode, String message, Address address, int receiveType) {
         Bundle bundle = new Bundle();
-        bundle.putParcelable("address", address);
+        bundle.putParcelable("currentAddress", address);
         bundle.putString(Constants.RESULT_DATA_KEY, message);
         bundle.putInt(Constants.RECEIVE_TYPE_EXTRA, receiveType);
         mReceiver.send(resultCode, bundle);

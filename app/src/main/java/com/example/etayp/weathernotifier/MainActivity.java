@@ -188,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    private void weatherRequestBuilder(final Intent intent, String lat, String lng, final String key) {
+    /*private void weatherRequestBuilder(final Intent intent, String lat, String lng, final String key) {
         RequestBuilder weather = new RequestBuilder();
 
         Request request = new Request();
@@ -212,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements
                 Log.d(TAG, "Error while calling: " + retrofitError.getUrl());
             }
         });
-    }
+    }*/
 
     private void addressesHashMapSetup() {
         addressHashMap = new HashMap<>();
@@ -235,17 +235,17 @@ public class MainActivity extends AppCompatActivity implements
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
 
-            // Display the address string
+            // Display the currentAddress string
             // or an error message sent from the intent service.
             if (resultCode == Constants.SUCCESS_RESULT) {
                 switch (resultData.getInt(Constants.RECEIVE_TYPE_EXTRA)) {
                     case Constants.RECEIVE_TO_MAIN:
                         mAddressOutput = resultData.getString(Constants.RESULT_DATA_KEY);
                         displayAddressOutput();
-                        mAddress = resultData.getParcelable("address");
+                        mAddress = resultData.getParcelable("currentAddress");
                         break;
                     case Constants.RECEIVE_TO_FRAGMENT:
-                        Address address = resultData.getParcelable("address");
+                        Address address = resultData.getParcelable("currentAddress");
                         addressHashMap.put(String.valueOf(RecyclerItems.ITEMS.size() + 1), address);
                         new RecyclerItems.RecyclerItem(
                                 String.valueOf(RecyclerItems.ITEMS.size() + 1),
@@ -282,7 +282,7 @@ public class MainActivity extends AppCompatActivity implements
                 }
                 while (!activityIsActive && isBackgroundRunning(context)) {
                     Log.d(TAG, "run: background");
-                    for (String key : addressHashMap.keySet()) {
+                    /*for (String key : addressHashMap.keySet()) {
                         String lat = String.valueOf(addressHashMap.get(key).getLatitude());
                         String lng = String.valueOf(addressHashMap.get(key).getLongitude());
                         weatherRequestBuilder(intent, lat, lng, key);
@@ -297,7 +297,9 @@ public class MainActivity extends AppCompatActivity implements
                                         weatherRequestBuilder(intent, lat, lng, "0");
                                     }
                                 }
-                            });
+                            });*/
+                    intent.putExtra(Constants.ADDRESSES_HASH_MAP,(new Gson()).toJson(addressHashMap));
+                    startService(intent);
                     try {
                         Thread.sleep(selectedUpdateTime);
                     } catch (InterruptedException e) {
