@@ -4,7 +4,6 @@ package com.example.etayp.weathernotifier;
 
 import android.Manifest;
 import android.app.ActivityManager;
-import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -47,19 +46,11 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.gson.Gson;
 import com.johnhiott.darkskyandroidlib.ForecastApi;
-import com.johnhiott.darkskyandroidlib.RequestBuilder;
-import com.johnhiott.darkskyandroidlib.models.Request;
-import com.johnhiott.darkskyandroidlib.models.WeatherResponse;
 
 import java.util.HashMap;
 import java.util.List;
-
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 
 
 public class MainActivity extends AppCompatActivity implements
@@ -183,36 +174,14 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void recyclerViewSetup() {
-        for (String key : addressHashMap.keySet()) {
+//        for (String key : addressHashMap.keySet()) {
+//            new RecyclerItems.RecyclerItem(key, addressHashMap.get(key).getAddressLine(addressHashMap.get(key).getMaxAddressLineIndex() - 1));
+//        }
+        for (int i = 1; i < addressHashMap.size()+1; i++) {
+            String key = String.valueOf(i);
             new RecyclerItems.RecyclerItem(key, addressHashMap.get(key).getAddressLine(addressHashMap.get(key).getMaxAddressLineIndex() - 1));
         }
     }
-
-    /*private void weatherRequestBuilder(final Intent intent, String lat, String lng, final String key) {
-        RequestBuilder weather = new RequestBuilder();
-
-        Request request = new Request();
-        request.setLat(lat);
-        request.setLng(lng);
-        request.setUnits(Request.Units.SI);
-        request.setLanguage(Request.Language.ENGLISH);
-        request.addExcludeBlock(Request.Block.CURRENTLY);
-        Log.d(TAG, "weatherRequestBuilder: request");
-        weather.getWeather(request, new Callback<WeatherResponse>() {
-            @Override
-            public void success(WeatherResponse weatherResponse, Response response) {
-                intent.putExtra(Constants.WEATHER_RESPONSE_DATA, (new Gson()).toJson(weatherResponse));
-                intent.putExtra(Constants.ADDRESS_ID, key);
-                startService(intent);
-                Log.d(TAG, "success: sent to service");
-            }
-
-            @Override
-            public void failure(RetrofitError retrofitError) {
-                Log.d(TAG, "Error while calling: " + retrofitError.getUrl());
-            }
-        });
-    }*/
 
     private void addressesHashMapSetup() {
         addressHashMap = new HashMap<>();
@@ -298,7 +267,7 @@ public class MainActivity extends AppCompatActivity implements
                                     }
                                 }
                             });*/
-                    intent.putExtra(Constants.ADDRESSES_HASH_MAP,(new Gson()).toJson(addressHashMap));
+                    intent.putExtra(Constants.ADDRESSES_HASH_MAP, (new Gson()).toJson(addressHashMap));
                     startService(intent);
                     try {
                         Thread.sleep(selectedUpdateTime);
