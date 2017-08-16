@@ -66,7 +66,7 @@ public class DefineLocationActivity extends FragmentActivity implements OnMapRea
                         mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
                         if (marker != null) marker.remove();
                         marker = mMap.addMarker(new MarkerOptions().position(latLng)
-                                .title(searchAddress.getAddressLine(searchAddress.getMaxAddressLineIndex() - 1)));
+                                .title(searchAddress.getLocality()));
                         newLocation = new Location("");
                         newLocation.setLatitude(searchAddress.getLatitude());
                         newLocation.setLongitude(searchAddress.getLongitude());
@@ -101,7 +101,7 @@ public class DefineLocationActivity extends FragmentActivity implements OnMapRea
 
         if (location != null) {
             LatLng currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-            String city = currentAddress.getAddressLine(currentAddress.getMaxAddressLineIndex() - 1);
+            String city = currentAddress.getLocality();
             mMap.addMarker(new MarkerOptions().position(currentLocation).title(city));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 10));
         }

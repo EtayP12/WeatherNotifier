@@ -78,10 +78,11 @@ public class NotificationSender extends IntentService {
 
         final NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
-                        .setSmallIcon(android.R.drawable.ic_notification_overlay)
+//                        .setSmallIcon(android.R.drawable.ic_notification_overlay)
+                        .setSmallIcon(R.drawable.web_hi_res_512)
+                        .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setContentTitle("New weather update")
-                        .setContentText("New weather update available")
-                        .setTicker("New Message Alert!");
+                        .setContentText("New weather update available");
 
         final Context context = this;
 
@@ -89,10 +90,11 @@ public class NotificationSender extends IntentService {
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        Type stringAddressHashMap = new TypeToken<HashMap<String, Address>>() {}.getType();
+        Type stringAddressHashMap = new TypeToken<HashMap<String, Address>>() {
+        }.getType();
         HashMap<String, Address> addressHashMap;
         addressHashMap = (new Gson()).fromJson(intent != null ? intent.getStringExtra(Constants.ADDRESSES_HASH_MAP) : null, stringAddressHashMap);
-        numberOfAddresses = addressHashMap != null ? addressHashMap.size()+1 : 1;
+        numberOfAddresses = addressHashMap != null ? addressHashMap.size() + 1 : 1;
         inboxStyle = new NotificationCompat.InboxStyle();
         inboxStyle.setBigContentTitle("Weather update:");
         mFusedLocationClient.getLastLocation()
@@ -131,9 +133,10 @@ public class NotificationSender extends IntentService {
             @Override
             public void success(WeatherResponse weatherResponse, Response response) {
                 inboxStyle.addLine("Temperature in "
-                        + address.getAddressLine(address.getMaxAddressLineIndex() - 1)
+                        + address.getLocality()
                         + ": "
-                        + weatherResponse.getHourly().getData().get(0).getTemperature());
+                        + weatherResponse.getCurrently().getTemperature()
+                        + "℃");
                 if (++numberOfsuccesses == numberOfAddresses) {
                     mBuilder.setStyle(inboxStyle);
                     NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);

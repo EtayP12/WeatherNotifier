@@ -174,12 +174,9 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void recyclerViewSetup() {
-//        for (String key : addressHashMap.keySet()) {
-//            new RecyclerItems.RecyclerItem(key, addressHashMap.get(key).getAddressLine(addressHashMap.get(key).getMaxAddressLineIndex() - 1));
-//        }
         for (int i = 1; i < addressHashMap.size()+1; i++) {
             String key = String.valueOf(i);
-            new RecyclerItems.RecyclerItem(key, addressHashMap.get(key).getAddressLine(addressHashMap.get(key).getMaxAddressLineIndex() - 1));
+            new RecyclerItems.RecyclerItem(key, addressHashMap.get(key).getLocality());
         }
     }
 
@@ -218,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements
                         addressHashMap.put(String.valueOf(RecyclerItems.ITEMS.size() + 1), address);
                         new RecyclerItems.RecyclerItem(
                                 String.valueOf(RecyclerItems.ITEMS.size() + 1),
-                                address.getAddressLine(address.getMaxAddressLineIndex() - 1)
+                                address.getLocality()
                         );
                         locationFragment.getRecyclerViewAdapter().notifyItemInserted(RecyclerItems.ITEMS.size());
                         break;

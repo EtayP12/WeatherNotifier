@@ -89,7 +89,7 @@ public class FetchAddressIntentService extends IntentService {
                     }
                     break;
                 case Constants.CITY_ONLY:
-                    addressFragments.add(address.getAddressLine(address.getMaxAddressLineIndex() - 1));
+                    addressFragments.add(address.getLocality());
                     break;
             }
 
