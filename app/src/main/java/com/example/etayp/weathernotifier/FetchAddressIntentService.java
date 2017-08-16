@@ -44,7 +44,6 @@ public class FetchAddressIntentService extends IntentService {
         Location location = intent.getParcelableExtra(
                 Constants.LOCATION_DATA_EXTRA);
         mReceiver = intent.getParcelableExtra(Constants.RECEIVER);
-        int addressType = intent.getIntExtra(Constants.ADDRESS_TYPE_EXTRA, 0);
         int receiveType = intent.getIntExtra(Constants.RECEIVE_TYPE_EXTRA, 0);
 
         // ...
@@ -75,35 +74,18 @@ public class FetchAddressIntentService extends IntentService {
                 errorMessage = getString(R.string.no_address_found);
                 Log.e(TAG, errorMessage);
             }
-            deliverResultToReceiver(Constants.FAILURE_RESULT, errorMessage, null, receiveType);
+            deliverResultToReceiver(Constants.FAILURE_RESULT, null, receiveType);
         } else {
             Address address = addresses.get(0);
-            ArrayList<String> addressFragments = new ArrayList<String>();
-
-            // Fetch the currentAddress lines using getAddressLine,
-            // join them, and send them to the thread.
-            switch (addressType) {
-                case Constants.WHOLE_ADDRESS:
-                    for (int i = 0; i <= address.getMaxAddressLineIndex(); i++) {
-                        addressFragments.add(address.getAddressLine(i));
-                    }
-                    break;
-                case Constants.CITY_ONLY:
-                    addressFragments.add(address.getLocality());
-                    break;
-            }
 
             Log.i(TAG, getString(R.string.address_found));
-            deliverResultToReceiver(Constants.SUCCESS_RESULT,
-                    TextUtils.join(System.getProperty("line.separator"),
-                            addressFragments), address, receiveType);
+            deliverResultToReceiver(Constants.SUCCESS_RESULT, address, receiveType);
         }
     }
 
-    private void deliverResultToReceiver(int resultCode, String message, Address address, int receiveType) {
+    private void deliverResultToReceiver(int resultCode, Address address, int receiveType) {
         Bundle bundle = new Bundle();
         bundle.putParcelable("currentAddress", address);
-        bundle.putString(Constants.RESULT_DATA_KEY, message);
         bundle.putInt(Constants.RECEIVE_TYPE_EXTRA, receiveType);
         mReceiver.send(resultCode, bundle);
     }

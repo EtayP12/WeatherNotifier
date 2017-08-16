@@ -206,9 +206,9 @@ public class MainActivity extends AppCompatActivity implements
             if (resultCode == Constants.SUCCESS_RESULT) {
                 switch (resultData.getInt(Constants.RECEIVE_TYPE_EXTRA)) {
                     case Constants.RECEIVE_TO_MAIN:
-                        mAddressOutput = resultData.getString(Constants.RESULT_DATA_KEY);
-                        displayAddressOutput();
                         mAddress = resultData.getParcelable("currentAddress");
+                        mAddressOutput = mAddress.getLocality();
+                        displayAddressOutput();
                         break;
                     case Constants.RECEIVE_TO_FRAGMENT:
                         Address address = resultData.getParcelable("currentAddress");
@@ -332,7 +332,6 @@ public class MainActivity extends AppCompatActivity implements
             Intent intent = new Intent(this, FetchAddressIntentService.class);
             intent.putExtra(Constants.RECEIVER, mResultReceiver);
             intent.putExtra(Constants.LOCATION_DATA_EXTRA, resultLocation);
-            intent.putExtra(Constants.ADDRESS_TYPE_EXTRA, Constants.WHOLE_ADDRESS);
             intent.putExtra(Constants.RECEIVE_TYPE_EXTRA, Constants.RECEIVE_TO_FRAGMENT);
             startService(intent);
         }
@@ -451,7 +450,6 @@ public class MainActivity extends AppCompatActivity implements
         Intent intent = new Intent(this, FetchAddressIntentService.class);
         intent.putExtra(Constants.RECEIVER, mResultReceiver);
         intent.putExtra(Constants.LOCATION_DATA_EXTRA, mLastLocation);
-        intent.putExtra(Constants.ADDRESS_TYPE_EXTRA, Constants.WHOLE_ADDRESS);
         startService(intent);
     }
 
