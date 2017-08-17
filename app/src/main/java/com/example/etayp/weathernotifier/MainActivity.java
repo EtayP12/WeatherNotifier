@@ -59,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements
 
     private FusedLocationProviderClient mFusedLocationClient;
 
-    private String mAddressOutput;
     private Address mAddress;
 
     HashMap<String, Address> addressHashMap;
@@ -116,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements
 
         // for addresses
         mResultReceiver = new AddressResultReceiver(new Handler());
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+//        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         // for data saving and loading
         sharedPreferences = getSharedPreferences(MainActivity.class.getSimpleName(), MODE_PRIVATE);
@@ -207,8 +206,7 @@ public class MainActivity extends AppCompatActivity implements
                 switch (resultData.getInt(Constants.RECEIVE_TYPE_EXTRA)) {
                     case Constants.RECEIVE_TO_MAIN:
                         mAddress = resultData.getParcelable("currentAddress");
-                        mAddressOutput = mAddress.getLocality();
-                        displayAddressOutput();
+                        displayAddressOutput(mAddress.getLocality());
                         break;
                     case Constants.RECEIVE_TO_FRAGMENT:
                         Address address = resultData.getParcelable("currentAddress");
@@ -248,22 +246,6 @@ public class MainActivity extends AppCompatActivity implements
                 }
                 while (!activityIsActive && isBackgroundRunning(context)) {
                     Log.d(TAG, "run: background");
-                    /*for (String key : addressHashMap.keySet()) {
-                        String lat = String.valueOf(addressHashMap.get(key).getLatitude());
-                        String lng = String.valueOf(addressHashMap.get(key).getLongitude());
-                        weatherRequestBuilder(intent, lat, lng, key);
-                    }
-                    mFusedLocationClient.getLastLocation()
-                            .addOnSuccessListener(new OnSuccessListener<Location>() {
-                                @Override
-                                public void onSuccess(Location location) {
-                                    if (location != null) {
-                                        String lat = String.valueOf(location.getLatitude());
-                                        String lng = String.valueOf(location.getLongitude());
-                                        weatherRequestBuilder(intent, lat, lng, "0");
-                                    }
-                                }
-                            });*/
                     intent.putExtra(Constants.ADDRESSES_HASH_MAP, (new Gson()).toJson(addressHashMap));
                     startService(intent);
                     try {
@@ -275,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
         thread.start();
-//        unregisterReceiver(mFenceReceiver);
+        unregisterReceiver(mFenceReceiver);
     }
 
     public static boolean isBackgroundRunning(Context context) {
@@ -441,8 +423,8 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    private void displayAddressOutput() {
-        ((TextView) findViewById(R.id.location_value)).setText(mAddressOutput);
+    private void displayAddressOutput(String locality) {
+        ((TextView) findViewById(R.id.location_value)).setText(locality);
         ((TextView) findViewById(R.id.location_value)).setTextColor(Color.GREEN);
     }
 
