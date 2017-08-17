@@ -2,6 +2,8 @@ package com.example.etayp.weathernotifier;
 
 import android.app.IntentService;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -83,6 +85,21 @@ public class NotificationSender extends IntentService {
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setContentTitle("New weather update")
                         .setContentText("New weather update available");
+
+        Intent notifyIntent =
+                new Intent(Intent.makeMainActivity(new ComponentName(this, MainActivity.class)));
+//        notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+//                Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        PendingIntent pendingIntent =
+                PendingIntent.getActivity(
+                        this,
+                        0,
+                        notifyIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+
+        mBuilder.setContentIntent(pendingIntent);
 
         final Context context = this;
 

@@ -45,7 +45,6 @@ import com.google.android.gms.awareness.state.Weather;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.gson.Gson;
 import com.johnhiott.darkskyandroidlib.ForecastApi;
 
@@ -93,13 +92,15 @@ public class MainActivity extends AppCompatActivity implements
 
 //        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
-
+        final Context context = this;
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                Intent intent = new Intent(context,WeatherUpdate.class);
+                startActivity(intent);
             }
         });
 
@@ -173,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void recyclerViewSetup() {
-        for (int i = 1; i < addressHashMap.size()+1; i++) {
+        for (int i = 1; i < addressHashMap.size() + 1; i++) {
             String key = String.valueOf(i);
             new RecyclerItems.RecyclerItem(key, addressHashMap.get(key).getLocality());
         }
