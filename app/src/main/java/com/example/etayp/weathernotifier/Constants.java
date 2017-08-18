@@ -27,4 +27,7 @@ final class Constants {
     public static final String API_KEY2 = "ba5b4ae760ee1d74eea0e5d70514cdf4";
     public static final String ADDRESSES_HASH_MAP = "addresses hash map";
     public static final String SET_ALARM_TIME = "Set alarm time";
+    public static final String ALARM_HOUR = "alarm hour";
+    public static final String ALARM_MINUTE = "alarm minute";
+    public static final String ALARM_IS_ACTIVE = "alarm is active";
 }

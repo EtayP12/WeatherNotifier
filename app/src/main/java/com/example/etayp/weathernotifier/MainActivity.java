@@ -35,7 +35,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import com.example.etayp.weathernotifier.dummy.RecyclerItems;
 import com.google.android.gms.awareness.Awareness;
@@ -44,7 +46,6 @@ import com.google.android.gms.awareness.snapshot.WeatherResult;
 import com.google.android.gms.awareness.state.Weather;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.gson.Gson;
 import com.johnhiott.darkskyandroidlib.ForecastApi;
 
@@ -306,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             Location resultLocation = data.getExtras().getParcelable("NewLocation");
-            if (resultLocation!=null) {
+            if (resultLocation != null) {
                 Intent intent = new Intent(this, FetchAddressIntentService.class);
                 intent.putExtra(Constants.RECEIVER, mResultReceiver);
                 intent.putExtra(Constants.LOCATION_DATA_EXTRA, resultLocation);
@@ -368,11 +369,39 @@ public class MainActivity extends AppCompatActivity implements
             changeFragment(locationFragment, true, true);
             return true;
         }
-        if (id == R.id.set_alarm_time){
+        if (id == R.id.set_alarm_time) {
             final AlertDialog alertDialog = new AlertDialog.Builder(this)
                     .setTitle(Constants.SET_ALARM_TIME)
                     .setCancelable(false).create();
-            alertDialog.setView(getLayoutInflater().inflate(R.layout.alarm_alert_dialog_layout,null));
+            alertDialog.setView(getLayoutInflater().inflate(R.layout.alarm_alert_dialog_layout, null));
+            alertDialog.setCustomTitle(getLayoutInflater().inflate(R.layout.alarm_alert_dialog_title, null));
+            alertDialog.show();
+            final Switch aSwitch = (Switch) alertDialog.findViewById(R.id.switch1);
+            alertDialog.findViewById(R.id.switch1).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (aSwitch.isChecked()) {
+                        alertDialog.findViewById(R.id.timePicker).setEnabled(true);
+                    } else {
+                        alertDialog.findViewById(R.id.timePicker).setEnabled(false);
+                    }
+                }
+            });
+            alertDialog.findViewById(R.id.set_alarm_button).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    if (aSwitch.isChecked()) {
+                        editor.putInt(Constants.ALARM_HOUR, ((TimePicker) alertDialog.findViewById(R.id.timePicker)).getCurrentHour());
+                        editor.putInt(Constants.ALARM_MINUTE, ((TimePicker) alertDialog.findViewById(R.id.timePicker)).getCurrentMinute());
+                        editor.putBoolean(Constants.ALARM_IS_ACTIVE, true);
+                    } else {
+                        editor.putBoolean(Constants.ALARM_IS_ACTIVE, false);
+                    }
+                    editor.apply();
+                    alertDialog.dismiss();
+                }
+            });
         }
 
 
