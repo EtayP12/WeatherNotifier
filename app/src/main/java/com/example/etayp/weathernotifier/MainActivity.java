@@ -306,11 +306,13 @@ public class MainActivity extends AppCompatActivity implements
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             Location resultLocation = data.getExtras().getParcelable("NewLocation");
-            Intent intent = new Intent(this, FetchAddressIntentService.class);
-            intent.putExtra(Constants.RECEIVER, mResultReceiver);
-            intent.putExtra(Constants.LOCATION_DATA_EXTRA, resultLocation);
-            intent.putExtra(Constants.RECEIVE_TYPE_EXTRA, Constants.RECEIVE_TO_FRAGMENT);
-            startService(intent);
+            if (resultLocation!=null) {
+                Intent intent = new Intent(this, FetchAddressIntentService.class);
+                intent.putExtra(Constants.RECEIVER, mResultReceiver);
+                intent.putExtra(Constants.LOCATION_DATA_EXTRA, resultLocation);
+                intent.putExtra(Constants.RECEIVE_TYPE_EXTRA, Constants.RECEIVE_TO_FRAGMENT);
+                startService(intent);
+            }
         }
     }
 
@@ -365,6 +367,12 @@ public class MainActivity extends AppCompatActivity implements
             locationFragment = new LocationsFragment();
             changeFragment(locationFragment, true, true);
             return true;
+        }
+        if (id == R.id.set_alarm_time){
+            final AlertDialog alertDialog = new AlertDialog.Builder(this)
+                    .setTitle(Constants.SET_ALARM_TIME)
+                    .setCancelable(false).create();
+            alertDialog.setView(getLayoutInflater().inflate(R.layout.alarm_alert_dialog_layout,null));
         }
 
 

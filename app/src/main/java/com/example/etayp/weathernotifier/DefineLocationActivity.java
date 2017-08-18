@@ -81,6 +81,12 @@ public class DefineLocationActivity extends FragmentActivity implements OnMapRea
                 }
             }
         });
+        findViewById(R.id.cancel_location_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
 
