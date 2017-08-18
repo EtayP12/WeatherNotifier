@@ -40,5 +40,26 @@
         map:layout_constraintTop_toTopOf="parent"
         tools:context="com.example.etayp.weathernotifier.DefineLocationActivity" />
 
+    <EditText
+        android:id="@+id/search_box"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:ems="10"
+        android:hint="Search for an address"
+        android:inputType="textPersonName"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cancel_location_button" />
+
+    <Button
+        android:id="@+id/search_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:text="Search"
+        app:layout_constraintBaseline_toBaselineOf="@+id/search_box"
+        app:layout_constraintLeft_toRightOf="@+id/search_box" />
+
 
 </android.support.constraint.ConstraintLayout>

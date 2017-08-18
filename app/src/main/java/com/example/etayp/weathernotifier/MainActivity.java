@@ -3,6 +3,7 @@
 package com.example.etayp.weathernotifier;
 
 import android.Manifest;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -43,25 +44,20 @@ import com.google.android.gms.awareness.snapshot.WeatherResult;
 import com.google.android.gms.awareness.state.Weather;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.gson.Gson;
 import com.johnhiott.darkskyandroidlib.ForecastApi;
-import com.johnhiott.darkskyandroidlib.RequestBuilder;
-import com.johnhiott.darkskyandroidlib.models.Request;
-import com.johnhiott.darkskyandroidlib.models.WeatherResponse;
 
 import java.util.HashMap;
-import java.util.Set;
-
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity implements
         MainFragment.OnFragmentInteractionListener, NotificationSettingsFragment.OnFragmentInteractionListener
         , LocationsFragment.OnListFragmentInteractionListener {
 
-    private String mAddressOutput;
+    private FusedLocationProviderClient mFusedLocationClient;
+
     private Address mAddress;
 
     HashMap<String, Address> addressHashMap;
@@ -84,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements
 
     LocationsFragment locationFragment;
     private boolean activityIsActive = true;
+    private Thread thread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,14 +88,19 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        ForecastApi.create("4e687457bbdb40a25dd4a30b8d92ec0c");
+        ForecastApi.create(Constants.API_KEY2);
 
+//        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+        final Context context = this;
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                Intent intent = new Intent(context,WeatherUpdate.class);
+                startActivity(intent);
             }
         });
 
@@ -114,15 +116,16 @@ public class MainActivity extends AppCompatActivity implements
 
         // for addresses
         mResultReceiver = new AddressResultReceiver(new Handler());
+//        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         // for data saving and loading
         sharedPreferences = getSharedPreferences(MainActivity.class.getSimpleName(), MODE_PRIVATE);
         sharedPreferencesEditor = sharedPreferences.edit();
 
         addressesHashMapSetup();
+        recyclerViewSetup();
 
-        Context context = this;
-        mApiClient = new GoogleApiClient.Builder(context)
+        mApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Awareness.API)
                 .enableAutoManage(this, 1, null)
                 .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
@@ -170,28 +173,11 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-    private void weatherRequestBuilder(final Intent intent, String lat, String lng) {
-        RequestBuilder weather = new RequestBuilder();
-
-        Request request = new Request();
-        request.setLat(lat);
-        request.setLng(lng);
-        request.setUnits(Request.Units.SI);
-        request.setLanguage(Request.Language.ENGLISH);
-        request.addExcludeBlock(Request.Block.CURRENTLY);
-
-        weather.getWeather(request, new Callback<WeatherResponse>() {
-            @Override
-            public void success(WeatherResponse weatherResponse, Response response) {
-                intent.putExtra(Constants.WEATHER_RESPONSE_DATA, (new Gson()).toJson(weatherResponse));
-                startService(intent);
-            }
-
-            @Override
-            public void failure(RetrofitError retrofitError) {
-                Log.d(TAG, "Error while calling: " + retrofitError.getUrl());
-            }
-        });
+    private void recyclerViewSetup() {
+        for (int i = 1; i < addressHashMap.size() + 1; i++) {
+            String key = String.valueOf(i);
+            new RecyclerItems.RecyclerItem(key, addressHashMap.get(key).getLocality());
+        }
     }
 
     private void addressesHashMapSetup() {
@@ -215,21 +201,20 @@ public class MainActivity extends AppCompatActivity implements
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
 
-            // Display the address string
+            // Display the currentAddress string
             // or an error message sent from the intent service.
             if (resultCode == Constants.SUCCESS_RESULT) {
                 switch (resultData.getInt(Constants.RECEIVE_TYPE_EXTRA)) {
                     case Constants.RECEIVE_TO_MAIN:
-                        mAddressOutput = resultData.getString(Constants.RESULT_DATA_KEY);
-                        displayAddressOutput();
-                        mAddress = resultData.getParcelable("address");
+                        mAddress = resultData.getParcelable("currentAddress");
+                        displayAddressOutput(mAddress.getLocality());
                         break;
                     case Constants.RECEIVE_TO_FRAGMENT:
-                        Address address = resultData.getParcelable("address");
+                        Address address = resultData.getParcelable("currentAddress");
                         addressHashMap.put(String.valueOf(RecyclerItems.ITEMS.size() + 1), address);
                         new RecyclerItems.RecyclerItem(
                                 String.valueOf(RecyclerItems.ITEMS.size() + 1),
-                                address.getAddressLine(address.getMaxAddressLineIndex() - 1)
+                                address.getLocality()
                         );
                         locationFragment.getRecyclerViewAdapter().notifyItemInserted(RecyclerItems.ITEMS.size());
                         break;
@@ -247,16 +232,23 @@ public class MainActivity extends AppCompatActivity implements
         int[] updateTimeMillis = getResources().getIntArray(R.array.update_times_millis);
         final long selectedUpdateTime = (long) updateTimeMillis[sharedPreferences.getInt(Constants.UPDATE_TIME_SELECTION, 0)];
         final Intent intent = new Intent(this, NotificationSender.class);
-        new Thread(new Runnable() {
+        final Context context = this;
+        thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (!activityIsActive && !addressHashMap.isEmpty()) {
-                    for (String key : addressHashMap.keySet()){
-                        String lat = String.valueOf(addressHashMap.get(key).getLatitude());
-                        String lng = String.valueOf(addressHashMap.get(key).getLongitude());
-                        intent.putExtra(Constants.ADDRESS_ID,key);
-                        weatherRequestBuilder(intent,lat,lng);
-                    }
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+                Log.d(TAG, "run: pausing");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                while (!activityIsActive && isBackgroundRunning(context)) {
+                    Log.d(TAG, "run: background");
+                    intent.putExtra(Constants.ADDRESSES_HASH_MAP, (new Gson()).toJson(addressHashMap));
+                    startService(intent);
                     try {
                         Thread.sleep(selectedUpdateTime);
                     } catch (InterruptedException e) {
@@ -264,8 +256,27 @@ public class MainActivity extends AppCompatActivity implements
                     }
                 }
             }
-        }).start();
+        });
+        thread.start();
         unregisterReceiver(mFenceReceiver);
+    }
+
+    public static boolean isBackgroundRunning(Context context) {
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> runningProcesses = am.getRunningAppProcesses();
+        for (ActivityManager.RunningAppProcessInfo processInfo : runningProcesses) {
+            if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+                for (String activeProcess : processInfo.pkgList) {
+                    if (activeProcess.equals(context.getPackageName())) {
+                        //If your app is the process in foreground, then it's not in running in background
+                        return false;
+                    }
+                }
+            }
+        }
+
+
+        return true;
     }
 
     private void saveAddressesToPreference() {
@@ -304,7 +315,6 @@ public class MainActivity extends AppCompatActivity implements
             Intent intent = new Intent(this, FetchAddressIntentService.class);
             intent.putExtra(Constants.RECEIVER, mResultReceiver);
             intent.putExtra(Constants.LOCATION_DATA_EXTRA, resultLocation);
-            intent.putExtra(Constants.ADDRESS_TYPE_EXTRA, Constants.WHOLE_ADDRESS);
             intent.putExtra(Constants.RECEIVE_TYPE_EXTRA, Constants.RECEIVE_TO_FRAGMENT);
             startService(intent);
         }
@@ -414,8 +424,8 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    private void displayAddressOutput() {
-        ((TextView) findViewById(R.id.location_value)).setText(mAddressOutput);
+    private void displayAddressOutput(String locality) {
+        ((TextView) findViewById(R.id.location_value)).setText(locality);
         ((TextView) findViewById(R.id.location_value)).setTextColor(Color.GREEN);
     }
 
@@ -423,7 +433,6 @@ public class MainActivity extends AppCompatActivity implements
         Intent intent = new Intent(this, FetchAddressIntentService.class);
         intent.putExtra(Constants.RECEIVER, mResultReceiver);
         intent.putExtra(Constants.LOCATION_DATA_EXTRA, mLastLocation);
-        intent.putExtra(Constants.ADDRESS_TYPE_EXTRA, Constants.WHOLE_ADDRESS);
         startService(intent);
     }
 

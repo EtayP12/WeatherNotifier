@@ -72,7 +72,6 @@ public class LocationsFragment extends Fragment {
                 if (viewGroup.getChildAt(i) instanceof RecyclerView) {
                     recyclerView = (RecyclerView) viewGroup.getChildAt(i);
                     Context context = viewGroup.getChildAt(i).getContext();
-                    RecyclerView recyclerView = (RecyclerView) viewGroup.getChildAt(i);
                     if (mColumnCount <= 1) {
                         recyclerView.setLayoutManager(new LinearLayoutManager(context));
                     } else {
