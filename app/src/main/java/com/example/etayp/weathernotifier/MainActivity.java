@@ -38,6 +38,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.etayp.weathernotifier.dummy.RecyclerItems;
+import com.example.etayp.weathernotifier.dummy.WeatherUpdateItems;
 import com.google.android.gms.awareness.Awareness;
 import com.google.android.gms.awareness.fence.FenceState;
 import com.google.android.gms.awareness.snapshot.WeatherResult;
@@ -99,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                new WeatherUpdateItems.WeatherUpdateItem("0");
                 Intent intent = new Intent(context,WeatherUpdate.class);
                 startActivity(intent);
             }

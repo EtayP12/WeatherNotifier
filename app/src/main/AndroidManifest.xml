@@ -19,6 +19,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,8 +31,9 @@
         <service
             android:name=".FetchAddressIntentService"
             android:exported="false" />
-        <service android:name=".NotificationSender"
-            android:exported="false"/>
+        <service
+            android:name=".NotificationSender"
+            android:exported="false" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -46,7 +48,11 @@
 
         <activity
             android:name=".DefineLocationActivity"
-            android:label="@string/title_activity_define_location"></activity>
+            android:label="@string/title_activity_define_location"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".WeatherUpdate"
+            android:label="@string/title_activity_weather_update" />
     </application>
 
 </manifest>

@@ -1,0 +1,20 @@
+package com.example.etayp.weathernotifier;
+
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+
+import com.example.etayp.weathernotifier.dummy.WeatherUpdateItems;
+
+public class WeatherUpdate extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_weather_update);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.weather_update_recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(new WeatherUpdateAdapter(WeatherUpdateItems.ITEMS));
+    }
+}

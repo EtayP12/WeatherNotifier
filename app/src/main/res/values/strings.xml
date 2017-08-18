@@ -20,8 +20,7 @@
         <item>86400000</item>
     </array>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
     <string name="notification_usage">notification usage</string>
     <string name="service_not_available">service not available</string>
     <string name="invalid_lat_long_used">invalid lat long used</string>
@@ -31,4 +30,8 @@
     <string name="title_activity_define_location">Map</string>
     <string name="remove">Remove</string>
     <string name="add_a_new_address">Add a new address</string>
+    <string name="apparent_temprature">Apparent temprature:</string>
+    <string name="real_temprature">Real temprature:</string>
+    <string name="humidity">Humidity:</string>
+    <string name="title_activity_weather_update">Weather update</string>
 </resources>
