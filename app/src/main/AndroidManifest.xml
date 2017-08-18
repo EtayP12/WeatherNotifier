@@ -51,7 +51,7 @@
             android:label="@string/title_activity_define_location"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".WeatherUpdate"
+            android:name=".WeatherUpdateActivity"
             android:label="@string/title_activity_weather_update" />
     </application>
 

@@ -15,6 +15,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.example.etayp.weathernotifier.dummy.WeatherUpdateItems;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -41,7 +42,7 @@ public class NotificationSender extends IntentService {
 
     private static final String TAG = "NotificationSender";
     private Address currentAddress;
-    int numberOfsuccesses = 0;
+    int numberOfSuccesses = 0;
     private int numberOfAddresses;
     private NotificationCompat.InboxStyle inboxStyle;
 
@@ -87,7 +88,7 @@ public class NotificationSender extends IntentService {
                         .setContentText("New weather update available");
 
         Intent notifyIntent =
-                new Intent(Intent.makeMainActivity(new ComponentName(this, MainActivity.class)));
+                new Intent(Intent.makeMainActivity(new ComponentName(this, WeatherUpdateActivity.class)));
 //        notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
 //                Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
@@ -154,7 +155,8 @@ public class NotificationSender extends IntentService {
                         + ": "
                         + weatherResponse.getCurrently().getTemperature()
                         + "℃");
-                if (++numberOfsuccesses == numberOfAddresses) {
+                new WeatherUpdateItems.WeatherUpdateItem(String.valueOf(numberOfSuccesses),weatherResponse,address.getLocality());
+                if (++numberOfSuccesses == numberOfAddresses) {
                     mBuilder.setStyle(inboxStyle);
                     NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                     notificationManager.notify(0, mBuilder.build());

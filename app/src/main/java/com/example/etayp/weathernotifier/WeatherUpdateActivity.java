@@ -7,7 +7,7 @@ import android.support.v7.widget.RecyclerView;
 
 import com.example.etayp.weathernotifier.dummy.WeatherUpdateItems;
 
-public class WeatherUpdate extends AppCompatActivity {
+public class WeatherUpdateActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -36,7 +36,10 @@ public class WeatherUpdateAdapter extends RecyclerView.Adapter<WeatherUpdateAdap
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-
+        holder.mApparent.setText(String.valueOf(values.get(position).weatherResponse.getCurrently().getApparentTemperature()));
+        holder.mTemprature.setText(String.valueOf(values.get(position).weatherResponse.getCurrently().getTemperature()));
+        holder.mHumidity.setText(String.valueOf(values.get(position).weatherResponse.getCurrently().getHumidity()));
+        holder.mLocation.setText(values.get(position).location);
     }
 
     @Override
@@ -51,6 +54,7 @@ public class WeatherUpdateAdapter extends RecyclerView.Adapter<WeatherUpdateAdap
         final TextView mTemprature;
         final TextView mHumidity;
         final ImageView mIcon;
+        final TextView mLocation;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -59,6 +63,7 @@ public class WeatherUpdateAdapter extends RecyclerView.Adapter<WeatherUpdateAdap
             mTemprature= (TextView) itemView.findViewById(R.id.update_real_temprature_value);
             mHumidity= (TextView) itemView.findViewById(R.id.update_humidity_value);
             mIcon = (ImageView) itemView.findViewById(R.id.update_weather_icon);
+            mLocation = (TextView) itemView.findViewById(R.id.update_location_text);
         }
     }
 }

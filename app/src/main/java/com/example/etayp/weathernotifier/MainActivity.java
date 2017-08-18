@@ -38,7 +38,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.etayp.weathernotifier.dummy.RecyclerItems;
-import com.example.etayp.weathernotifier.dummy.WeatherUpdateItems;
 import com.google.android.gms.awareness.Awareness;
 import com.google.android.gms.awareness.fence.FenceState;
 import com.google.android.gms.awareness.snapshot.WeatherResult;
@@ -57,7 +56,6 @@ public class MainActivity extends AppCompatActivity implements
         MainFragment.OnFragmentInteractionListener, NotificationSettingsFragment.OnFragmentInteractionListener
         , LocationsFragment.OnListFragmentInteractionListener {
 
-    private FusedLocationProviderClient mFusedLocationClient;
 
     private Address mAddress;
 
@@ -66,7 +64,6 @@ public class MainActivity extends AppCompatActivity implements
     private static final String TAG = "MainActivity";
     private SharedPreferences sharedPreferences;
 
-    private SharedPreferences.Editor sharedPreferencesEditor;
     protected Location mLastLocation;
     private AddressResultReceiver mResultReceiver;
 
@@ -93,16 +90,12 @@ public class MainActivity extends AppCompatActivity implements
 
 //        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
-        final Context context = this;
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                new WeatherUpdateItems.WeatherUpdateItem("0");
-                Intent intent = new Intent(context,WeatherUpdate.class);
-                startActivity(intent);
             }
         });
 
@@ -122,7 +115,6 @@ public class MainActivity extends AppCompatActivity implements
 
         // for data saving and loading
         sharedPreferences = getSharedPreferences(MainActivity.class.getSimpleName(), MODE_PRIVATE);
-        sharedPreferencesEditor = sharedPreferences.edit();
 
         addressesHashMapSetup();
         recyclerViewSetup();
@@ -356,7 +348,7 @@ public class MainActivity extends AppCompatActivity implements
             alertDialog.findViewById(R.id.set_button).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    sharedPreferencesEditor.putInt(Constants.UPDATE_TIME_SELECTION
+                    sharedPreferences.edit().putInt(Constants.UPDATE_TIME_SELECTION
                             , updateTimeSpinner.getSelectedItemPosition())
                             .commit();
                     alertDialog.dismiss();

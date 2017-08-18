@@ -1,5 +1,7 @@
 package com.example.etayp.weathernotifier.dummy;
 
+import com.johnhiott.darkskyandroidlib.models.WeatherResponse;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,9 +24,13 @@ public class WeatherUpdateItems {
 
     public static class WeatherUpdateItem{
         public String id;
+        public WeatherResponse weatherResponse;
+        public String location;
 
-        public WeatherUpdateItem(String id) {
+        public WeatherUpdateItem(String id, WeatherResponse weatherResponse, String location) {
             this.id = id;
+            this.weatherResponse = weatherResponse;
+            this.location = location;
             WeatherUpdateItems.addItem(this);
         }
     }
