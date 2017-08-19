@@ -100,7 +100,7 @@
             android:id="@+id/update_weather_icon"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            app:srcCompat="@drawable/sunny" />
+            app:srcCompat="@drawable/sunday" />
 
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
