@@ -96,6 +96,6 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_gravity="center"
-        app:srcCompat="@drawable/sunyday" />
+        app:srcCompat="@drawable/sunny_day_icon" />
 
 </LinearLayout>
