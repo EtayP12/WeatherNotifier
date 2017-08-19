@@ -21,8 +21,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -45,16 +43,21 @@ import android.widget.TimePicker;
 import com.example.etayp.weathernotifier.dummy.RecyclerItems;
 import com.google.android.gms.awareness.Awareness;
 import com.google.android.gms.awareness.fence.FenceState;
-import com.google.android.gms.awareness.snapshot.WeatherResult;
-import com.google.android.gms.awareness.state.Weather;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.gson.Gson;
 import com.johnhiott.darkskyandroidlib.ForecastApi;
+import com.johnhiott.darkskyandroidlib.RequestBuilder;
+import com.johnhiott.darkskyandroidlib.models.Request;
+import com.johnhiott.darkskyandroidlib.models.WeatherResponse;
 
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 
 public class MainActivity extends AppCompatActivity implements
@@ -75,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements
     private FenceReceiver mFenceReceiver;
     private GoogleApiClient mApiClient;
 
-    Weather weather;
+
     private final String FENCE_RECEIVER_ACTION =
             BuildConfig.APPLICATION_ID + "FENCE_RECEIVER_ACTION";
 
@@ -133,19 +136,42 @@ public class MainActivity extends AppCompatActivity implements
                 })
                 .build();
 
-        Awareness.SnapshotApi.getLocation(mApiClient).setResultCallback(new ResultCallback<com.google.android.gms.awareness.snapshot.LocationResult>() {
-            @Override
-            public void onResult(@NonNull com.google.android.gms.awareness.snapshot.LocationResult locationResult) {
-                mLastLocation = locationResult.getLocation();
-                if (mLastLocation != null) {
-                    startIntentService();
-                } else {
-                    Log.d(TAG, "onResult: unable to get location");
-                }
-            }
-        });
+        if ((ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED)) {
+            Awareness.SnapshotApi.getLocation(mApiClient).setResultCallback(new ResultCallback<com.google.android.gms.awareness.snapshot.LocationResult>() {
+                @Override
+                public void onResult(@NonNull com.google.android.gms.awareness.snapshot.LocationResult locationResult) {
+                    mLastLocation = locationResult.getLocation();
+                    if (mLastLocation != null) {
+                        startIntentService();
+                        RequestBuilder weather = new RequestBuilder();
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                        Request request = new Request();
+                        request.setLat(String.valueOf(mLastLocation.getLatitude()));
+                        request.setLng(String.valueOf(mLastLocation.getLongitude()));
+                        request.setUnits(Request.Units.SI);
+                        request.setLanguage(Request.Language.ENGLISH);
+
+                        weather.getWeather(request, new Callback<WeatherResponse>() {
+                            @Override
+                            public void success(WeatherResponse weatherResponse, Response response) {
+                                ((TextView) findViewById(R.id.temperature_value)).setText(String.valueOf(weatherResponse.getCurrently().getTemperature()));
+                                ((TextView) findViewById(R.id.Humidity_value)).setText(weatherResponse.getCurrently().getHumidity());
+                            }
+
+                            @Override
+                            public void failure(RetrofitError error) {
+
+                            }
+                        });
+                    } else {
+                        Log.d(TAG, "onResult: unable to get location");
+                    }
+                }
+            });
+        }
+
+        /*if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             Awareness.SnapshotApi.getWeather(mApiClient)
                     .setResultCallback(new ResultCallback<WeatherResult>() {
@@ -160,7 +186,8 @@ public class MainActivity extends AppCompatActivity implements
                             updateWeather();
                         }
                     });
-        }
+        }*/
+
 
     }
 
@@ -293,10 +320,10 @@ public class MainActivity extends AppCompatActivity implements
         activityIsActive = true;
     }
 
-    private void updateWeather() {
+    /*private void updateWeather() {
         ((TextView) findViewById(R.id.temperature_value)).setText("" + weather.getTemperature(2));
         ((TextView) findViewById(R.id.Humidity_value)).setText("" + weather.getHumidity());
-    }
+    }*/
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -389,8 +416,8 @@ public class MainActivity extends AppCompatActivity implements
                     alertDialog.findViewById(R.id.timePicker).setEnabled(alarmSwitch.isChecked());
                 }
             });
-            Intent intent = new Intent(this,alarmReceiver.class);
-            final PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this,0,intent,0);
+            Intent intent = new Intent(this, alarmReceiver.class);
+            final PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
             alertDialog.findViewById(R.id.set_alarm_button).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -405,7 +432,7 @@ public class MainActivity extends AppCompatActivity implements
                         calendar.set(Calendar.HOUR_OF_DAY, ((TimePicker) alertDialog.findViewById(R.id.timePicker)).getCurrentHour());
                         calendar.set(Calendar.MINUTE, ((TimePicker) alertDialog.findViewById(R.id.timePicker)).getCurrentMinute());
 
-                        alarmManager.setInexactRepeating(AlarmManager.RTC, calendar.getTimeInMillis(),AlarmManager.INTERVAL_DAY,alarmPendingIntent );
+                        alarmManager.setInexactRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, alarmPendingIntent);
 //                        alarmManager.setRepeating(AlarmManager.RTC, calendar.getTimeInMillis(),3000,alarmPendingIntent );
                     } else {
                         editor.putBoolean(Constants.ALARM_IS_ACTIVE, false);
