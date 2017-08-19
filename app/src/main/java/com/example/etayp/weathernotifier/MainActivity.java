@@ -155,8 +155,54 @@ public class MainActivity extends AppCompatActivity implements
                         weather.getWeather(request, new Callback<WeatherResponse>() {
                             @Override
                             public void success(WeatherResponse weatherResponse, Response response) {
-                                ((TextView) findViewById(R.id.temperature_value)).setText(String.valueOf(weatherResponse.getCurrently().getTemperature()));
-                                ((TextView) findViewById(R.id.Humidity_value)).setText(weatherResponse.getCurrently().getHumidity());
+                                ((TextView) findViewById(R.id.temperature_value)).setText(
+                                        String.valueOf(weatherResponse.getCurrently().getTemperature()) + Constants.DEGREE
+                                );
+                                ((TextView) findViewById(R.id.Humidity_value)).setText(
+                                        (int) (Double.valueOf(weatherResponse.getCurrently().getHumidity()) * 100) + Constants.PERCENT
+                                );
+                                ((TextView) findViewById(R.id.precip_probability_value)).setText(
+                                        weatherResponse.getCurrently().getPrecipProbability()
+                                );
+                                String s = String.valueOf(Double.valueOf(weatherResponse.getCurrently().getWindSpeed())*1.609);
+                                ((TextView) findViewById(R.id.wind_speed_value)).setText(
+                                        s.substring(0,s.indexOf(".")+2)
+                                );
+                                switch (weatherResponse.getCurrently().getIcon()){
+                                    case "clear-day":
+
+                                        break;
+                                    case "clear-night":
+
+                                        break;
+                                    case "rain":
+
+                                        break;
+                                    case "snow":
+
+                                        break;
+                                    case "sleet":
+
+                                        break;
+                                    case "wind":
+
+                                        break;
+                                    case "fog":
+
+                                        break;
+                                    case "cloudy":
+
+                                        break;
+                                    case "partly-cloudy-day":
+
+                                        break;
+                                    case "partly-cloudy-night":
+
+                                        break;
+                                    default:
+
+                                        break;
+                                }
                             }
 
                             @Override
@@ -170,24 +216,6 @@ public class MainActivity extends AppCompatActivity implements
                 }
             });
         }
-
-        /*if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            Awareness.SnapshotApi.getWeather(mApiClient)
-                    .setResultCallback(new ResultCallback<WeatherResult>() {
-                        @Override
-                        public void onResult(@NonNull WeatherResult weatherResult) {
-                            if (!weatherResult.getStatus().isSuccess()) {
-                                Log.e(TAG, "Could not get weather.");
-                                return;
-                            }
-                            weather = weatherResult.getWeather();
-                            weather.getConditions();
-                            updateWeather();
-                        }
-                    });
-        }*/
-
 
     }
 
@@ -497,7 +525,6 @@ public class MainActivity extends AppCompatActivity implements
 
     private void displayAddressOutput(String locality) {
         ((TextView) findViewById(R.id.location_value)).setText(locality);
-        ((TextView) findViewById(R.id.location_value)).setTextColor(Color.GREEN);
     }
 
     protected void startIntentService() {

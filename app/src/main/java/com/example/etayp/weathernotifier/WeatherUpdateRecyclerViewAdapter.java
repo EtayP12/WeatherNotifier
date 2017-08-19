@@ -16,12 +16,12 @@ import java.util.List;
  * Created by EtayP on 17-Aug-17.
  */
 
-public class WeatherUpdateAdapter extends RecyclerView.Adapter<WeatherUpdateAdapter.ViewHolder> {
+public class WeatherUpdateRecyclerViewAdapter extends RecyclerView.Adapter<WeatherUpdateRecyclerViewAdapter.ViewHolder> {
 
     private final List<WeatherUpdateItems.WeatherUpdateItem> values;
     private ArrayList<ViewHolder> viewHolders = new ArrayList<>();
 
-    public WeatherUpdateAdapter(List<WeatherUpdateItems.WeatherUpdateItem> items) {
+    public WeatherUpdateRecyclerViewAdapter(List<WeatherUpdateItems.WeatherUpdateItem> items) {
         values = items;
     }
 
@@ -29,7 +29,7 @@ public class WeatherUpdateAdapter extends RecyclerView.Adapter<WeatherUpdateAdap
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.weather_update_item, parent, false);
-        WeatherUpdateAdapter.ViewHolder viewHolder = new WeatherUpdateAdapter.ViewHolder(view);
+        WeatherUpdateRecyclerViewAdapter.ViewHolder viewHolder = new WeatherUpdateRecyclerViewAdapter.ViewHolder(view);
         viewHolders.add(viewHolder);
         return viewHolder;
     }

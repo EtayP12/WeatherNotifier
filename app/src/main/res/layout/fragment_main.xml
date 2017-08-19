@@ -151,6 +151,13 @@
                     android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                     android:textColor="@color/colorWhite" />
 
+                <TextView
+                    android:id="@+id/temperature_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="10dp"
+                    android:text="Locating..."
+                    android:textColor="@color/colorWhite" />
             </TableRow>
 
             <TableRow
@@ -179,15 +186,15 @@
                 android:layout_height="match_parent">
 
                 <TextView
-                    android:id="@+id/uv_text"
+                    android:id="@+id/precip_probability_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="U.V radiation:"
+                    android:text="precipitation probability:"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                     android:textColor="@color/colorWhite" />
 
                 <TextView
-                    android:id="@+id/textView8"
+                    android:id="@+id/precip_probability_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingStart="10dp"
@@ -200,15 +207,15 @@
                 android:layout_height="match_parent">
 
                 <TextView
-                    android:id="@+id/pollution_text"
+                    android:id="@+id/wind_speed_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Air pollution:"
+                    android:text="Wind speed:"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                     android:textColor="@color/colorWhite" />
 
                 <TextView
-                    android:id="@+id/pollution_value"
+                    android:id="@+id/wind_speed_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingStart="10dp"

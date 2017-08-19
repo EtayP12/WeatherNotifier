@@ -157,7 +157,7 @@ public class NotificationSender extends IntentService {
                         + address.getLocality()
                         + ": "
                         + weatherResponse.getCurrently().getTemperature()
-                        + "℃");
+                        + Constants.DEGREE);
                 new WeatherUpdateItems.WeatherUpdateItem(String.valueOf(numberOfSuccesses),weatherResponse,address.getLocality());
                 if (++numberOfSuccesses == numberOfAddresses) {
                     mBuilder.setStyle(inboxStyle);
