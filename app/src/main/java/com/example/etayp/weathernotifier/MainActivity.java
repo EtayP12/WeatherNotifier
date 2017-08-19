@@ -4,7 +4,9 @@ package com.example.etayp.weathernotifier;
 
 import android.Manifest;
 import android.app.ActivityManager;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -29,13 +31,16 @@ import android.support.v4.os.ResultReceiver;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import com.example.etayp.weathernotifier.dummy.RecyclerItems;
 import com.google.android.gms.awareness.Awareness;
@@ -44,10 +49,10 @@ import com.google.android.gms.awareness.snapshot.WeatherResult;
 import com.google.android.gms.awareness.state.Weather;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.gson.Gson;
 import com.johnhiott.darkskyandroidlib.ForecastApi;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -79,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements
     LocationsFragment locationFragment;
     private boolean activityIsActive = true;
     private Thread thread;
+    private AlarmManager alarmManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,16 +94,7 @@ public class MainActivity extends AppCompatActivity implements
         setSupportActionBar(toolbar);
         ForecastApi.create(Constants.API_KEY2);
 
-//        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
         if (findViewById(R.id.fragment_container) != null) {
             if (savedInstanceState != null) {
@@ -306,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             Location resultLocation = data.getExtras().getParcelable("NewLocation");
-            if (resultLocation!=null) {
+            if (resultLocation != null) {
                 Intent intent = new Intent(this, FetchAddressIntentService.class);
                 intent.putExtra(Constants.RECEIVER, mResultReceiver);
                 intent.putExtra(Constants.LOCATION_DATA_EXTRA, resultLocation);
@@ -368,11 +365,56 @@ public class MainActivity extends AppCompatActivity implements
             changeFragment(locationFragment, true, true);
             return true;
         }
-        if (id == R.id.set_alarm_time){
+        if (id == R.id.set_alarm_time) {
             final AlertDialog alertDialog = new AlertDialog.Builder(this)
                     .setTitle(Constants.SET_ALARM_TIME)
                     .setCancelable(false).create();
-            alertDialog.setView(getLayoutInflater().inflate(R.layout.alarm_alert_dialog_layout,null));
+            alertDialog.setView(getLayoutInflater().inflate(R.layout.alarm_alert_dialog_layout, null));
+            alertDialog.setCustomTitle(getLayoutInflater().inflate(R.layout.alarm_alert_dialog_title, null));
+            alertDialog.show();
+
+            ((TimePicker) alertDialog.findViewById(R.id.timePicker))
+                    .setCurrentHour(sharedPreferences.getInt(Constants.ALARM_HOUR, 0));
+            ((TimePicker) alertDialog.findViewById(R.id.timePicker))
+                    .setCurrentMinute(sharedPreferences.getInt(Constants.ALARM_MINUTE, 0));
+            ((TimePicker) alertDialog.findViewById(R.id.timePicker))
+                    .setIs24HourView(DateFormat.is24HourFormat(this));
+            final Switch alarmSwitch = (Switch) alertDialog.findViewById(R.id.alarmSwitch);
+            alarmSwitch.setChecked(sharedPreferences.getBoolean(Constants.ALARM_IS_ACTIVE, false));
+
+            alertDialog.findViewById(R.id.timePicker).setEnabled(alarmSwitch.isChecked());
+            alertDialog.findViewById(R.id.alarmSwitch).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    alertDialog.findViewById(R.id.timePicker).setEnabled(alarmSwitch.isChecked());
+                }
+            });
+            Intent intent = new Intent(this,alarmReceiver.class);
+            final PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this,0,intent,0);
+            alertDialog.findViewById(R.id.set_alarm_button).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    if (alarmSwitch.isChecked()) {
+                        editor.putInt(Constants.ALARM_HOUR, ((TimePicker) alertDialog.findViewById(R.id.timePicker)).getCurrentHour());
+                        editor.putInt(Constants.ALARM_MINUTE, ((TimePicker) alertDialog.findViewById(R.id.timePicker)).getCurrentMinute());
+                        editor.putBoolean(Constants.ALARM_IS_ACTIVE, true);
+
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTimeInMillis(System.currentTimeMillis());
+                        calendar.set(Calendar.HOUR_OF_DAY, ((TimePicker) alertDialog.findViewById(R.id.timePicker)).getCurrentHour());
+                        calendar.set(Calendar.MINUTE, ((TimePicker) alertDialog.findViewById(R.id.timePicker)).getCurrentMinute());
+
+                        alarmManager.setInexactRepeating(AlarmManager.RTC, calendar.getTimeInMillis(),AlarmManager.INTERVAL_DAY,alarmPendingIntent );
+//                        alarmManager.setRepeating(AlarmManager.RTC, calendar.getTimeInMillis(),3000,alarmPendingIntent );
+                    } else {
+                        editor.putBoolean(Constants.ALARM_IS_ACTIVE, false);
+                        alarmManager.cancel(alarmPendingIntent);
+                    }
+                    editor.apply();
+                    alertDialog.dismiss();
+                }
+            });
         }
 
 

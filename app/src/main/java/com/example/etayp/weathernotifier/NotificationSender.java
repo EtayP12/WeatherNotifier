@@ -1,6 +1,7 @@
 package com.example.etayp.weathernotifier;
 
 import android.app.IntentService;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -81,9 +82,11 @@ public class NotificationSender extends IntentService {
 
         final NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
+                        .setAutoCancel(true)
 //                        .setSmallIcon(android.R.drawable.ic_notification_overlay)
                         .setSmallIcon(R.drawable.web_hi_res_512)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_SOUND)
                         .setContentTitle("New weather update")
                         .setContentText("New weather update available");
 
