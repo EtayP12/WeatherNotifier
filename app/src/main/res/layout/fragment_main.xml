@@ -85,144 +85,333 @@
                         android:layout_weight="1"
                         android:text="26.5°"
                         android:textColor="@color/colorWhite"
-                        android:textSize="80sp" />
+                        android:textSize="70sp" />
 
                     <ImageView
                         android:id="@+id/Iconview"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="right"
+
                         android:layout_weight="1"
-                        app:srcCompat="@drawable/sunday" />
+                        app:srcCompat="@drawable/sunyday" />
 
                 </LinearLayout>
             </LinearLayout>
 
+            <ImageView
+                android:id="@+id/imageView3"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="48dp"
+                android:layout_weight="1"
+                android:alpha="0.5"
+                app:srcCompat="@color/wallet_bright_foreground_holo_dark" />
+
             <TableLayout
                 android:layout_width="match_parent"
                 android:layout_height="184dp"
-                android:background="@drawable/sunday"
-                android:backgroundTint="#80FFFFFF"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/databubble"
+                android:backgroundTint="#1AFFFFFF"
                 tools:layout_editor_absoluteX="8dp"
                 tools:layout_editor_absoluteY="8dp">
 
                 <TableRow
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" >
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center">
 
-                    <ImageView
-                        android:id="@+id/imageView"
+                    <TextView
+                        android:id="@+id/temperature_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        app:srcCompat="@drawable/common_google_signin_btn_icon_light_focused" />
+                        android:text="Feel like"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                        android:textColor="@color/colorWhite" />
+
+                    <TextView
+                        android:id="@+id/temperature_value"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="10dp"
+                        android:text="Locating..."
+                        android:textColor="@color/colorWhite" />
                 </TableRow>
 
                 <TableRow
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"
+                    android:layout_gravity="right"
+                    android:layout_marginLeft="86dp">
+
+                    <TextView
+                        android:id="@+id/Humidity_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Humidity:"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                        android:textColor="@color/colorWhite" />
+
+                    <TextView
+                        android:id="@+id/Humidity_value"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="10dp"
+                        android:text="Locating..."
+                        android:textColor="@color/colorWhite" />
+                </TableRow>
 
                 <TableRow
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="57dp">
+
+                    <TextView
+                        android:id="@+id/precip_probability_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="precipitation probability:"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                        android:textColor="@color/colorWhite" />
+
+                    <TextView
+                        android:id="@+id/precip_probability_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="10dp"
+                        android:text="Locating..."
+                        android:textColor="@color/colorWhite" />
+                </TableRow>
 
                 <TableRow
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="57dp">
+
+                    <TextView
+                        android:id="@+id/wind_speed_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Wind speed:"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                        android:textColor="@color/colorWhite" />
+
+                    <TextView
+                        android:id="@+id/wind_speed_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="10dp"
+                        android:text="Locating..."
+                        android:textColor="@color/colorWhite" />
+                </TableRow>
+            </TableLayout>
+
+            <ImageView
+                android:id="@+id/imageView4"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="8dp"
+                android:layout_weight="1"
+                android:alpha="0.5"
+                app:srcCompat="@color/wallet_bright_foreground_holo_dark" />
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:layout_marginTop="8dp"
+                android:layout_weight="1"
+                android:background="@drawable/forecastbubble"
+                android:backgroundTint="#1AFFFFFF"
+                android:gravity="center"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent">
+
+                <TableRow>
+
+                    <LinearLayout
+                        android:layout_width="65dp"
+                        android:layout_marginLeft="25dp"
+                        android:layout_height="100dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/FCTime1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="22:00"
+                            android:gravity="center"
+                            android:textColor="@color/colorWhite"/>
+
+                        <ImageView
+                            android:id="@+id/FCicon1"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:gravity="center"
+                            app:srcCompat="@drawable/stormnighticon" />
+
+                        <TextView
+                            android:id="@+id/FCTemp1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="25.3°"
+                            android:gravity="center"
+                            android:textColor="@color/colorWhite"/>
+
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/FCline1"
+                        android:alpha="0.5"
+                        android:layout_width="1dp"
+                        android:layout_height="100dp"
+                        app:srcCompat="@color/wallet_bright_foreground_holo_dark" />
+
+                    <LinearLayout
+                        android:layout_width="65dp"
+                        android:layout_height="100dp"
+                        android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/FCTime2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="23:00"
+                            android:gravity="center"
+                            android:textColor="@color/colorWhite"/>
+
+                        <ImageView
+                            android:id="@+id/FCicon2"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:gravity="center"
+                            app:srcCompat="@drawable/cloudynighticon" />
+
+                        <TextView
+                            android:id="@+id/FCTemp2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="22.5°"
+                            android:gravity="center"
+                            android:textColor="@color/colorWhite"/>
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/FCline2"
+                        android:alpha="0.5"
+                        android:layout_width="1dp"
+                        android:layout_height="100dp"
+                        app:srcCompat="@color/wallet_bright_foreground_holo_dark" />
+                    <LinearLayout
+                        android:layout_width="65dp"
+                        android:layout_height="100dp"
+                        android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/FCTime3"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="24:00"
+                            android:gravity="center"
+                            android:textColor="@color/colorWhite"/>
+
+                        <ImageView
+                            android:id="@+id/FCicon3"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:gravity="center"
+                            app:srcCompat="@drawable/cloudynighticon" />
+
+                        <TextView
+                            android:id="@+id/FCTemp3"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="26.5°"
+                            android:gravity="center"
+                            android:textColor="@color/colorWhite"/>
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/FCline3"
+                        android:alpha="0.5"
+                        android:layout_width="1dp"
+                        android:layout_height="100dp"
+                        app:srcCompat="@color/wallet_bright_foreground_holo_dark" />
+
+                    <LinearLayout
+                        android:layout_width="65dp"
+                        android:layout_height="100dp"
+                        android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/FCTime4"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="01:00"
+                            android:gravity="center"
+                            android:textColor="@color/colorWhite"/>
+
+                        <ImageView
+                            android:id="@+id/FCicon4"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:gravity="center"
+                            app:srcCompat="@drawable/cloudynighticon" />
+
+                        <TextView
+                            android:id="@+id/FCTemp4"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="23.5°"
+                            android:gravity="center"
+                            android:textColor="@color/colorWhite"/>
+                    </LinearLayout>
+                    <ImageView
+                        android:id="@+id/FCline4"
+                        android:alpha="0.5"
+                        android:layout_width="1dp"
+                        android:layout_height="100dp"
+                        app:srcCompat="@color/wallet_bright_foreground_holo_dark" />
+
+                    <LinearLayout
+                        android:layout_width="65dp"
+                        android:layout_height="100dp"
+                        android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/FCTime5"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="02:00"
+                            android:gravity="center"
+                            android:textColor="@color/colorWhite"/>
+
+                        <ImageView
+                            android:id="@+id/FCicon5"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:gravity="center"
+                            app:srcCompat="@drawable/nighticon" />
+
+                        <TextView
+                            android:id="@+id/FCTemp5"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="22.5°"
+                            android:textColor="@color/colorWhite"
+                            android:gravity="center"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+
+                    </LinearLayout>
+                </TableRow>
+
             </TableLayout>
 
         </LinearLayout>
-
-        <TableLayout
-            android:layout_width="368dp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent">
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    android:id="@+id/temperature_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="temperature:"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                    android:textColor="@color/colorWhite" />
-
-                <TextView
-                    android:id="@+id/temperature_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingStart="10dp"
-                    android:text="Locating..."
-                    android:textColor="@color/colorWhite" />
-            </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    android:id="@+id/Humidity_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Humidity:"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                    android:textColor="@color/colorWhite" />
-
-                <TextView
-                    android:id="@+id/Humidity_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingStart="10dp"
-                    android:text="Locating..."
-                    android:textColor="@color/colorWhite" />
-            </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    android:id="@+id/precip_probability_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="precipitation probability:"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                    android:textColor="@color/colorWhite" />
-
-                <TextView
-                    android:id="@+id/precip_probability_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingStart="10dp"
-                    android:text="Locating..."
-                    android:textColor="@color/colorWhite" />
-            </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    android:id="@+id/wind_speed_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Wind speed:"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                    android:textColor="@color/colorWhite" />
-
-                <TextView
-                    android:id="@+id/wind_speed_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingStart="10dp"
-                    android:text="Locating..."
-                    android:textColor="@color/colorWhite" />
-            </TableRow>
-        </TableLayout>
 
     </android.support.constraint.ConstraintLayout>
 
