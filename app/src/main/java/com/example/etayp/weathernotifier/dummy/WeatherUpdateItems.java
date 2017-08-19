@@ -15,11 +15,12 @@ public class WeatherUpdateItems {
 
     public static final List<WeatherUpdateItems.WeatherUpdateItem> ITEMS = new ArrayList<>();
 
-    public static final Map<String, WeatherUpdateItems.WeatherUpdateItem> ITEM_MAP = new HashMap<>();
-
     private static void addItem(WeatherUpdateItems.WeatherUpdateItem item) {
         ITEMS.add(item);
-        ITEM_MAP.put(item.id, item);
+    }
+
+    public static void clear() {
+        ITEMS.clear();
     }
 
     public static class WeatherUpdateItem{

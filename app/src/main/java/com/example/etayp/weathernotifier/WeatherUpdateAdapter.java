@@ -40,6 +40,41 @@ public class WeatherUpdateAdapter extends RecyclerView.Adapter<WeatherUpdateAdap
         holder.mTemprature.setText(String.valueOf(values.get(position).weatherResponse.getCurrently().getTemperature()));
         holder.mHumidity.setText(String.valueOf(values.get(position).weatherResponse.getCurrently().getHumidity()));
         holder.mLocation.setText(values.get(position).location);
+        switch (values.get(position).weatherResponse.getCurrently().getIcon()){
+            case "clear-day":
+
+                break;
+            case "clear-night":
+
+                break;
+            case "rain":
+
+                break;
+            case "snow":
+
+                break;
+            case "sleet":
+
+                break;
+            case "wind":
+
+                break;
+            case "fog":
+
+                break;
+            case "cloudy":
+
+                break;
+            case "partly-cloudy-day":
+
+                break;
+            case "partly-cloudy-night":
+
+                break;
+            default:
+
+                break;
+        }
     }
 
     @Override
