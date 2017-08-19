@@ -4,7 +4,9 @@ package com.example.etayp.weathernotifier;
 
 import android.Manifest;
 import android.app.ActivityManager;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -19,6 +21,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -27,6 +31,7 @@ import android.support.v4.os.ResultReceiver;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -47,6 +52,7 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.gson.Gson;
 import com.johnhiott.darkskyandroidlib.ForecastApi;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -78,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements
     LocationsFragment locationFragment;
     private boolean activityIsActive = true;
     private Thread thread;
+    private AlarmManager alarmManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,8 +94,7 @@ public class MainActivity extends AppCompatActivity implements
         setSupportActionBar(toolbar);
         ForecastApi.create(Constants.API_KEY2);
 
-//        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-
+        alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
         if (findViewById(R.id.fragment_container) != null) {
             if (savedInstanceState != null) {
@@ -366,27 +372,44 @@ public class MainActivity extends AppCompatActivity implements
             alertDialog.setView(getLayoutInflater().inflate(R.layout.alarm_alert_dialog_layout, null));
             alertDialog.setCustomTitle(getLayoutInflater().inflate(R.layout.alarm_alert_dialog_title, null));
             alertDialog.show();
-            final Switch aSwitch = (Switch) alertDialog.findViewById(R.id.switch1);
-            alertDialog.findViewById(R.id.switch1).setOnClickListener(new View.OnClickListener() {
+
+            ((TimePicker) alertDialog.findViewById(R.id.timePicker))
+                    .setCurrentHour(sharedPreferences.getInt(Constants.ALARM_HOUR, 0));
+            ((TimePicker) alertDialog.findViewById(R.id.timePicker))
+                    .setCurrentMinute(sharedPreferences.getInt(Constants.ALARM_MINUTE, 0));
+            ((TimePicker) alertDialog.findViewById(R.id.timePicker))
+                    .setIs24HourView(DateFormat.is24HourFormat(this));
+            final Switch alarmSwitch = (Switch) alertDialog.findViewById(R.id.alarmSwitch);
+            alarmSwitch.setChecked(sharedPreferences.getBoolean(Constants.ALARM_IS_ACTIVE, false));
+
+            alertDialog.findViewById(R.id.timePicker).setEnabled(alarmSwitch.isChecked());
+            alertDialog.findViewById(R.id.alarmSwitch).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (aSwitch.isChecked()) {
-                        alertDialog.findViewById(R.id.timePicker).setEnabled(true);
-                    } else {
-                        alertDialog.findViewById(R.id.timePicker).setEnabled(false);
-                    }
+                    alertDialog.findViewById(R.id.timePicker).setEnabled(alarmSwitch.isChecked());
                 }
             });
+            Intent intent = new Intent(this,alarmReceiver.class);
+            final PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this,0,intent,0);
             alertDialog.findViewById(R.id.set_alarm_button).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     SharedPreferences.Editor editor = sharedPreferences.edit();
-                    if (aSwitch.isChecked()) {
+                    if (alarmSwitch.isChecked()) {
                         editor.putInt(Constants.ALARM_HOUR, ((TimePicker) alertDialog.findViewById(R.id.timePicker)).getCurrentHour());
                         editor.putInt(Constants.ALARM_MINUTE, ((TimePicker) alertDialog.findViewById(R.id.timePicker)).getCurrentMinute());
                         editor.putBoolean(Constants.ALARM_IS_ACTIVE, true);
+
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTimeInMillis(System.currentTimeMillis());
+                        calendar.set(Calendar.HOUR_OF_DAY, ((TimePicker) alertDialog.findViewById(R.id.timePicker)).getCurrentHour());
+                        calendar.set(Calendar.MINUTE, ((TimePicker) alertDialog.findViewById(R.id.timePicker)).getCurrentMinute());
+
+                        alarmManager.setInexactRepeating(AlarmManager.RTC, calendar.getTimeInMillis(),AlarmManager.INTERVAL_DAY,alarmPendingIntent );
+//                        alarmManager.setRepeating(AlarmManager.RTC, calendar.getTimeInMillis(),3000,alarmPendingIntent );
                     } else {
                         editor.putBoolean(Constants.ALARM_IS_ACTIVE, false);
+                        alarmManager.cancel(alarmPendingIntent);
                     }
                     editor.apply();
                     alertDialog.dismiss();

@@ -53,6 +53,8 @@
         <activity
             android:name=".WeatherUpdateActivity"
             android:label="@string/title_activity_weather_update" />
+
+        <receiver android:name=".alarmReceiver" />
     </application>
 
 </manifest>
