@@ -30,6 +30,6 @@ final class Constants {
     public static final String ALARM_HOUR = "alarm hour";
     public static final String ALARM_MINUTE = "alarm minute";
     public static final String ALARM_IS_ACTIVE = "alarm is active";
-    public static final String DEGREE = "℃";
+    public static final String DEGREE = "°";
     public static final String PERCENT = "%";
 }

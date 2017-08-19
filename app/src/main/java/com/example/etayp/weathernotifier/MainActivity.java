@@ -155,8 +155,9 @@ public class MainActivity extends AppCompatActivity implements
                         weather.getWeather(request, new Callback<WeatherResponse>() {
                             @Override
                             public void success(WeatherResponse weatherResponse, Response response) {
+                                String temp = String.valueOf(weatherResponse.getCurrently().getTemperature());
                                 ((TextView) findViewById(R.id.temperature_value)).setText(
-                                        String.valueOf(weatherResponse.getCurrently().getTemperature()) + Constants.DEGREE
+                                        temp.substring(0,temp.indexOf(".")+2) + Constants.DEGREE
                                 );
                                 ((TextView) findViewById(R.id.Humidity_value)).setText(
                                         (int) (Double.valueOf(weatherResponse.getCurrently().getHumidity()) * 100) + Constants.PERCENT
@@ -164,9 +165,9 @@ public class MainActivity extends AppCompatActivity implements
                                 ((TextView) findViewById(R.id.precip_probability_value)).setText(
                                         weatherResponse.getCurrently().getPrecipProbability()
                                 );
-                                String s = String.valueOf(Double.valueOf(weatherResponse.getCurrently().getWindSpeed())*1.609);
+                                String wind = String.valueOf(Double.valueOf(weatherResponse.getCurrently().getWindSpeed())*1.609);
                                 ((TextView) findViewById(R.id.wind_speed_value)).setText(
-                                        s.substring(0,s.indexOf(".")+2)
+                                        wind.substring(0,wind.indexOf(".")+2)
                                 );
                                 switch (weatherResponse.getCurrently().getIcon()){
                                     case "clear-day":
