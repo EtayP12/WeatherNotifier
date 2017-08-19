@@ -131,14 +131,14 @@
                         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                         android:textColor="@color/colorWhite" />
 
-                    <TextView
-                        android:id="@+id/temperature_value"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="10dp"
-                        android:text="Locating..."
-                        android:textColor="@color/colorWhite" />
-                </TableRow>
+                <TextView
+                    android:id="@+id/apparent_temperature_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="10dp"
+                    android:text="Locating..."
+                    android:textColor="@color/colorWhite" />
+            </TableRow>
 
                 <TableRow
                     android:layout_width="match_parent"
