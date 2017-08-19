@@ -15,7 +15,7 @@ public class WeatherUpdateActivity extends AppCompatActivity {
         setContentView(R.layout.activity_weather_update);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.weather_update_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new WeatherUpdateAdapter(WeatherUpdateItems.ITEMS));
+        recyclerView.setAdapter(new WeatherUpdateRecyclerViewAdapter(WeatherUpdateItems.ITEMS));
     }
 
     @Override
