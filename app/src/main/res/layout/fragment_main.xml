@@ -18,11 +18,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-
-            android:layout_marginRight="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="25dp"
-            android:gravity="left"
+            android:gravity="start"
             android:orientation="vertical"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -40,8 +38,8 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:foregroundGravity="left"
-                    android:gravity="left"
-                    android:text="Tel Aviv"
+                    android:gravity="top|start"
+                    android:text="@string/locating"
                     android:textColor="@color/colorWhite"
                     android:textSize="28sp" />
 
@@ -50,7 +48,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="top|left"
+                    android:gravity="top|start"
                     android:textColor="@color/colorWhite"
                     android:textSize="14sp"
                     app:layout_constraintLeft_toLeftOf="parent"
@@ -83,7 +81,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="26.5°"
+                        android:text=""
                         android:maxLines="1"
                         android:textColor="@color/colorWhite"
                         android:textSize="70sp" />
@@ -93,7 +91,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
-                        android:layout_weight="1.5"
+                        android:layout_weight="1"
+                        android:visibility="invisible"
                         app:srcCompat="@drawable/clear_day_icon" />
 
                 </LinearLayout>
@@ -134,7 +133,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingStart="10dp"
-                        android:text="Locating..."
+                        android:text=""
                         android:textColor="@color/colorWhite" />
                 </TableRow>
 
@@ -147,7 +146,7 @@
                         android:id="@+id/Humidity_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Humidity:"
+                        android:text="@string/humidity"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                         android:textColor="@color/colorWhite" />
 
@@ -156,7 +155,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:paddingStart="10dp"
-                        android:text="Locating..."
+                        android:text=""
                         android:textColor="@color/colorWhite" />
                 </TableRow>
 
@@ -169,7 +168,7 @@
                         android:id="@+id/precip_probability_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="precipitation probability:"
+                        android:text="@string/precipitation_probability"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                         android:textColor="@color/colorWhite" />
 
@@ -178,7 +177,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingStart="10dp"
-                        android:text="Locating..."
+                        android:text=""
                         android:textColor="@color/colorWhite" />
                 </TableRow>
 
@@ -191,7 +190,7 @@
                         android:id="@+id/wind_speed_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Wind speed:"
+                        android:text="@string/wind_speed"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                         android:textColor="@color/colorWhite" />
 
@@ -200,7 +199,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingStart="10dp"
-                        android:text="Locating..."
+                        android:text=""
                         android:textColor="@color/colorWhite" />
                 </TableRow>
             </TableLayout>
@@ -237,7 +236,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="22:00"
+                        android:text=""
                         android:textColor="@color/colorWhite" />
 
                     <ImageView
@@ -245,6 +244,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:gravity="center"
+                        android:visibility="invisible"
                         app:srcCompat="@drawable/storm_night_icon" />
 
                     <TextView
@@ -252,7 +252,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="25.3°"
+                        android:text=""
                         android:textColor="@color/colorWhite" />
 
                 </LinearLayout>
@@ -274,7 +274,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="23:00"
+                        android:text=""
                         android:textColor="@color/colorWhite" />
 
                     <ImageView
@@ -282,6 +282,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:gravity="center"
+                        android:visibility="invisible"
                         app:srcCompat="@drawable/cloudy_night_icon" />
 
                     <TextView
@@ -289,7 +290,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="22.5°"
+                        android:text=""
                         android:textColor="@color/colorWhite" />
                 </LinearLayout>
 
@@ -310,7 +311,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="24:00"
+                        android:text=""
                         android:textColor="@color/colorWhite" />
 
                     <ImageView
@@ -318,6 +319,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:gravity="center"
+                        android:visibility="invisible"
                         app:srcCompat="@drawable/cloudy_night_icon" />
 
                     <TextView
@@ -325,7 +327,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="26.5°"
+                        android:text=""
                         android:textColor="@color/colorWhite" />
                 </LinearLayout>
 
@@ -346,7 +348,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="01:00"
+                        android:text=""
                         android:textColor="@color/colorWhite" />
 
                     <ImageView
@@ -354,6 +356,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:gravity="center"
+                        android:visibility="invisible"
                         app:srcCompat="@drawable/cloudy_night_icon" />
 
                     <TextView
@@ -361,7 +364,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="23.5°"
+                        android:text=""
                         android:textColor="@color/colorWhite" />
                 </LinearLayout>
 
@@ -382,7 +385,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="02:00"
+                        android:text=""
                         android:textColor="@color/colorWhite" />
 
                     <ImageView
@@ -390,6 +393,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:gravity="center"
+                        android:visibility="invisible"
                         app:srcCompat="@drawable/clear_night_icon" />
 
                     <TextView
@@ -397,7 +401,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="22.5°"
+                        android:text=""
                         android:textColor="@color/colorWhite" />
                 </LinearLayout>
 

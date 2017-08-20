@@ -86,10 +86,12 @@ public class MainActivity extends AppCompatActivity implements
 
     private final String FENCE_KEY = "fence_key";
 
-    LocationsFragment locationFragment;
     private boolean activityIsActive = true;
     private Thread thread;
     private AlarmManager alarmManager;
+    private MainFragment mainFragment;
+    private NotificationSettingsFragment notificationSettingsFragment;
+    private LocationsFragment locationsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,11 +107,14 @@ public class MainActivity extends AppCompatActivity implements
             if (savedInstanceState != null) {
                 return;
             }
-            MainFragment mainFragment = new MainFragment();
+            mainFragment = new MainFragment();
             mainFragment.setArguments(getIntent().getExtras());
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, mainFragment).commit();
+                    .add(R.id.fragment_container, mainFragment,mainFragment.getClass().getName()).commit();
         }
+
+        notificationSettingsFragment = new NotificationSettingsFragment();
+        locationsFragment = new LocationsFragment();
 
         // for addresses
         mResultReceiver = new AddressResultReceiver(new Handler());
@@ -176,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements
                                 ((TextView) findViewById(R.id.wind_speed_value)).setText(
                                         wind.substring(0, wind.indexOf(".") + 2)
                                 );
-                                changeIcon(weatherResponse.getCurrently(), (ImageView) findViewById(R.id.current_icon));
+                                PublicMethods.changeIcon(weatherResponse.getCurrently(), (ImageView) findViewById(R.id.current_icon));
 
                                 handleForecast(weatherResponse);
 
@@ -207,58 +212,22 @@ public class MainActivity extends AppCompatActivity implements
             if (forecastLayout.getChildAt(i) instanceof LinearLayout) {
                 LinearLayout forecastItem = (LinearLayout) forecastLayout.getChildAt(i);
                 forecastItemsHandled++;
-                calendar.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY)+1);
+                calendar.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY) + 1);
                 ((TextView) forecastItem.getChildAt(0))
                         .setText(DateUtils.formatDateTime(this, calendar.getTimeInMillis(), DateUtils.FORMAT_SHOW_TIME)
                         );
-                changeIcon(weatherResponse.getHourly().getData().get(forecastItemsHandled)
-                        ,(ImageView) forecastItem.getChildAt(1));
+                PublicMethods.changeIcon(weatherResponse.getHourly().getData().get(forecastItemsHandled)
+                        , (ImageView) forecastItem.getChildAt(1));
+                String s = String.valueOf(weatherResponse.getHourly().getData().get(forecastItemsHandled).getTemperature());
                 ((TextView) forecastItem.getChildAt(2))
                         .setText(
-                               String.valueOf(weatherResponse.getHourly().getData().get(forecastItemsHandled).getTemperature())
-                                + Constants.DEGREE
+                                s.substring(0, s.indexOf(".") + 2)
+                                        + Constants.DEGREE
                         );
             }
         }
     }
 
-    private void changeIcon(com.johnhiott.darkskyandroidlib.models.DataPoint point, ImageView imageToChange) {
-        switch (point.getIcon()) {
-            case "clear-day":
-                imageToChange.setImageResource(R.drawable.clear_day_icon);
-                break;
-            case "clear-night":
-                imageToChange.setImageResource(R.drawable.clear_night_icon);
-                break;
-            case "rain":
-                imageToChange.setImageResource(R.drawable.rainy_day_icon);
-                break;
-            case "snow":
-                imageToChange.setImageResource(R.drawable.snow_icon);
-                break;
-            case "sleet":
-                imageToChange.setImageResource(R.drawable.snow_icon);
-                break;
-            case "wind":
-                imageToChange.setImageResource(R.drawable.wind_icon);
-                break;
-            case "fog":
-                imageToChange.setImageResource(R.drawable.fog_cloud_icon);
-                break;
-            case "cloudy":
-                imageToChange.setImageResource(R.drawable.fog_cloud_icon);
-                break;
-            case "partly-cloudy-day":
-                imageToChange.setImageResource(R.drawable.cloudy_day_icon);
-                break;
-            case "partly-cloudy-night":
-                imageToChange.setImageResource(R.drawable.cloudy_night_icon);
-                break;
-            default:
-
-                break;
-        }
-    }
 
     private void recyclerViewSetup() {
         for (int i = 1; i < addressHashMap.size() + 1; i++) {
@@ -303,7 +272,7 @@ public class MainActivity extends AppCompatActivity implements
                                 String.valueOf(RecyclerItems.ITEMS.size() + 1),
                                 address.getLocality()
                         );
-                        locationFragment.getRecyclerViewAdapter().notifyItemInserted(RecyclerItems.ITEMS.size());
+                        locationsFragment.getRecyclerViewAdapter().notifyItemInserted(RecyclerItems.ITEMS.size());
                         break;
                 }
             }
@@ -389,10 +358,6 @@ public class MainActivity extends AppCompatActivity implements
         activityIsActive = true;
     }
 
-    /*private void updateWeather() {
-        ((TextView) findViewById(R.id.temperature_value)).setText("" + weather.getTemperature(2));
-        ((TextView) findViewById(R.id.Humidity_value)).setText("" + weather.getHumidity());
-    }*/
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -452,13 +417,12 @@ public class MainActivity extends AppCompatActivity implements
             return true;
         }
         if (id == R.id.notification_usage) {
-            NotificationSettingsFragment fragment = new NotificationSettingsFragment();
-            changeFragment(fragment, true, true);
+//            changeFragment(notificationSettingsFragment, true, true);
+            switchFragments(notificationSettingsFragment);
             return true;
         }
         if (id == R.id.define_location) {
-            locationFragment = new LocationsFragment();
-            changeFragment(locationFragment, true, true);
+            switchFragments(locationsFragment);
             return true;
         }
         if (id == R.id.set_alarm_time) {
@@ -515,6 +479,33 @@ public class MainActivity extends AppCompatActivity implements
 
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void switchFragments(Fragment fragment) {
+        String fragName = fragment.getClass().getName();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+//        for (Fragment fragment1 : fragmentManager.getFragments()) {
+//            if (fragment1 != null && fragment1.isVisible()) {
+//                transaction.hide(fragment1);
+//            }
+//        }
+        String[] names = {MainFragment.class.getName(), NotificationSettingsFragment.class.getName(), LocationsFragment.class.getName()};
+        for (String s : names){
+            Fragment fragment1 = fragmentManager.findFragmentByTag(s);
+            if (fragment1 != null && fragment1.isVisible()) {
+                transaction.hide(fragment1);
+            }
+        }
+        if (!fragmentManager.popBackStackImmediate(fragName, 0)
+                && fragmentManager.findFragmentByTag(fragName) == null) {
+            transaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+            transaction.add(R.id.fragment_container, fragment, fragName);
+            transaction.addToBackStack(fragName);
+        } else {
+            transaction.show(fragment);
+        }
+        transaction.commit();
     }
 
     public Location getLastKnownLocation() {
