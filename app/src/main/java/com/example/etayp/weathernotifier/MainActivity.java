@@ -41,6 +41,7 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.example.etayp.weathernotifier.dummy.RecyclerItems;
 import com.google.android.gms.awareness.Awareness;
@@ -53,9 +54,11 @@ import com.johnhiott.darkskyandroidlib.RequestBuilder;
 import com.johnhiott.darkskyandroidlib.models.Request;
 import com.johnhiott.darkskyandroidlib.models.WeatherResponse;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Stack;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -92,6 +95,9 @@ public class MainActivity extends AppCompatActivity implements
     private MainFragment mainFragment;
     private NotificationSettingsFragment notificationSettingsFragment;
     private LocationsFragment locationsFragment;
+    private Fragment fragmentToHide;
+    private Stack<String> mFragmentStack;
+    private boolean backWasPressed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements
         ForecastApi.create(Constants.API_KEY2);
 
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        mFragmentStack = new Stack<>();
 
         if (findViewById(R.id.fragment_container) != null) {
             if (savedInstanceState != null) {
@@ -109,8 +116,12 @@ public class MainActivity extends AppCompatActivity implements
             }
             mainFragment = new MainFragment();
             mainFragment.setArguments(getIntent().getExtras());
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, mainFragment,mainFragment.getClass().getName()).commit();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.add(R.id.fragment_container, mainFragment, mainFragment.getClass().getName());
+            transaction.addToBackStack(mainFragment.getClass().getName());
+            mFragmentStack.add(mainFragment.getClass().getName());
+            transaction.commit();
+//            fragmentToHide = mainFragment;
         }
 
         notificationSettingsFragment = new NotificationSettingsFragment();
@@ -485,28 +496,25 @@ public class MainActivity extends AppCompatActivity implements
         String fragName = fragment.getClass().getName();
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-//        for (Fragment fragment1 : fragmentManager.getFragments()) {
-//            if (fragment1 != null && fragment1.isVisible()) {
-//                transaction.hide(fragment1);
-//            }
-//        }
-        String[] names = {MainFragment.class.getName(), NotificationSettingsFragment.class.getName(), LocationsFragment.class.getName()};
-        for (String s : names){
-            Fragment fragment1 = fragmentManager.findFragmentByTag(s);
-            if (fragment1 != null && fragment1.isVisible()) {
-                transaction.hide(fragment1);
-            }
-        }
-        if (!fragmentManager.popBackStackImmediate(fragName, 0)
-                && fragmentManager.findFragmentByTag(fragName) == null) {
+
+        if (!mFragmentStack.contains(fragName)) {
             transaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+            transaction.hide(fragmentManager.findFragmentByTag(mFragmentStack.peek()));
             transaction.add(R.id.fragment_container, fragment, fragName);
             transaction.addToBackStack(fragName);
+            mFragmentStack.add(fragName);
         } else {
+            if (!mFragmentStack.peek().equals(fragName)) {
+                transaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+                transaction.addToBackStack(fragName);
+            }
+            transaction.hide(fragmentManager.findFragmentByTag(mFragmentStack.peek()));
+            mFragmentStack.add(mFragmentStack.remove(mFragmentStack.indexOf(fragName)));
             transaction.show(fragment);
         }
         transaction.commit();
     }
+
 
     public Location getLastKnownLocation() {
         return mLastLocation;
@@ -521,42 +529,39 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-    private void changeFragment(Fragment frag, boolean saveInBackstack, boolean animate) {
-        String backStateName = ((Object) frag).getClass().getName();
-
-        try {
-            FragmentManager manager = getSupportFragmentManager();
-            boolean fragmentPopped = manager.popBackStackImmediate(backStateName, 0);
-
-            if (!fragmentPopped && manager.findFragmentByTag(backStateName) == null) {
-                //fragment not in back stack, create it.
-                FragmentTransaction transaction = manager.beginTransaction();
-
-                if (animate) {
-                    Log.d(TAG, "Change Fragment: animate");
-                    transaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-                }
-
-                transaction.replace(R.id.fragment_container, frag, backStateName);
-
-                if (saveInBackstack) {
-                    Log.d(TAG, "Change Fragment: addToBackTack " + backStateName);
-                    transaction.addToBackStack(backStateName);
-                } else {
-                    Log.d(TAG, "Change Fragment: NO addToBackTack");
-                }
-
-                transaction.commit();
-            } else {
-                // custom effect if fragment is already instanciated
-            }
-        } catch (IllegalStateException exception) {
-            Log.w(TAG, "Unable to commit fragment, could be activity as been killed in background. " + exception.toString());
-        }
-    }
 
     private void displayAddressOutput(String locality) {
         ((TextView) findViewById(R.id.location_value)).setText(locality);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(mFragmentStack.peek());
+        if (fragment instanceof MainFragment) {
+            if (!backWasPressed) {
+                Toast.makeText(getApplicationContext(), "Press back again to exit", Toast.LENGTH_SHORT).show();
+                backWasPressed = true;
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(3000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        backWasPressed = false;
+                    }
+                }).start();
+
+            } else {
+                finish();
+            }
+        } else {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.popBackStack(MainFragment.class.getName(), 0);
+            mFragmentStack.clear();
+            mFragmentStack.add(mainFragment.getClass().getName());
+        }
     }
 
     protected void startIntentService() {

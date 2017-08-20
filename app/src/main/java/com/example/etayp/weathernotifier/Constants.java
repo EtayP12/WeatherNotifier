@@ -32,4 +32,5 @@ final class Constants {
     public static final String ALARM_IS_ACTIVE = "alarm is active";
     public static final String DEGREE = "°";
     public static final String PERCENT = "%";
+    public static final String[] NAMES = new String[]{MainFragment.class.getName(), NotificationSettingsFragment.class.getName(), LocationsFragment.class.getName()};
 }
