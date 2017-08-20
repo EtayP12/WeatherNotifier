@@ -13,7 +13,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Address;
 import android.location.Location;
 import android.net.Uri;
@@ -30,11 +29,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -136,6 +138,7 @@ public class MainActivity extends AppCompatActivity implements
                 })
                 .build();
 
+
         if ((ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED)) {
             Awareness.SnapshotApi.getLocation(mApiClient).setResultCallback(new ResultCallback<com.google.android.gms.awareness.snapshot.LocationResult>() {
@@ -157,7 +160,11 @@ public class MainActivity extends AppCompatActivity implements
                             public void success(WeatherResponse weatherResponse, Response response) {
                                 String temp = String.valueOf(weatherResponse.getCurrently().getTemperature());
                                 ((TextView) findViewById(R.id.temperature_value)).setText(
-                                        temp.substring(0,temp.indexOf(".")+2) + Constants.DEGREE
+                                        temp.substring(0, temp.indexOf(".") + 2) + Constants.DEGREE
+                                );
+                                String app_temp = String.valueOf(weatherResponse.getCurrently().getApparentTemperature());
+                                ((TextView) findViewById(R.id.apparent_temperature_value)).setText(
+                                        app_temp.substring(0, temp.indexOf(".") + 2) + Constants.DEGREE
                                 );
                                 ((TextView) findViewById(R.id.Humidity_value)).setText(
                                         (int) (Double.valueOf(weatherResponse.getCurrently().getHumidity()) * 100) + Constants.PERCENT
@@ -165,45 +172,14 @@ public class MainActivity extends AppCompatActivity implements
                                 ((TextView) findViewById(R.id.precip_probability_value)).setText(
                                         weatherResponse.getCurrently().getPrecipProbability()
                                 );
-                                String wind = String.valueOf(Double.valueOf(weatherResponse.getCurrently().getWindSpeed())*1.609);
+                                String wind = String.valueOf(Double.valueOf(weatherResponse.getCurrently().getWindSpeed()) * 1.609);
                                 ((TextView) findViewById(R.id.wind_speed_value)).setText(
-                                        wind.substring(0,wind.indexOf(".")+2)
+                                        wind.substring(0, wind.indexOf(".") + 2)
                                 );
-                                switch (weatherResponse.getCurrently().getIcon()){
-                                    case "clear-day":
+                                changeIcon(weatherResponse.getCurrently(), (ImageView) findViewById(R.id.current_icon));
 
-                                        break;
-                                    case "clear-night":
+                                handleForecast(weatherResponse);
 
-                                        break;
-                                    case "rain":
-
-                                        break;
-                                    case "snow":
-
-                                        break;
-                                    case "sleet":
-
-                                        break;
-                                    case "wind":
-
-                                        break;
-                                    case "fog":
-
-                                        break;
-                                    case "cloudy":
-
-                                        break;
-                                    case "partly-cloudy-day":
-
-                                        break;
-                                    case "partly-cloudy-night":
-
-                                        break;
-                                    default:
-
-                                        break;
-                                }
                             }
 
                             @Override
@@ -218,6 +194,70 @@ public class MainActivity extends AppCompatActivity implements
             });
         }
 
+    }
+
+    private void handleForecast(WeatherResponse weatherResponse) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.MINUTE, 0);
+
+        int forecastItemsHandled = 0;
+        LinearLayout forecastLayout = (LinearLayout) findViewById(R.id.forecast_layout);
+        for (int i = 0; i < forecastLayout.getChildCount(); i++) {
+            if (forecastLayout.getChildAt(i) instanceof LinearLayout) {
+                LinearLayout forecastItem = (LinearLayout) forecastLayout.getChildAt(i);
+                forecastItemsHandled++;
+                calendar.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY)+1);
+                ((TextView) forecastItem.getChildAt(0))
+                        .setText(DateUtils.formatDateTime(this, calendar.getTimeInMillis(), DateUtils.FORMAT_SHOW_TIME)
+                        );
+                changeIcon(weatherResponse.getHourly().getData().get(forecastItemsHandled)
+                        ,(ImageView) forecastItem.getChildAt(1));
+                ((TextView) forecastItem.getChildAt(2))
+                        .setText(
+                               String.valueOf(weatherResponse.getHourly().getData().get(forecastItemsHandled).getTemperature())
+                                + Constants.DEGREE
+                        );
+            }
+        }
+    }
+
+    private void changeIcon(com.johnhiott.darkskyandroidlib.models.DataPoint point, ImageView imageToChange) {
+        switch (point.getIcon()) {
+            case "clear-day":
+                imageToChange.setImageResource(R.drawable.clear_day_icon);
+                break;
+            case "clear-night":
+                imageToChange.setImageResource(R.drawable.clear_night_icon);
+                break;
+            case "rain":
+                imageToChange.setImageResource(R.drawable.rainy_day_icon);
+                break;
+            case "snow":
+                imageToChange.setImageResource(R.drawable.snow_icon);
+                break;
+            case "sleet":
+                imageToChange.setImageResource(R.drawable.snow_icon);
+                break;
+            case "wind":
+                imageToChange.setImageResource(R.drawable.wind_icon);
+                break;
+            case "fog":
+                imageToChange.setImageResource(R.drawable.fog_cloud_icon);
+                break;
+            case "cloudy":
+                imageToChange.setImageResource(R.drawable.fog_cloud_icon);
+                break;
+            case "partly-cloudy-day":
+                imageToChange.setImageResource(R.drawable.cloudy_day_icon);
+                break;
+            case "partly-cloudy-night":
+                imageToChange.setImageResource(R.drawable.cloudy_night_icon);
+                break;
+            default:
+
+                break;
+        }
     }
 
     private void recyclerViewSetup() {

@@ -84,16 +84,17 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="26.5°"
+                        android:maxLines="1"
                         android:textColor="@color/colorWhite"
                         android:textSize="70sp" />
 
                     <ImageView
-                        android:id="@+id/Iconview"
+                        android:id="@+id/current_icon"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
-                        android:layout_weight="1"
-                        app:srcCompat="@drawable/sunny_day_icon" />
+                        android:layout_weight="1.5"
+                        app:srcCompat="@drawable/clear_day_icon" />
 
                 </LinearLayout>
             </LinearLayout>
@@ -112,9 +113,7 @@
                 android:layout_height="113dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/databubble"
-                android:backgroundTint="#1AFFFFFF"
-                tools:layout_editor_absoluteX="8dp"
-                tools:layout_editor_absoluteY="8dp">
+                android:backgroundTint="#1AFFFFFF">
 
                 <TableRow
                     android:layout_width="match_parent"
@@ -216,9 +215,10 @@
                 app:srcCompat="@color/wallet_bright_foreground_holo_dark" />
 
             <LinearLayout
+                android:id="@+id/forecast_layout"
                 android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:layout_marginTop="8dp"
+                android:layout_height="140dp"
+                android:layout_marginTop="4dp"
                 android:layout_weight="1"
                 android:background="@drawable/forecastbubble"
                 android:backgroundTint="#1AFFFFFF"
@@ -230,7 +230,6 @@
                 <LinearLayout
                     android:layout_width="65dp"
                     android:layout_height="100dp"
-                    android:layout_marginLeft="25dp"
                     android:orientation="vertical">
 
                     <TextView
