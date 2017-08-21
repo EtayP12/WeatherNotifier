@@ -425,7 +425,6 @@ public class MainActivity extends AppCompatActivity implements
             return true;
         }
         if (id == R.id.notification_usage) {
-//            changeFragment(notificationSettingsFragment, true, true);
             switchFragments(notificationSettingsFragment);
             return true;
         }
@@ -483,6 +482,7 @@ public class MainActivity extends AppCompatActivity implements
                     alertDialog.dismiss();
                 }
             });
+            return true;
         }
 
 
