@@ -36,6 +36,6 @@
     <string name="title_activity_weather_update">Weather update</string>
     <string name="done">Done</string>
     <string name="locating">Locating...</string>
-    <string name="precipitation_probability">precipitation probability:</string>
+    <string name="precipitation_probability">precipitation:</string>
     <string name="wind_speed">Wind speed:</string>
 </resources>

@@ -99,7 +99,7 @@
             </LinearLayout>
 
             <ImageView
-                android:id="@+id/imageView3"
+                android:id="@+id/screenLine1"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginTop="48dp"
@@ -108,104 +108,161 @@
                 app:srcCompat="@color/wallet_bright_foreground_holo_dark" />
 
             <TableLayout
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="113dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/databubble"
                 android:backgroundTint="#1AFFFFFF">
 
                 <TableRow
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_marginTop="20dp"
-                    android:gravity="center">
+                    android:layout_marginLeft="45dp"
+                    android:layout_marginRight="35dp"
+                    android:layout_marginTop="14dp"
+                    android:gravity="left">
 
-                    <TextView
-                        android:id="@+id/temperature_text"
+                    <ImageView
+                        android:id="@+id/imageView"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        android:alpha="0.7"
+                        app:srcCompat="@drawable/temp_data_icon" />
+
+                    <LinearLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/apparent_temprature"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                        android:textColor="@color/colorWhite" />
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/apparent_temperature_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="10dp"
-                        android:text=""
-                        android:textColor="@color/colorWhite" />
-                </TableRow>
+                        <TextView
+                            android:id="@+id/app"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:alpha="0.7"
+                            android:text="Feels like:"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                            android:textColor="@color/colorWhite" />
 
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center">
+                        <TextView
+                            android:id="@+id/apparent_temperature_value"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            android:textColor="@color/colorWhite" />
 
-                    <TextView
-                        android:id="@+id/Humidity_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/humidity"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                        android:textColor="@color/colorWhite" />
+                    </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/Humidity_value"
+                    <ImageView
+                        android:id="@+id/imageView7"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        android:layout_marginLeft="65dp"
+                        android:alpha="0.7"
+                        app:srcCompat="@drawable/humidity_data_icon" />
+
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="10dp"
-                        android:text=""
-                        android:textColor="@color/colorWhite" />
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/Humidity_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:alpha="0.7"
+                            android:text="@string/humidity"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                            android:textColor="@color/colorWhite" />
+
+                        <TextView
+                            android:id="@+id/Humidity_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="10dp"
+                            android:text=""
+                            android:textColor="@color/colorWhite" />
+
+                    </LinearLayout>
+
                 </TableRow>
 
                 <TableRow
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:gravity="center">
+                    android:layout_marginLeft="45dp"
+                    android:layout_marginRight="35dp"
+                    android:layout_marginTop="15dp"
+                    android:gravity="left">
 
-                    <TextView
-                        android:id="@+id/precip_probability_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/precipitation_probability"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                        android:textColor="@color/colorWhite" />
+                    <ImageView
+                        android:id="@+id/imageView4"
+                        android:alpha="0.7"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        app:srcCompat="@drawable/wind_data_icon" />
 
-                    <TextView
-                        android:id="@+id/precip_probability_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="10dp"
-                        android:text=""
-                        android:textColor="@color/colorWhite" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/wind_speed_text"
+                            android:alpha="0.7"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/wind_speed"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                            android:textColor="@color/colorWhite" />
+
+                        <TextView
+                            android:id="@+id/wind_speed_value"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="10dp"
+                            android:text=""
+                            android:textColor="@color/colorWhite" />
+
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/imageView5"
+                        android:alpha="0.7"
+                        android:layout_marginLeft="65dp"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        app:srcCompat="@drawable/preciptation_data_icon" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/precip_probability_text"
+                            android:alpha="0.7"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/precipitation_probability"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                            android:textColor="@color/colorWhite" />
+
+                        <TextView
+                            android:id="@+id/precip_probability_value"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="10dp"
+                            android:text=""
+                            android:textColor="@color/colorWhite" />
+
+                    </LinearLayout>
+
                 </TableRow>
 
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center">
-
-                    <TextView
-                        android:id="@+id/wind_speed_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/wind_speed"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                        android:textColor="@color/colorWhite" />
-
-                    <TextView
-                        android:id="@+id/wind_speed_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="10dp"
-                        android:text=""
-                        android:textColor="@color/colorWhite" />
-                </TableRow>
             </TableLayout>
 
             <ImageView
-                android:id="@+id/imageView4"
+                android:id="@+id/screenLine2"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginTop="8dp"
