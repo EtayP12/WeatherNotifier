@@ -33,9 +33,4 @@ public class WeatherUpdateActivity extends AppCompatActivity {
         finish();
     }
 
-   /* @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        WeatherUpdateItem.clear();
-    }*/
 }
