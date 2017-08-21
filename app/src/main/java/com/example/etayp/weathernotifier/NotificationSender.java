@@ -16,7 +16,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.example.etayp.weathernotifier.dummy.WeatherUpdateItems;
+import com.example.etayp.weathernotifier.dummy.WeatherUpdateItem;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -28,7 +28,9 @@ import com.johnhiott.darkskyandroidlib.models.WeatherResponse;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 import retrofit.Callback;
@@ -41,11 +43,15 @@ import retrofit.client.Response;
 
 public class NotificationSender extends IntentService {
 
+    List<WeatherUpdateItem> weatherUpdateItems = new ArrayList<>();
+
     private static final String TAG = "NotificationSender";
     private Address currentAddress;
     int numberOfSuccesses = 0;
     private int numberOfAddresses;
     private NotificationCompat.InboxStyle inboxStyle;
+    private Intent notifyIntent;
+    private NotificationCompat.Builder mBuilder;
 
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
@@ -62,48 +68,18 @@ public class NotificationSender extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        /*WeatherResponse weatherResponse =
-                (new Gson()).fromJson(
-                        intent.getStringExtra(Constants.WEATHER_RESPONSE_DATA)
-                        , WeatherResponse.class
-                );
-        final String key = intent.getStringExtra(Constants.ADDRESS_ID);
-        if (Objects.equals(key, "0")) {
-            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-            try {
-                currentAddress = geocoder.getFromLocation(weatherResponse.getLatitude(), weatherResponse.getLongitude(), 1).get(0);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            SharedPreferences sharedPreferences = getSharedPreferences(Constants.ADDRESSES_PREFERENCE, MODE_PRIVATE);
-            currentAddress = (new Gson()).fromJson(sharedPreferences.getString(key, ""), Address.class);
-        }*/
 
-        final NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
-                        .setAutoCancel(true)
-//                        .setSmallIcon(android.R.drawable.ic_notification_overlay)
-                        .setSmallIcon(R.drawable.web_hi_res_512)
-                        .setPriority(NotificationCompat.PRIORITY_HIGH)
-                        .setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_SOUND)
-                        .setContentTitle("New weather update")
-                        .setContentText("New weather update available");
 
-        Intent notifyIntent =
-                new Intent(Intent.makeMainActivity(new ComponentName(this, WeatherUpdateActivity.class)));
-//        notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-//                Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        mBuilder = new NotificationCompat.Builder(this)
+                .setAutoCancel(true)
+                .setSmallIcon(R.drawable.web_hi_res_512)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_SOUND)
+                .setContentTitle("New weather update")
+                .setContentText("New weather update available");
 
-        PendingIntent pendingIntent =
-                PendingIntent.getActivity(
-                        this,
-                        0,
-                        notifyIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
+        notifyIntent = new Intent(Intent.makeMainActivity(new ComponentName(this, WeatherUpdateActivity.class)));
 
-        mBuilder.setContentIntent(pendingIntent);
 
         final Context context = this;
 
@@ -150,6 +126,7 @@ public class NotificationSender extends IntentService {
         request.setLanguage(Request.Language.ENGLISH);
 //        request.addExcludeBlock(Request.Block.CURRENTLY);
         Log.d(TAG, "weatherRequestBuilder: request");
+        final Context context = this;
         weather.getWeather(request, new Callback<WeatherResponse>() {
             @Override
             public void success(WeatherResponse weatherResponse, Response response) {
@@ -158,9 +135,19 @@ public class NotificationSender extends IntentService {
                         + ": "
                         + weatherResponse.getCurrently().getTemperature()
                         + Constants.DEGREE);
-                new WeatherUpdateItems.WeatherUpdateItem(String.valueOf(numberOfSuccesses),weatherResponse,address.getLocality());
+                weatherUpdateItems.add(new WeatherUpdateItem(String.valueOf(numberOfSuccesses),weatherResponse,address.getLocality()));
                 if (++numberOfSuccesses == numberOfAddresses) {
                     mBuilder.setStyle(inboxStyle);
+                    notifyIntent.putExtra(Constants.WEATHER_UPDATE_ITEMS,(new Gson()).toJson(weatherUpdateItems));
+                    PendingIntent pendingIntent =
+                            PendingIntent.getActivity(
+                                    context,
+                                    0,
+                                    notifyIntent,
+                                    PendingIntent.FLAG_UPDATE_CURRENT
+                            );
+
+                    mBuilder.setContentIntent(pendingIntent);
                     NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                     notificationManager.notify(0, mBuilder.build());
                 }

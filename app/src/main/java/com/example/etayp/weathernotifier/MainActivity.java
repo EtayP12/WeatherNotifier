@@ -54,7 +54,6 @@ import com.johnhiott.darkskyandroidlib.RequestBuilder;
 import com.johnhiott.darkskyandroidlib.models.Request;
 import com.johnhiott.darkskyandroidlib.models.WeatherResponse;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -95,7 +94,6 @@ public class MainActivity extends AppCompatActivity implements
     private MainFragment mainFragment;
     private NotificationSettingsFragment notificationSettingsFragment;
     private LocationsFragment locationsFragment;
-    private Fragment fragmentToHide;
     private Stack<String> mFragmentStack;
     private boolean backWasPressed;
 
@@ -121,7 +119,6 @@ public class MainActivity extends AppCompatActivity implements
             transaction.addToBackStack(mainFragment.getClass().getName());
             mFragmentStack.add(mainFragment.getClass().getName());
             transaction.commit();
-//            fragmentToHide = mainFragment;
         }
 
         notificationSettingsFragment = new NotificationSettingsFragment();

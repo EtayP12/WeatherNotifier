@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.etayp.weathernotifier.dummy.WeatherUpdateItems;
+import com.example.etayp.weathernotifier.dummy.WeatherUpdateItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,10 +18,10 @@ import java.util.List;
 
 public class WeatherUpdateRecyclerViewAdapter extends RecyclerView.Adapter<WeatherUpdateRecyclerViewAdapter.ViewHolder> {
 
-    private final List<WeatherUpdateItems.WeatherUpdateItem> values;
+    private final List<WeatherUpdateItem> values;
     private ArrayList<ViewHolder> viewHolders = new ArrayList<>();
 
-    public WeatherUpdateRecyclerViewAdapter(List<WeatherUpdateItems.WeatherUpdateItem> items) {
+    public WeatherUpdateRecyclerViewAdapter(List<WeatherUpdateItem> items) {
         values = items;
     }
 
