@@ -404,7 +404,8 @@ public class MainActivity extends AppCompatActivity implements
             final AlertDialog alertDialog = new AlertDialog.Builder(this)
                     .setTitle(Constants.ALERT_DIALOG_TITLE)
                     .setCancelable(false).create();
-            alertDialog.setView(getLayoutInflater().inflate(R.layout.alert_dialog_layout, null));
+            alertDialog.setCustomTitle(getLayoutInflater().inflate(R.layout.set_update_time_title, null));
+            alertDialog.setView(getLayoutInflater().inflate(R.layout.set_update_time_layout, null));
             alertDialog.show();
             final Spinner updateTimeSpinner = ((Spinner) alertDialog.findViewById(R.id.spinner));
             updateTimeSpinner
