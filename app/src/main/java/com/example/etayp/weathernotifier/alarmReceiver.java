@@ -2,23 +2,31 @@ package com.example.etayp.weathernotifier;
 
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.example.etayp.weathernotifier.dummy.WeatherUpdateItem;
-import com.google.gson.Gson;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.johnhiott.darkskyandroidlib.RequestBuilder;
 import com.johnhiott.darkskyandroidlib.models.Request;
 import com.johnhiott.darkskyandroidlib.models.WeatherResponse;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -33,29 +41,56 @@ import static android.content.Context.MODE_PRIVATE;
 public class alarmReceiver extends BroadcastReceiver {
     private static final String TAG = "Alarm Receiver";
     private NotificationCompat.Builder mBuilder;
-    private HashMap<Object, Address> addressHashMap;
+    private HashMap<String, Address> addressHashMap;
     private List<WeatherUpdateItem> weatherUpdateItems;
     private int numberOfSuccesses = 0;
-    private Intent notifyIntent;
+    private int numberOfAddresses;
+    private NotificationCompat.InboxStyle inboxStyle;
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(final Context context, Intent intent) {
         Log.d(TAG, "onReceive: Alarm received");
         addressesHashMapSetup(context);
+        weatherUpdateItems = new ArrayList<>();
         mBuilder = new NotificationCompat.Builder(context)
-                .setAutoCancel(true)
-                .setSmallIcon(R.drawable.web_hi_res_512)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_SOUND)
+                .setSmallIcon(R.drawable.icon_misc_notification)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setDefaults(Notification.DEFAULT_ALL)
                 .setContentTitle("Daily weather update")
                 .setContentText("Daily weather update available");
 
+        inboxStyle = new NotificationCompat.InboxStyle();
+        inboxStyle.setBigContentTitle("Daily weather update:");
+
+        numberOfAddresses++;
+        FusedLocationProviderClient mFusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
+        if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        mFusedLocationClient.getLastLocation()
+                .addOnSuccessListener(new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        if (location != null) {
+                            Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+                            try {
+                                Address currentAddress = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1).get(0);
+                                handleAddress(currentAddress, context);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });
+        for (String key : addressHashMap.keySet()){
+            handleAddress(addressHashMap.get(key),context);
+        }
     }
 
     private void addressesHashMapSetup(Context context) {
         addressHashMap = new HashMap<>();
         SharedPreferences addressesSharedPreferences = context.getSharedPreferences(Constants.ADDRESSES_PREFERENCE, MODE_PRIVATE);
-        int numberOfAddresses = addressesSharedPreferences.getInt(Constants.NUMBER_OF_ADDRESSES, 0);
+        numberOfAddresses = addressesSharedPreferences.getInt(Constants.NUMBER_OF_ADDRESSES, 0);
         for (int i = 0; i < numberOfAddresses; i++) {
             addressHashMap.put(
                     String.valueOf(i + 1)
@@ -64,10 +99,7 @@ public class alarmReceiver extends BroadcastReceiver {
         }
     }
 
-    private void handleAddress(final NotificationCompat.Builder mBuilder
-            , final int numberOfAddresses
-            , final NotificationCompat.InboxStyle inboxStyle
-            , final Address address, final Context context) {
+    private void handleAddress(final Address address, final Context context) {
 
         RequestBuilder weather = new RequestBuilder();
 
@@ -81,14 +113,9 @@ public class alarmReceiver extends BroadcastReceiver {
         weather.getWeather(request, new Callback<WeatherResponse>() {
             @Override
             public void success(WeatherResponse weatherResponse, Response response) {
-                inboxStyle.addLine("Temperature in "
-                        + address.getLocality()
-                        + ": "
-                        + weatherResponse.getCurrently().getTemperature()
-                        + Constants.DEGREE);
                 weatherUpdateItems.add(new WeatherUpdateItem(String.valueOf(numberOfSuccesses), weatherResponse, address.getLocality()));
                 if (++numberOfSuccesses == numberOfAddresses) {
-                    sendNotification(mBuilder, inboxStyle, context);
+                    sendNotification(context);
                 }
             }
 
@@ -99,19 +126,20 @@ public class alarmReceiver extends BroadcastReceiver {
         });
     }
 
-    private void sendNotification(NotificationCompat.Builder mBuilder, NotificationCompat.InboxStyle inboxStyle, Context context) {
-        mBuilder.setStyle(inboxStyle);
-        notifyIntent.putExtra(Constants.WEATHER_UPDATE_ITEMS, (new Gson()).toJson(weatherUpdateItems));
-        PendingIntent pendingIntent =
-                PendingIntent.getActivity(
-                        context,
-                        0,
-                        notifyIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
+    private void sendNotification(Context context) {
+        for (WeatherUpdateItem item : weatherUpdateItems){
+            handleItem(item);
+        }
 
-        mBuilder.setContentIntent(pendingIntent);
+        mBuilder.setStyle(inboxStyle);
+
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(0, mBuilder.build());
+        notificationManager.notify(1, mBuilder.build());
+    }
+
+    private void handleItem(WeatherUpdateItem item) {
+        WeatherResponse weatherResponse = item.weatherResponse;
+        inboxStyle.addLine("Weather in "+item.location+":");
+        inboxStyle.addLine(weatherResponse.getDaily().getSummary());
     }
 }

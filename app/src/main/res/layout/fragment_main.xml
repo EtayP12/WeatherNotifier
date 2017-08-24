@@ -6,12 +6,11 @@
 
     tools:context="com.example.etayp.weathernotifier.MainFragment">
 
-    <!-- TODO: Update blank fragment layout -->
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/daybackground">
+        android:background="@drawable/background_fragment_main">
 
         <LinearLayout
             android:id="@+id/LocationLinear"
@@ -93,7 +92,7 @@
                         android:layout_gravity="end"
                         android:layout_weight="1"
                         android:visibility="invisible"
-                        app:srcCompat="@drawable/clear_day_icon" />
+                        app:srcCompat="@drawable/icon_weather_clear_day" />
 
                 </LinearLayout>
             </LinearLayout>
@@ -111,7 +110,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="113dp"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/databubble"
+                android:background="@drawable/misc_data_bubble"
                 android:backgroundTint="#1AFFFFFF">
 
                 <TableRow
@@ -127,7 +126,7 @@
                         android:layout_width="35dp"
                         android:layout_height="35dp"
                         android:alpha="0.7"
-                        app:srcCompat="@drawable/temp_data_icon" />
+                        app:srcCompat="@drawable/icon_data_temprature" />
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -158,7 +157,7 @@
                         android:layout_height="35dp"
                         android:layout_marginLeft="65dp"
                         android:alpha="0.7"
-                        app:srcCompat="@drawable/humidity_data_icon" />
+                        app:srcCompat="@drawable/icon_data_humidity" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -199,7 +198,7 @@
                         android:alpha="0.7"
                         android:layout_width="35dp"
                         android:layout_height="35dp"
-                        app:srcCompat="@drawable/wind_data_icon" />
+                        app:srcCompat="@drawable/icon_data_wind" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -231,7 +230,7 @@
                         android:layout_marginLeft="65dp"
                         android:layout_width="35dp"
                         android:layout_height="35dp"
-                        app:srcCompat="@drawable/preciptation_data_icon" />
+                        app:srcCompat="@drawable/icon_data_preciptation" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -276,7 +275,7 @@
                 android:layout_height="140dp"
                 android:layout_marginTop="4dp"
                 android:layout_weight="1"
-                android:background="@drawable/forecastbubble"
+                android:background="@drawable/misc_forecast_bubble"
                 android:backgroundTint="#1AFFFFFF"
                 android:gravity="center"
                 android:orientation="horizontal"
@@ -302,7 +301,7 @@
                         android:layout_height="50dp"
                         android:gravity="center"
                         android:visibility="invisible"
-                        app:srcCompat="@drawable/storm_night_icon" />
+                        app:srcCompat="@drawable/icon_weather_storm_night" />
 
                     <TextView
                         android:id="@+id/FCTemp1"
@@ -340,7 +339,7 @@
                         android:layout_height="50dp"
                         android:gravity="center"
                         android:visibility="invisible"
-                        app:srcCompat="@drawable/cloudy_night_icon" />
+                        app:srcCompat="@drawable/icon_weather_cloudy_night" />
 
                     <TextView
                         android:id="@+id/FCTemp2"
@@ -377,7 +376,7 @@
                         android:layout_height="50dp"
                         android:gravity="center"
                         android:visibility="invisible"
-                        app:srcCompat="@drawable/cloudy_night_icon" />
+                        app:srcCompat="@drawable/icon_weather_cloudy_night" />
 
                     <TextView
                         android:id="@+id/FCTemp3"
@@ -414,7 +413,7 @@
                         android:layout_height="50dp"
                         android:gravity="center"
                         android:visibility="invisible"
-                        app:srcCompat="@drawable/cloudy_night_icon" />
+                        app:srcCompat="@drawable/icon_weather_cloudy_night" />
 
                     <TextView
                         android:id="@+id/FCTemp4"
@@ -451,7 +450,7 @@
                         android:layout_height="50dp"
                         android:gravity="center"
                         android:visibility="invisible"
-                        app:srcCompat="@drawable/clear_night_icon" />
+                        app:srcCompat="@drawable/icon_weather_clear_night" />
 
                     <TextView
                         android:id="@+id/FCTemp5"

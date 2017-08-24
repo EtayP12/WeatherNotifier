@@ -52,7 +52,8 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".WeatherUpdateActivity"
-            android:label="@string/title_activity_weather_update" />
+            android:label="@string/title_activity_weather_update"
+            android:screenOrientation="portrait"/>
 
         <receiver android:name=".alarmReceiver" />
     </application>

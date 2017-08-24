@@ -23,7 +23,7 @@
             android:layout_marginLeft="75dp"
             android:layout_weight="1"
             android:alpha="0.85"
-            app:srcCompat="@drawable/set_alarm_icon" />
+            app:srcCompat="@drawable/icon_misc_alarm" />
 
         <TextView
             android:id="@+id/alertDialogTitle"

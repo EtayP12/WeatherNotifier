@@ -183,13 +183,13 @@ public class MainActivity extends AppCompatActivity implements
                                         (int) (Double.valueOf(weatherResponse.getCurrently().getHumidity()) * 100) + Constants.PERCENT
                                 );
                                 ((TextView) findViewById(R.id.precip_probability_value)).setText(
-                                        weatherResponse.getCurrently().getPrecipProbability()
+                                        (int) (Double.valueOf(weatherResponse.getCurrently().getPrecipProbability()) * 100) + Constants.PERCENT
                                 );
                                 String wind = String.valueOf(Double.valueOf(weatherResponse.getCurrently().getWindSpeed()) * 1.609);
                                 ((TextView) findViewById(R.id.wind_speed_value)).setText(
                                         wind.substring(0, wind.indexOf(".") + 2)
                                 );
-                                PublicMethods.changeIcon(weatherResponse.getCurrently(), (ImageView) findViewById(R.id.current_icon));
+                                PublicMethods.changeIcon(weatherResponse.getCurrently().getIcon(), (ImageView) findViewById(R.id.current_icon));
 
                                 handleForecast(weatherResponse);
 
@@ -224,7 +224,7 @@ public class MainActivity extends AppCompatActivity implements
                 ((TextView) forecastItem.getChildAt(0))
                         .setText(DateUtils.formatDateTime(this, calendar.getTimeInMillis(), DateUtils.FORMAT_SHOW_TIME)
                         );
-                PublicMethods.changeIcon(weatherResponse.getHourly().getData().get(forecastItemsHandled)
+                PublicMethods.changeIcon(weatherResponse.getHourly().getData().get(forecastItemsHandled).getIcon()
                         , (ImageView) forecastItem.getChildAt(1));
                 String s = String.valueOf(weatherResponse.getHourly().getData().get(forecastItemsHandled).getTemperature());
                 ((TextView) forecastItem.getChildAt(2))
@@ -396,36 +396,7 @@ public class MainActivity extends AppCompatActivity implements
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        if (id == R.id.set_update_time) {
-            final AlertDialog alertDialog = new AlertDialog.Builder(this)
-                    .setTitle(Constants.ALERT_DIALOG_TITLE)
-                    .setCancelable(false).create();
-            alertDialog.setCustomTitle(getLayoutInflater().inflate(R.layout.set_update_time_title, null));
-            alertDialog.setView(getLayoutInflater().inflate(R.layout.set_update_time_layout, null));
-            alertDialog.show();
-            final Spinner updateTimeSpinner = ((Spinner) alertDialog.findViewById(R.id.spinner));
-            updateTimeSpinner
-                    .setAdapter(ArrayAdapter.createFromResource(
-                            this, R.array.update_times, android.R.layout.simple_spinner_dropdown_item)
-                    );
-            updateTimeSpinner
-                    .setSelection(sharedPreferences.getInt(Constants.UPDATE_TIME_SELECTION, 0));
-            alertDialog.findViewById(R.id.set_button).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    sharedPreferences.edit().putInt(Constants.UPDATE_TIME_SELECTION
-                            , updateTimeSpinner.getSelectedItemPosition())
-                            .commit();
-                    alertDialog.dismiss();
-                }
-            });
-            return true;
-        }
-        if (id == R.id.notification_usage) {
+        if (id == R.id.settings) {
             switchFragments(notificationSettingsFragment);
             return true;
         }
@@ -484,6 +455,11 @@ public class MainActivity extends AppCompatActivity implements
                 }
             });
             return true;
+        }
+        if (id == R.id.debug) {
+            Intent intent = new Intent(this, alarmReceiver.class);
+            PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+            alarmManager.setExact(AlarmManager.RTC, System.currentTimeMillis(), alarmPendingIntent);
         }
 
 

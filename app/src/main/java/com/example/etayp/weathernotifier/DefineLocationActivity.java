@@ -8,7 +8,9 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -43,6 +45,11 @@ public class DefineLocationActivity extends FragmentActivity implements OnMapRea
         mapFragment.getMapAsync(this);
         location = getIntent().getParcelableExtra("Location");
         currentAddress = getIntent().getParcelableExtra("Address");
+
+        EditText searchBox = (EditText) findViewById(R.id.search_box);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(searchBox, InputMethodManager.SHOW_IMPLICIT);
+
         findViewById(R.id.add_location_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -52,6 +59,7 @@ public class DefineLocationActivity extends FragmentActivity implements OnMapRea
                 finish();
             }
         });
+
         final Context context = this;
         findViewById(R.id.search_button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,6 +78,11 @@ public class DefineLocationActivity extends FragmentActivity implements OnMapRea
                         newLocation = new Location("");
                         newLocation.setLatitude(searchAddress.getLatitude());
                         newLocation.setLongitude(searchAddress.getLongitude());
+                        View view = getCurrentFocus();
+                        if (view != null) {
+                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                        }
                     } else {
                         Toast toast = new Toast(context);
                         toast.makeText(context, "No address found", Toast.LENGTH_SHORT).show();
@@ -81,6 +94,7 @@ public class DefineLocationActivity extends FragmentActivity implements OnMapRea
                 }
             }
         });
+
         findViewById(R.id.cancel_location_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

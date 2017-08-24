@@ -53,6 +53,7 @@ public class NotificationSender extends IntentService {
     private Intent notifyIntent;
     private NotificationCompat.Builder mBuilder;
 
+
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
      *
@@ -72,8 +73,8 @@ public class NotificationSender extends IntentService {
 
         mBuilder = new NotificationCompat.Builder(this)
                 .setAutoCancel(true)
-                .setSmallIcon(R.drawable.web_hi_res_512)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setSmallIcon(R.drawable.icon_misc_notification)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_SOUND)
                 .setContentTitle("New weather update")
                 .setContentText("New weather update available");
@@ -111,7 +112,7 @@ public class NotificationSender extends IntentService {
                 });
         assert addressHashMap != null;
         for (String addressKey : addressHashMap.keySet()) {
-            final Address address = addressHashMap.get(addressKey);
+            Address address = addressHashMap.get(addressKey);
             handleAddress(mBuilder, numberOfAddresses, inboxStyle, address);
         }
     }

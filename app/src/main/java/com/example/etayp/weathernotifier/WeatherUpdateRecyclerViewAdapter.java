@@ -28,7 +28,7 @@ public class WeatherUpdateRecyclerViewAdapter extends RecyclerView.Adapter<Weath
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.weather_update_item, parent, false);
+                .inflate(R.layout.item_weather_update, parent, false);
         WeatherUpdateRecyclerViewAdapter.ViewHolder viewHolder = new WeatherUpdateRecyclerViewAdapter.ViewHolder(view);
         viewHolders.add(viewHolder);
         return viewHolder;
@@ -40,41 +40,7 @@ public class WeatherUpdateRecyclerViewAdapter extends RecyclerView.Adapter<Weath
         holder.mTemprature.setText(String.valueOf(values.get(position).weatherResponse.getCurrently().getTemperature()));
         holder.mHumidity.setText(String.valueOf(values.get(position).weatherResponse.getCurrently().getHumidity()));
         holder.mLocation.setText(values.get(position).location);
-        switch (values.get(position).weatherResponse.getCurrently().getIcon()){
-            case "clear-day":
-
-                break;
-            case "clear-night":
-
-                break;
-            case "rain":
-
-                break;
-            case "snow":
-
-                break;
-            case "sleet":
-
-                break;
-            case "wind":
-
-                break;
-            case "fog":
-
-                break;
-            case "cloudy":
-
-                break;
-            case "partly-cloudy-day":
-
-                break;
-            case "partly-cloudy-night":
-
-                break;
-            default:
-
-                break;
-        }
+        PublicMethods.changeIcon(values.get(position).weatherResponse.getCurrently().getIcon(),holder.mIcon);
     }
 
     @Override

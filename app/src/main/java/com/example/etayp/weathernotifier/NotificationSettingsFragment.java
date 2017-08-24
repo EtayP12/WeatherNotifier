@@ -8,7 +8,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.Spinner;
 
 
 /**
@@ -25,35 +27,16 @@ public class NotificationSettingsFragment extends Fragment {
     private SharedPreferences.Editor sharedPreferencesEditor;
     private View rootView;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     private OnFragmentInteractionListener mListener;
+    private Spinner updateTimeSpinner;
 
     public NotificationSettingsFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment NotificationSettingsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static NotificationSettingsFragment newInstance(String param1, String param2) {
+    public static NotificationSettingsFragment newInstance() {
         NotificationSettingsFragment fragment = new NotificationSettingsFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -61,10 +44,7 @@ public class NotificationSettingsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+
         sharedPreferences = getActivity().getSharedPreferences(MainActivity.class.getSimpleName(), Context.MODE_PRIVATE);
         sharedPreferencesEditor = sharedPreferences.edit();
     }
@@ -74,14 +54,21 @@ public class NotificationSettingsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_notification_settings, container, false);
-        ((CheckBox) rootView.findViewById(R.id.temperature_option))
-                .setChecked(sharedPreferences.getBoolean("templature_option", true));
-        ((CheckBox) rootView.findViewById(R.id.uv_option))
-                .setChecked(sharedPreferences.getBoolean("uv_option", true));
-        ((CheckBox) rootView.findViewById(R.id.rain_option))
-                .setChecked(sharedPreferences.getBoolean("rain_option", true));
-        ((CheckBox) rootView.findViewById(R.id.pollution_option))
-                .setChecked(sharedPreferences.getBoolean("pollution_option", true));
+        ((CheckBox) rootView.findViewById(R.id.option_temperature))
+                .setChecked(sharedPreferences.getBoolean(Constants.OPTION_TEMPRATURE, true));
+        ((CheckBox) rootView.findViewById(R.id.option_wind))
+                .setChecked(sharedPreferences.getBoolean(Constants.OPTION_WIND, true));
+        ((CheckBox) rootView.findViewById(R.id.option_rain))
+                .setChecked(sharedPreferences.getBoolean(Constants.OPTION_RAIN, true));
+        ((CheckBox) rootView.findViewById(R.id.option_humidity))
+                .setChecked(sharedPreferences.getBoolean(Constants.OPTION_HUMIDITY, true));
+        updateTimeSpinner = ((Spinner) rootView.findViewById(R.id.spinner));
+        updateTimeSpinner
+                .setAdapter(ArrayAdapter.createFromResource(
+                        getContext(), R.array.update_times, android.R.layout.simple_spinner_dropdown_item)
+                );
+        updateTimeSpinner
+                .setSelection(sharedPreferences.getInt(Constants.UPDATE_TIME_SELECTION, 0));
         return rootView;
     }
 
@@ -107,14 +94,16 @@ public class NotificationSettingsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
-        sharedPreferencesEditor.putBoolean("temperature_option",
-                ((CheckBox) rootView.findViewById(R.id.temperature_option)).isChecked());
-        sharedPreferencesEditor.putBoolean("uv_option",
-                ((CheckBox) rootView.findViewById(R.id.uv_option)).isChecked());
-        sharedPreferencesEditor.putBoolean("rain_option",
-                ((CheckBox) rootView.findViewById(R.id.rain_option)).isChecked());
-        sharedPreferencesEditor.putBoolean("pollution_option",
-                ((CheckBox) rootView.findViewById(R.id.pollution_option)).isChecked());
+        sharedPreferencesEditor.putBoolean(Constants.OPTION_TEMPRATURE,
+                ((CheckBox) rootView.findViewById(R.id.option_temperature)).isChecked());
+        sharedPreferencesEditor.putBoolean(Constants.OPTION_WIND,
+                ((CheckBox) rootView.findViewById(R.id.option_wind)).isChecked());
+        sharedPreferencesEditor.putBoolean(Constants.OPTION_RAIN,
+                ((CheckBox) rootView.findViewById(R.id.option_rain)).isChecked());
+        sharedPreferencesEditor.putBoolean(Constants.OPTION_HUMIDITY,
+                ((CheckBox) rootView.findViewById(R.id.option_humidity)).isChecked());
+        sharedPreferencesEditor.putInt(Constants.UPDATE_TIME_SELECTION
+                , updateTimeSpinner.getSelectedItemPosition());
         sharedPreferencesEditor.commit();
     }
 

@@ -29,37 +29,37 @@ public class PublicMethods {
         return null;
     }
 
-    public static void changeIcon(com.johnhiott.darkskyandroidlib.models.DataPoint point, ImageView imageToChange) {
-        switch (point.getIcon()) {
+    public static void changeIcon(String icon, ImageView imageToChange) {
+        switch (icon) {
             case "clear-day":
-                imageToChange.setImageResource(R.drawable.clear_day_icon);
+                imageToChange.setImageResource(R.drawable.icon_weather_clear_day);
                 break;
             case "clear-night":
-                imageToChange.setImageResource(R.drawable.clear_night_icon);
+                imageToChange.setImageResource(R.drawable.icon_weather_clear_night);
                 break;
             case "rain":
-                imageToChange.setImageResource(R.drawable.rainy_day_icon);
+                imageToChange.setImageResource(R.drawable.icon_weather_rainy_day);
                 break;
             case "snow":
-                imageToChange.setImageResource(R.drawable.snow_icon);
+                imageToChange.setImageResource(R.drawable.icon_weather_snow);
                 break;
             case "sleet":
-                imageToChange.setImageResource(R.drawable.snow_icon);
+                imageToChange.setImageResource(R.drawable.icon_weather_snow);
                 break;
             case "wind":
-                imageToChange.setImageResource(R.drawable.wind_icon);
+                imageToChange.setImageResource(R.drawable.icon_weather_wind);
                 break;
             case "fog":
-                imageToChange.setImageResource(R.drawable.fog_cloud_icon);
+                imageToChange.setImageResource(R.drawable.icon_weather_fog_cloud);
                 break;
             case "cloudy":
-                imageToChange.setImageResource(R.drawable.fog_cloud_icon);
+                imageToChange.setImageResource(R.drawable.icon_weather_fog_cloud);
                 break;
             case "partly-cloudy-day":
-                imageToChange.setImageResource(R.drawable.cloudy_day_icon);
+                imageToChange.setImageResource(R.drawable.icon_weather_cloudy_day);
                 break;
             case "partly-cloudy-night":
-                imageToChange.setImageResource(R.drawable.cloudy_night_icon);
+                imageToChange.setImageResource(R.drawable.icon_weather_cloudy_night);
                 break;
             default:
 

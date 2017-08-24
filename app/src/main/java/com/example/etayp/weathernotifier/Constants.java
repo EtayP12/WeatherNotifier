@@ -33,4 +33,9 @@ final class Constants {
     public static final String DEGREE = "°";
     public static final String PERCENT = "%";
     public static final String WEATHER_UPDATE_ITEMS = "weather update items";
+
+    public static final String OPTION_TEMPRATURE = "option_temprature";
+    public static final String OPTION_WIND = "option_wind";
+    public static final String OPTION_RAIN = "option_rain";
+    public static final String OPTION_HUMIDITY = "option_humidity";
 }

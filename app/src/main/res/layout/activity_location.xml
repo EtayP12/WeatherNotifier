@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/daybackground">
+    android:background="@drawable/background_fragment_main">
 
     <Button
         android:id="@+id/cancel_location_button"
@@ -15,7 +15,7 @@
         android:layout_marginStart="40dp"
         android:layout_marginTop="60dp"
         android:text=""
-        android:background="@drawable/back_icon"
+        android:background="@drawable/icon_misc_back"
         app:layout_constraintLeft_toRightOf="@+id/add_location_button"
         app:layout_constraintTop_toBottomOf="@+id/map" />
 
@@ -27,7 +27,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="60dp"
         android:text=" "
-        android:background="@drawable/add_icon"
+        android:background="@drawable/icon_misc_add"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/map" />
 
@@ -37,7 +37,7 @@
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="0dp"
-        android:layout_height="500dp"
+        android:layout_height="450dp"
         map:layout_constraintLeft_toLeftOf="parent"
         map:layout_constraintRight_toRightOf="parent"
         map:layout_constraintTop_toTopOf="parent"
@@ -63,7 +63,7 @@
         android:layout_height="35dp"
         android:layout_marginLeft="1dp"
         android:text=""
-        android:background="@drawable/searchiconn"
+        android:background="@drawable/icon_misc_search"
         app:layout_constraintBaseline_toBaselineOf="@+id/search_box"
         app:layout_constraintLeft_toRightOf="@+id/search_box"
         android:layout_marginRight="95dp"

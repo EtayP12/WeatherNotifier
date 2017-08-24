@@ -1,77 +1,111 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_gravity="center"
     tools:context="com.example.etayp.weathernotifier.NotificationSettingsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
 
-    <android.support.constraint.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="20dp"
+        android:orientation="vertical">
 
-        <LinearLayout
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="8dp"
-            android:layout_marginRight="8dp"
-            app:layout_constraintRight_toRightOf="parent"
-            android:layout_marginLeft="8dp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            android:gravity="center">
+            android:layout_marginBottom="7dp"
+            android:text="@string/how_frequently_should_weather_notifier_check_for_updates"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:theme="@android:style/Theme.Holo" />
 
-            <CheckBox
-                android:id="@+id/temperature_option"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:checked="true"
-                android:text="temperature"
-                android:textAlignment="center"
-                android:textStyle="bold"
-                android:layout_gravity="left"
-                app:buttonTint="@android:color/background_dark"
-                android:gravity="center_vertical"/>
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center" />
+    </LinearLayout>
 
-            <CheckBox
-                android:id="@+id/uv_option"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:checked="true"
-                android:text="@string/wind_title"
-                android:textAlignment="center"
-                android:textStyle="bold"
-                android:layout_gravity="left"
-                app:buttonTint="@android:color/background_dark" />
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:layout_marginBottom="20dp"
+        app:srcCompat="@android:color/background_light" />
 
-            <CheckBox
-                android:id="@+id/rain_option"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:checked="true"
-                android:text="Rain"
-                android:textAlignment="center"
-                android:textStyle="bold"
-                android:gravity="center_vertical"
-                android:layout_gravity="left"
-                app:buttonTint="@android:color/background_dark" />
+    <LinearLayout
+        android:theme="@android:style/Theme.Holo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical">
 
-            <CheckBox
-                android:id="@+id/pollution_option"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:checked="true"
-                android:text="Humidity"
-                android:textAlignment="center"
-                android:textStyle="bold"
-                android:layout_gravity="left"
-                app:buttonTint="@android:color/background_dark" />
-        </LinearLayout>
-    </android.support.constraint.ConstraintLayout>
-</FrameLayout>
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="7dp"
+            android:layout_weight="1"
+            android:text="@string/what_should_weather_notifier_keep_track_of"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:theme="@android:style/Theme.Holo" />
+
+        <CheckBox
+            android:id="@+id/option_rain"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_marginBottom="10dp"
+            android:layout_weight="1"
+            android:checked="true"
+            android:gravity="center_vertical"
+            android:text="@string/option_rain"
+            android:textAlignment="center"
+            android:textStyle="bold" />
+
+        <CheckBox
+            android:id="@+id/option_humidity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_marginBottom="10dp"
+            android:layout_weight="1"
+            android:checked="true"
+            android:text="@string/option_humidity"
+            android:textAlignment="center"
+            android:textStyle="bold" />
+
+        <CheckBox
+            android:id="@+id/option_temperature"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_marginBottom="10dp"
+            android:layout_weight="1"
+            android:checked="true"
+            android:gravity="center"
+            android:text="@string/option_temperature"
+            android:textAlignment="center"
+            android:textStyle="bold" />
+
+        <CheckBox
+            android:id="@+id/option_wind"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_marginBottom="10dp"
+            android:layout_weight="1"
+            android:checked="true"
+            android:text="@string/option_wind"
+            android:textAlignment="center"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</LinearLayout>
+

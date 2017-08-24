@@ -2,11 +2,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.example.etayp.weathernotifier.MainActivity">
-    <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
+
     <item
         android:id="@+id/set_alarm_time"
         android:title="@string/set_alarm_time" />
@@ -14,9 +10,9 @@
         android:id="@+id/define_location"
         android:title="@string/define_locations" />
     <item
-        android:id="@+id/set_update_time"
-        android:title="@string/set_update_time" />
+        android:id="@+id/settings"
+        android:title="@string/settings" />
     <item
-        android:id="@+id/notification_usage"
-        android:title="@string/notification_usage" />
+        android:id="@+id/debug"
+        android:title="debug"/>
 </menu>

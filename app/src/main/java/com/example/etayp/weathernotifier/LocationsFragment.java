@@ -84,7 +84,7 @@ public class LocationsFragment extends Fragment {
         MainActivity activity = (MainActivity) getActivity();
         location = activity.getLastKnownLocation();
         address = activity.getLastKnownAddress();
-        view.findViewById(R.id.add_new_adress_button).setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.add_new_address_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getContext(), DefineLocationActivity.class);
