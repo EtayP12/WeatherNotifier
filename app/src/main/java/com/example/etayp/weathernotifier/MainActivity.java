@@ -46,6 +46,7 @@ import android.widget.Toast;
 import com.example.etayp.weathernotifier.dummy.RecyclerItems;
 import com.google.android.gms.awareness.Awareness;
 import com.google.android.gms.awareness.fence.FenceState;
+import com.google.android.gms.awareness.snapshot.LocationResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.gson.Gson;
@@ -96,6 +97,8 @@ public class MainActivity extends AppCompatActivity implements
     private LocationsFragment locationsFragment;
     private Stack<String> mFragmentStack;
     private boolean backWasPressed;
+    private int[] updateTimeMillis;
+    private Thread locationUpdateThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,6 +137,7 @@ public class MainActivity extends AppCompatActivity implements
         addressesHashMapSetup();
         recyclerViewSetup();
 
+        updateTimeMillis = getResources().getIntArray(R.array.update_times_millis);
         mApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Awareness.API)
                 .enableAutoManage(this, 1, null)
@@ -142,6 +146,22 @@ public class MainActivity extends AppCompatActivity implements
                     public void onConnected(@Nullable Bundle bundle) {
                         mFenceReceiver = new FenceReceiver();
                         registerReceiver(mFenceReceiver, new IntentFilter(FENCE_RECEIVER_ACTION));
+                        locationUpdateThread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                while (true) {
+                                    updateLocation();
+                                    try {
+//                                        Thread.sleep((long) updateTimeMillis[sharedPreferences.getInt(Constants.UPDATE_TIME_SELECTION, 0)]);
+                                        Thread.sleep(15000);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+
+                        });
+                        locationUpdateThread.start();
                     }
 
                     @Override
@@ -150,13 +170,14 @@ public class MainActivity extends AppCompatActivity implements
                     }
                 })
                 .build();
+    }
 
-
+    private void updateLocation() {
         if ((ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED)) {
-            Awareness.SnapshotApi.getLocation(mApiClient).setResultCallback(new ResultCallback<com.google.android.gms.awareness.snapshot.LocationResult>() {
+            Awareness.SnapshotApi.getLocation(mApiClient).setResultCallback(new ResultCallback<LocationResult>() {
                 @Override
-                public void onResult(@NonNull com.google.android.gms.awareness.snapshot.LocationResult locationResult) {
+                public void onResult(@NonNull LocationResult locationResult) {
                     mLastLocation = locationResult.getLocation();
                     if (mLastLocation != null) {
                         startIntentService();
@@ -206,7 +227,6 @@ public class MainActivity extends AppCompatActivity implements
                 }
             });
         }
-
     }
 
     private void handleForecast(WeatherResponse weatherResponse) {
@@ -271,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements
                 switch (resultData.getInt(Constants.RECEIVE_TYPE_EXTRA)) {
                     case Constants.RECEIVE_TO_MAIN:
                         mAddress = resultData.getParcelable("currentAddress");
-                        displayAddressOutput(mAddress.getLocality());
+                        displayAddressOutput(mAddress.getLocality() != null ? mAddress.getLocality() : "Current location");
                         break;
                     case Constants.RECEIVE_TO_FRAGMENT:
                         Address address = resultData.getParcelable("currentAddress");
@@ -293,7 +313,6 @@ public class MainActivity extends AppCompatActivity implements
         super.onPause();
         activityIsActive = false;
         saveAddressesToPreference();
-        int[] updateTimeMillis = getResources().getIntArray(R.array.update_times_millis);
         final long selectedUpdateTime = (long) updateTimeMillis[sharedPreferences.getInt(Constants.UPDATE_TIME_SELECTION, 0)];
         final Intent intent = new Intent(this, NotificationSender.class);
         final Context context = this;
@@ -322,7 +341,9 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
         thread.start();
-        unregisterReceiver(mFenceReceiver);
+        if (mFenceReceiver != null) {
+            unregisterReceiver(mFenceReceiver);
+        }
     }
 
     public static boolean isBackgroundRunning(Context context) {
@@ -405,55 +426,7 @@ public class MainActivity extends AppCompatActivity implements
             return true;
         }
         if (id == R.id.set_alarm_time) {
-            final AlertDialog alertDialog = new AlertDialog.Builder(this)
-                    .setTitle(Constants.SET_ALARM_TIME)
-                    .setCancelable(false).create();
-            alertDialog.setView(getLayoutInflater().inflate(R.layout.alarm_alert_dialog_layout, null));
-            alertDialog.setCustomTitle(getLayoutInflater().inflate(R.layout.alarm_alert_dialog_title, null));
-            alertDialog.show();
-
-            ((TimePicker) alertDialog.findViewById(R.id.timePicker))
-                    .setCurrentHour(sharedPreferences.getInt(Constants.ALARM_HOUR, 0));
-            ((TimePicker) alertDialog.findViewById(R.id.timePicker))
-                    .setCurrentMinute(sharedPreferences.getInt(Constants.ALARM_MINUTE, 0));
-            ((TimePicker) alertDialog.findViewById(R.id.timePicker))
-                    .setIs24HourView(DateFormat.is24HourFormat(this));
-            final Switch alarmSwitch = (Switch) alertDialog.findViewById(R.id.alarmSwitch);
-            alarmSwitch.setChecked(sharedPreferences.getBoolean(Constants.ALARM_IS_ACTIVE, false));
-
-            alertDialog.findViewById(R.id.timePicker).setEnabled(alarmSwitch.isChecked());
-            alertDialog.findViewById(R.id.alarmSwitch).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    alertDialog.findViewById(R.id.timePicker).setEnabled(alarmSwitch.isChecked());
-                }
-            });
-            Intent intent = new Intent(this, alarmReceiver.class);
-            final PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
-            alertDialog.findViewById(R.id.set_alarm_button).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    if (alarmSwitch.isChecked()) {
-                        editor.putInt(Constants.ALARM_HOUR, ((TimePicker) alertDialog.findViewById(R.id.timePicker)).getCurrentHour());
-                        editor.putInt(Constants.ALARM_MINUTE, ((TimePicker) alertDialog.findViewById(R.id.timePicker)).getCurrentMinute());
-                        editor.putBoolean(Constants.ALARM_IS_ACTIVE, true);
-
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.setTimeInMillis(System.currentTimeMillis());
-                        calendar.set(Calendar.HOUR_OF_DAY, ((TimePicker) alertDialog.findViewById(R.id.timePicker)).getCurrentHour());
-                        calendar.set(Calendar.MINUTE, ((TimePicker) alertDialog.findViewById(R.id.timePicker)).getCurrentMinute());
-
-                        alarmManager.setInexactRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, alarmPendingIntent);
-//                        alarmManager.setRepeating(AlarmManager.RTC, calendar.getTimeInMillis(),3000,alarmPendingIntent );
-                    } else {
-                        editor.putBoolean(Constants.ALARM_IS_ACTIVE, false);
-                        alarmManager.cancel(alarmPendingIntent);
-                    }
-                    editor.apply();
-                    alertDialog.dismiss();
-                }
-            });
+            makeAlarmDialogBox();
             return true;
         }
         if (id == R.id.debug) {
@@ -464,6 +437,66 @@ public class MainActivity extends AppCompatActivity implements
 
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void makeAlarmDialogBox() {
+        final AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setTitle(Constants.SET_ALARM_TIME)
+                .setCancelable(false).create();
+        alertDialog.setView(getLayoutInflater().inflate(R.layout.alarm_alert_dialog_layout, null));
+        alertDialog.setCustomTitle(getLayoutInflater().inflate(R.layout.alarm_alert_dialog_title, null));
+        alertDialog.show();
+
+        ((TimePicker) alertDialog.findViewById(R.id.timePicker))
+                .setCurrentHour(sharedPreferences.getInt(Constants.ALARM_HOUR, 0));
+        ((TimePicker) alertDialog.findViewById(R.id.timePicker))
+                .setCurrentMinute(sharedPreferences.getInt(Constants.ALARM_MINUTE, 0));
+        ((TimePicker) alertDialog.findViewById(R.id.timePicker))
+                .setIs24HourView(DateFormat.is24HourFormat(this));
+        final Switch alarmSwitch = (Switch) alertDialog.findViewById(R.id.alarmSwitch);
+        alarmSwitch.setChecked(sharedPreferences.getBoolean(Constants.ALARM_IS_ACTIVE, false));
+
+        alertDialog.findViewById(R.id.timePicker).setEnabled(alarmSwitch.isChecked());
+        alertDialog.findViewById(R.id.alarmSwitch).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.findViewById(R.id.timePicker).setEnabled(alarmSwitch.isChecked());
+            }
+        });
+        Intent intent = new Intent(this, alarmReceiver.class);
+        final PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+        alertDialog.findViewById(R.id.set_alarm_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                if (alarmSwitch.isChecked()) {
+                    alarmManager.cancel(alarmPendingIntent);
+
+                    editor.putInt(Constants.ALARM_HOUR, ((TimePicker) alertDialog.findViewById(R.id.timePicker)).getCurrentHour());
+                    editor.putInt(Constants.ALARM_MINUTE, ((TimePicker) alertDialog.findViewById(R.id.timePicker)).getCurrentMinute());
+                    editor.putBoolean(Constants.ALARM_IS_ACTIVE, true);
+
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTimeInMillis(System.currentTimeMillis());
+                    calendar.set(Calendar.HOUR_OF_DAY, ((TimePicker) alertDialog.findViewById(R.id.timePicker)).getCurrentHour());
+                    calendar.set(Calendar.MINUTE, ((TimePicker) alertDialog.findViewById(R.id.timePicker)).getCurrentMinute());
+                    calendar.set(Calendar.SECOND, 0);
+
+                    if (System.currentTimeMillis() > calendar.getTimeInMillis()) {
+                        calendar.add(Calendar.DAY_OF_YEAR, 1);
+                    }
+
+                    alarmManager.setInexactRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, alarmPendingIntent);
+
+//                        alarmManager.setRepeating(AlarmManager.RTC, calendar.getTimeInMillis(),3000,alarmPendingIntent );
+                } else {
+                    editor.putBoolean(Constants.ALARM_IS_ACTIVE, false);
+                    alarmManager.cancel(alarmPendingIntent);
+                }
+                editor.apply();
+                alertDialog.dismiss();
+            }
+        });
     }
 
     private void switchFragments(Fragment fragment) {

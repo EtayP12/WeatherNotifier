@@ -53,7 +53,7 @@ public class NotificationSettingsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        rootView = inflater.inflate(R.layout.fragment_notification_settings, container, false);
+        rootView = inflater.inflate(R.layout.fragment_settings, container, false);
         ((CheckBox) rootView.findViewById(R.id.option_temperature))
                 .setChecked(sharedPreferences.getBoolean(Constants.OPTION_TEMPRATURE, true));
         ((CheckBox) rootView.findViewById(R.id.option_wind))

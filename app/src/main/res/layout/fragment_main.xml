@@ -107,7 +107,7 @@
                 app:srcCompat="@color/wallet_bright_foreground_holo_dark" />
 
             <TableLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="113dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/misc_data_bubble"
@@ -116,10 +116,8 @@
                 <TableRow
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_marginLeft="45dp"
-                    android:layout_marginRight="35dp"
                     android:layout_marginTop="14dp"
-                    android:gravity="left">
+                    android:gravity="center">
 
                     <ImageView
                         android:id="@+id/imageView"
@@ -188,10 +186,8 @@
                 <TableRow
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginLeft="45dp"
-                    android:layout_marginRight="35dp"
                     android:layout_marginTop="15dp"
-                    android:gravity="left">
+                    android:gravity="center">
 
                     <ImageView
                         android:id="@+id/imageView4"

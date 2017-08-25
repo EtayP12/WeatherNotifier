@@ -75,7 +75,7 @@ public class NotificationSender extends IntentService {
                 .setAutoCancel(true)
                 .setSmallIcon(R.drawable.icon_misc_notification)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_SOUND)
+                .setDefaults(Notification.DEFAULT_ALL)
                 .setContentTitle("New weather update")
                 .setContentText("New weather update available");
 
