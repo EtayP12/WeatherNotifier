@@ -172,14 +172,35 @@ public class MainActivity extends AppCompatActivity implements
                 .build();
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case Constants.LOCATION_PERMISSION_REQUEST_CODE: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    updateLocation();
+                } else {
+
+                    Toast.makeText(this, "Application needs permission", Toast.LENGTH_LONG).show();
+                    finish();
+
+                }
+            }
+        }
+    }
+
     private void updateLocation() {
-        if ((ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        if (!(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED)) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    Constants.LOCATION_PERMISSION_REQUEST_CODE);
+        } else {
             Awareness.SnapshotApi.getLocation(mApiClient).setResultCallback(new ResultCallback<LocationResult>() {
                 @Override
                 public void onResult(@NonNull LocationResult locationResult) {
                     mLastLocation = locationResult.getLocation();
-                    if (mLastLocation != null) {
+                    if (mLastLocation != null && activityIsActive) {
                         startIntentService();
                         RequestBuilder weather = new RequestBuilder();
 
