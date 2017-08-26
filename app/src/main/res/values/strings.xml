@@ -30,8 +30,8 @@
     <string name="title_activity_define_location">Map</string>
     <string name="remove">Remove</string>
     <string name="add_a_new_address">Add a new address</string>
-    <string name="apparent_temprature">Apparent temprature:</string>
-    <string name="real_temprature">Real temprature:</string>
+    <string name="apparent_temprature">Apparent Temprature:</string>
+    <string name="real_temprature">Real Temprature:</string>
     <string name="humidity">Humidity:</string>
     <string name="title_activity_weather_update">Weather update</string>
     <string name="done">Done</string>
