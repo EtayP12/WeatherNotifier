@@ -234,17 +234,17 @@ public class MainActivity extends AppCompatActivity implements
                                 handleForecast(weatherResponse);
 
                                 if (firstUpdate){
-                                    try {
-                                        Thread.sleep(1000);
-                                    } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                    }
-                                    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-                                    setSupportActionBar(toolbar);
-                                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                                    transaction.replace(R.id.fragment_container, mainFragment, mainFragment.getClass().getName());
-                                    transaction.commit();
-                                    firstUpdate = false;
+                                    (new Handler()).postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+                                            setSupportActionBar(toolbar);
+                                            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                                            transaction.replace(R.id.fragment_container, mainFragment, mainFragment.getClass().getName());
+                                            transaction.commit();
+                                            firstUpdate = false;
+                                        }
+                                    }, 1000);
                                 }
                             }
 
