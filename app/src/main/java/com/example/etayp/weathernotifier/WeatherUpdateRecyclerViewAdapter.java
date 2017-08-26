@@ -40,7 +40,7 @@ public class WeatherUpdateRecyclerViewAdapter extends RecyclerView.Adapter<Weath
         holder.mTemprature.setText(String.valueOf(values.get(position).weatherResponse.getCurrently().getTemperature()));
         holder.mHumidity.setText(String.valueOf(values.get(position).weatherResponse.getCurrently().getHumidity()));
         holder.mLocation.setText(values.get(position).location);
-        PublicMethods.changeIcon(values.get(position).weatherResponse.getCurrently().getIcon(),holder.mIcon);
+        PublicMethods.changeIcon(values.get(position).weatherResponse.getCurrently().getIcon(),holder.mIcon,false);
     }
 
     @Override

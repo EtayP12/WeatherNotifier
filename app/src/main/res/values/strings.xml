@@ -44,4 +44,7 @@
     <string name="option_humidity">Humidity</string>
     <string name="how_frequently_should_weather_notifier_check_for_updates">How frequently should\nWeather Notifier check for updates?</string>
     <string name="what_should_weather_notifier_keep_track_of">What should Weather Notifier\nkeep track of?</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

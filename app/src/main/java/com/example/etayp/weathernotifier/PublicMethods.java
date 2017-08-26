@@ -20,6 +20,7 @@ public class PublicMethods {
         sharedPreferencesEditor.putString(serializedObjectKey, serializedObject);
         sharedPreferencesEditor.apply();
     }
+
     public static <GenericClass> GenericClass getSavedObjectFromPreference(Context context, String preferenceFileName, String preferenceKey, Class<GenericClass> classType) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(preferenceFileName, 0);
         if (sharedPreferences.contains(preferenceKey)) {
@@ -29,37 +30,77 @@ public class PublicMethods {
         return null;
     }
 
-    public static void changeIcon(String icon, ImageView imageToChange) {
+    public static void changeIcon(String icon, ImageView imageToChange, boolean bigIcon) {
         switch (icon) {
             case "clear-day":
-                imageToChange.setImageResource(R.drawable.icon_weather_clear_day);
+                if (bigIcon) {
+                    imageToChange.setImageResource(R.drawable.big_icon_weather_clear_day);
+                } else {
+                    imageToChange.setImageResource(R.drawable.icon_weather_clear_day);
+                }
                 break;
             case "clear-night":
-                imageToChange.setImageResource(R.drawable.icon_weather_clear_night);
+                if (bigIcon) {
+                    imageToChange.setImageResource(R.drawable.big_icon_weather_clear_night);
+                } else {
+                    imageToChange.setImageResource(R.drawable.icon_weather_clear_night);
+                }
                 break;
             case "rain":
-                imageToChange.setImageResource(R.drawable.icon_weather_rainy_day);
+                if (bigIcon) {
+                    imageToChange.setImageResource(R.drawable.big_icon_weather_rainy_day);
+                } else {
+                    imageToChange.setImageResource(R.drawable.icon_weather_rainy_day);
+                }
                 break;
             case "snow":
-                imageToChange.setImageResource(R.drawable.icon_weather_snow);
+                if (bigIcon) {
+                    imageToChange.setImageResource(R.drawable.big_icon_weather_snow);
+                } else {
+                    imageToChange.setImageResource(R.drawable.icon_weather_snow);
+                }
                 break;
             case "sleet":
-                imageToChange.setImageResource(R.drawable.icon_weather_snow);
+                if (bigIcon) {
+                    imageToChange.setImageResource(R.drawable.big_icon_weather_snow);
+                } else {
+                    imageToChange.setImageResource(R.drawable.icon_weather_snow);
+                }
                 break;
             case "wind":
-                imageToChange.setImageResource(R.drawable.icon_weather_wind);
+                if (bigIcon) {
+                    imageToChange.setImageResource(R.drawable.big_icon_weather_wind);
+                } else {
+                    imageToChange.setImageResource(R.drawable.icon_weather_wind);
+                }
                 break;
             case "fog":
-                imageToChange.setImageResource(R.drawable.icon_weather_fog_cloud);
+                if (bigIcon) {
+                    imageToChange.setImageResource(R.drawable.big_icon_weather_fog_cloud);
+                } else {
+                    imageToChange.setImageResource(R.drawable.icon_weather_fog_cloud);
+                }
                 break;
             case "cloudy":
-                imageToChange.setImageResource(R.drawable.icon_weather_fog_cloud);
+                if (bigIcon) {
+                    imageToChange.setImageResource(R.drawable.big_icon_weather_fog_cloud);
+                } else {
+                    imageToChange.setImageResource(R.drawable.icon_weather_fog_cloud);
+                }
                 break;
             case "partly-cloudy-day":
-                imageToChange.setImageResource(R.drawable.icon_weather_cloudy_day);
+                if (bigIcon) {
+                    imageToChange.setImageResource(R.drawable.big_icon_weather_cloudy_day);
+                } else {
+                    imageToChange.setImageResource(R.drawable.icon_weather_cloudy_day);
+                }
                 break;
             case "partly-cloudy-night":
-                imageToChange.setImageResource(R.drawable.icon_weather_cloudy_night);
+                if (bigIcon) {
+                    imageToChange.setImageResource(R.drawable.big_icon_weather_cloudy_night);
+                } else {
+                    imageToChange.setImageResource(R.drawable.icon_weather_cloudy_night);
+                }
                 break;
             default:
 

@@ -99,28 +99,26 @@ public class MainActivity extends AppCompatActivity implements
     private boolean backWasPressed;
     private int[] updateTimeMillis;
     private Thread locationUpdateThread;
+    private boolean firstUpdate = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         ForecastApi.create(Constants.API_KEY2);
 
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         mFragmentStack = new Stack<>();
 
+        mainFragment = new MainFragment();
+
         if (findViewById(R.id.fragment_container) != null) {
             if (savedInstanceState != null) {
                 return;
             }
-            mainFragment = new MainFragment();
-            mainFragment.setArguments(getIntent().getExtras());
+            setupMainFragment();
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.add(R.id.fragment_container, mainFragment, mainFragment.getClass().getName());
-            transaction.addToBackStack(mainFragment.getClass().getName());
-            mFragmentStack.add(mainFragment.getClass().getName());
+            transaction.add(R.id.fragment_container, new SplashFragment(), SplashFragment.class.getName());
             transaction.commit();
         }
 
@@ -231,10 +229,23 @@ public class MainActivity extends AppCompatActivity implements
                                 ((TextView) findViewById(R.id.wind_speed_value)).setText(
                                         wind.substring(0, wind.indexOf(".") + 2)
                                 );
-                                PublicMethods.changeIcon(weatherResponse.getCurrently().getIcon(), (ImageView) findViewById(R.id.current_icon));
+                                PublicMethods.changeIcon(weatherResponse.getCurrently().getIcon(), (ImageView) findViewById(R.id.current_icon), true);
 
                                 handleForecast(weatherResponse);
 
+                                if (firstUpdate){
+                                    try {
+                                        Thread.sleep(1000);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+                                    setSupportActionBar(toolbar);
+                                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                                    transaction.replace(R.id.fragment_container, mainFragment, mainFragment.getClass().getName());
+                                    transaction.commit();
+                                    firstUpdate = false;
+                                }
                             }
 
                             @Override
@@ -248,6 +259,14 @@ public class MainActivity extends AppCompatActivity implements
                 }
             });
         }
+    }
+
+    private void setupMainFragment() {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.add(R.id.fragment_container, mainFragment, mainFragment.getClass().getName());
+        transaction.addToBackStack(mainFragment.getClass().getName());
+        mFragmentStack.add(mainFragment.getClass().getName());
+        transaction.commit();
     }
 
     private void handleForecast(WeatherResponse weatherResponse) {
@@ -266,7 +285,7 @@ public class MainActivity extends AppCompatActivity implements
                         .setText(DateUtils.formatDateTime(this, calendar.getTimeInMillis(), DateUtils.FORMAT_SHOW_TIME)
                         );
                 PublicMethods.changeIcon(weatherResponse.getHourly().getData().get(forecastItemsHandled).getIcon()
-                        , (ImageView) forecastItem.getChildAt(1));
+                        , (ImageView) forecastItem.getChildAt(1),false);
                 String s = String.valueOf(weatherResponse.getHourly().getData().get(forecastItemsHandled).getTemperature());
                 ((TextView) forecastItem.getChildAt(2))
                         .setText(
