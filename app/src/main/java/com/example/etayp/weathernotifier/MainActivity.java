@@ -3,7 +3,6 @@
 package com.example.etayp.weathernotifier;
 
 import android.Manifest;
-import android.animation.ObjectAnimator;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
@@ -105,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ForecastApi.create(Constants.API_KEY1);
+        ForecastApi.create(Constants.API_KEY2);
 
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         mFragmentStack = new Stack<>();

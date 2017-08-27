@@ -4,6 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:weightSum="3"
+    android:background="@drawable/misc_location_bubble"
+    android:backgroundTint="#1AFFFFFF"
+    android:layout_marginLeft="5dp"
+    android:layout_marginRight="5dp"
     >
 
     <TextView
@@ -12,10 +16,13 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_weight="1"
+        android:layout_marginLeft="5dp"
+        android:textColor="@color/colorWhite"
         android:text="" />
 
     <TextView
         android:id="@+id/daily_weather_description"
+        android:textColor="@color/colorWhite"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
