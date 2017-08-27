@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ForecastApi.create(Constants.API_KEY1);
+        ForecastApi.create(Constants.API_KEY2);
 
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         mFragmentStack = new Stack<>();
@@ -195,6 +195,7 @@ public class MainActivity extends AppCompatActivity implements
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     Constants.LOCATION_PERMISSION_REQUEST_CODE);
         } else {
+            final Context context = this;
             Awareness.SnapshotApi.getLocation(mApiClient).setResultCallback(new ResultCallback<LocationResult>() {
                 @Override
                 public void onResult(@NonNull LocationResult locationResult) {
@@ -254,6 +255,8 @@ public class MainActivity extends AppCompatActivity implements
                             @Override
                             public void failure(RetrofitError error) {
                                 Log.d(TAG, "failure: ");
+                                Toast.makeText(context,"Can't connect to dark-sky",Toast.LENGTH_LONG).show();
+                                finish();
                             }
                         });
                     } else {
@@ -435,7 +438,7 @@ public class MainActivity extends AppCompatActivity implements
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            Location resultLocation = data.getExtras().getParcelable("NewLocation");
+            Location resultLocation = data.getExtras().getParcelable(Constants.NEW_LOCATION);
             if (resultLocation != null) {
                 Intent intent = new Intent(this, FetchAddressIntentService.class);
                 intent.putExtra(Constants.RECEIVER, mResultReceiver);
@@ -443,6 +446,12 @@ public class MainActivity extends AppCompatActivity implements
                 intent.putExtra(Constants.RECEIVE_TYPE_EXTRA, Constants.RECEIVE_TO_FRAGMENT);
                 startService(intent);
             }
+            else{
+                Toast.makeText(this, Constants.NO_LOCATION_SELECTED,Toast.LENGTH_SHORT).show();
+            }
+        }
+        if (requestCode == Constants.FAILURE_RESULT){
+            Toast.makeText(this,"No address found",Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -554,16 +563,16 @@ public class MainActivity extends AppCompatActivity implements
                 && !sharedPreferences.getBoolean(Constants.OPTION_TEMPRATURE, true)
                 ) {
             final android.support.v7.app.AlertDialog alertDialog = new android.support.v7.app.AlertDialog.Builder(this).create();
-            alertDialog.setTitle("No option selected");
-            alertDialog.setMessage("If you don't select any option, Weather Notifier wont sent you notifications");
-            alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Got it", new DialogInterface.OnClickListener() {
+            alertDialog.setTitle(Constants.NO_OPTION_SELECTED_TITLE);
+            alertDialog.setMessage(Constants.NO_OPTION_SELECTED_TEXT);
+            alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, Constants.GOT_IT, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     fragmentTransactionMaker(fragment, fragName, fragmentManager, transaction);
                     alertDialog.dismiss();
                 }
             });
-            alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Go back", new DialogInterface.OnClickListener() {
+            alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, Constants.GO_BACK, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     alertDialog.dismiss();

@@ -54,7 +54,7 @@ public class DefineLocationActivity extends FragmentActivity implements OnMapRea
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
-                intent.putExtra("NewLocation", newLocation);
+                intent.putExtra(Constants.NEW_LOCATION, newLocation);
                 setResult(RESULT_OK, intent);
                 finish();
             }
