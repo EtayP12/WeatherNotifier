@@ -3,6 +3,7 @@
 package com.example.etayp.weathernotifier;
 
 import android.Manifest;
+import android.animation.ObjectAnimator;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
@@ -34,10 +35,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -100,6 +99,7 @@ public class MainActivity extends AppCompatActivity implements
     private int[] updateTimeMillis;
     private Thread locationUpdateThread;
     private boolean firstUpdate = true;
+    private SplashFragment splashFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements
         mFragmentStack = new Stack<>();
 
         mainFragment = new MainFragment();
+        splashFragment = new SplashFragment();
 
         if (findViewById(R.id.fragment_container) != null) {
             if (savedInstanceState != null) {
@@ -118,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements
             }
             setupMainFragment();
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.add(R.id.fragment_container, new SplashFragment(), SplashFragment.class.getName());
+            transaction.add(R.id.fragment_container, splashFragment, SplashFragment.class.getName());
             transaction.commit();
         }
 
@@ -211,37 +212,39 @@ public class MainActivity extends AppCompatActivity implements
                         weather.getWeather(request, new Callback<WeatherResponse>() {
                             @Override
                             public void success(WeatherResponse weatherResponse, Response response) {
+
                                 String temp = String.valueOf(weatherResponse.getCurrently().getTemperature());
-                                ((TextView) findViewById(R.id.temperature_value)).setText(
-                                        temp.substring(0, temp.indexOf(".") + 2) + Constants.DEGREE
-                                );
+                                temp = temp.substring(0, temp.indexOf(".") + 2) + Constants.DEGREE;
+                                ((TextView) findViewById(R.id.temperature_value)).setText(temp);
+
                                 String app_temp = String.valueOf(weatherResponse.getCurrently().getApparentTemperature());
-                                ((TextView) findViewById(R.id.apparent_temperature_value)).setText(
-                                        app_temp.substring(0, temp.indexOf(".") + 2) + Constants.DEGREE
-                                );
-                                ((TextView) findViewById(R.id.Humidity_value)).setText(
-                                        (int) (Double.valueOf(weatherResponse.getCurrently().getHumidity()) * 100) + Constants.PERCENT
-                                );
-                                ((TextView) findViewById(R.id.precip_probability_value)).setText(
-                                        (int) (Double.valueOf(weatherResponse.getCurrently().getPrecipProbability()) * 100) + Constants.PERCENT
-                                );
+                                app_temp = app_temp.substring(0, temp.indexOf(".") + 2) + Constants.DEGREE;
+                                ((TextView) findViewById(R.id.apparent_temperature_value)).setText(app_temp);
+
+                                String humidity = (int) (Double.valueOf(weatherResponse.getCurrently().getHumidity()) * 100) + Constants.PERCENT;
+                                ((TextView) findViewById(R.id.Humidity_value)).setText(humidity);
+                                ((TextView) findViewById(R.id.precip_probability_value)).setText(humidity);
+
                                 String wind = String.valueOf(Double.valueOf(weatherResponse.getCurrently().getWindSpeed()) * 1.609);
-                                ((TextView) findViewById(R.id.wind_speed_value)).setText(
-                                        wind.substring(0, wind.indexOf(".") + 2)
-                                );
+                                wind = wind.substring(0, wind.indexOf(".") + 2);
+                                ((TextView) findViewById(R.id.wind_speed_value)).setText(wind);
+
                                 PublicMethods.changeIcon(weatherResponse.getCurrently().getIcon(), (ImageView) findViewById(R.id.current_icon), true);
 
                                 handleForecast(weatherResponse);
 
-                                if (firstUpdate){
+                                //removes splash screen
+                                if (firstUpdate) {
                                     (new Handler()).postDelayed(new Runnable() {
                                         @Override
                                         public void run() {
                                             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
                                             setSupportActionBar(toolbar);
                                             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                                            transaction.setCustomAnimations(R.anim.grow_from_middle, R.anim.shrink_to_middle);
                                             transaction.replace(R.id.fragment_container, mainFragment, mainFragment.getClass().getName());
                                             transaction.commit();
+                                            findViewById(R.id.app_bar).setVisibility(View.VISIBLE);
                                             firstUpdate = false;
                                         }
                                     }, 1000);
@@ -281,17 +284,17 @@ public class MainActivity extends AppCompatActivity implements
                 LinearLayout forecastItem = (LinearLayout) forecastLayout.getChildAt(i);
                 forecastItemsHandled++;
                 calendar.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY) + 1);
+
                 ((TextView) forecastItem.getChildAt(0))
                         .setText(DateUtils.formatDateTime(this, calendar.getTimeInMillis(), DateUtils.FORMAT_SHOW_TIME)
                         );
+
                 PublicMethods.changeIcon(weatherResponse.getHourly().getData().get(forecastItemsHandled).getIcon()
-                        , (ImageView) forecastItem.getChildAt(1),false);
+                        , (ImageView) forecastItem.getChildAt(1), false);
+
                 String s = String.valueOf(weatherResponse.getHourly().getData().get(forecastItemsHandled).getTemperature());
-                ((TextView) forecastItem.getChildAt(2))
-                        .setText(
-                                s.substring(0, s.indexOf(".") + 2)
-                                        + Constants.DEGREE
-                        );
+                s=s.substring(0, s.indexOf(".") + 2) + Constants.DEGREE;
+                ((TextView) forecastItem.getChildAt(2)).setText(s);
             }
         }
     }

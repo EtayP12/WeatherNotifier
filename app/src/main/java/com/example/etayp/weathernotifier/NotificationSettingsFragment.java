@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
@@ -102,10 +103,9 @@ public class NotificationSettingsFragment extends Fragment {
 
     private void setupSpinner() {
         updateTimeSpinner = ((Spinner) rootView.findViewById(R.id.spinner));
-        updateTimeSpinner
-                .setAdapter(ArrayAdapter.createFromResource(
-                        getContext(), R.array.update_times, android.R.layout.simple_spinner_dropdown_item)
-                );
+        ArrayAdapter adapter = ArrayAdapter.createFromResource(getContext(), R.array.update_times, R.layout.item_spinner);
+        adapter.setDropDownViewResource(R.layout.item_spinner_dropdown);
+        updateTimeSpinner.setAdapter(adapter);
         updateTimeSpinner
                 .setSelection(sharedPreferences.getInt(Constants.UPDATE_TIME_SELECTION, 0));
         updateTimeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {

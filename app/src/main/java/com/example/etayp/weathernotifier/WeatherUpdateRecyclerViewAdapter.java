@@ -15,11 +15,11 @@ import java.util.List;
  * Created by EtayP on 17-Aug-17.
  */
 
-public class WeatherUpdateRecyclerViewAdapter extends RecyclerView.Adapter<WeatherUpdateRecyclerViewAdapter.ViewHolder> {
+class WeatherUpdateRecyclerViewAdapter extends RecyclerView.Adapter<WeatherUpdateRecyclerViewAdapter.ViewHolder> {
 
     private final List<WeatherUpdateItem> values;
 
-    public WeatherUpdateRecyclerViewAdapter(List<WeatherUpdateItem> items) {
+    WeatherUpdateRecyclerViewAdapter(List<WeatherUpdateItem> items) {
         values = items;
     }
 
@@ -34,7 +34,8 @@ public class WeatherUpdateRecyclerViewAdapter extends RecyclerView.Adapter<Weath
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.mApparent.setText(String.valueOf(values.get(position).weatherResponse.getCurrently().getApparentTemperature()));
         holder.mTemprature.setText(String.valueOf(values.get(position).weatherResponse.getCurrently().getTemperature()));
-        holder.mHumidity.setText(String.valueOf(values.get(position).weatherResponse.getCurrently().getHumidity()));
+        String humidity =Double.valueOf(values.get(position).weatherResponse.getCurrently().getHumidity())*100+Constants.PERCENT;
+        holder.mHumidity.setText(humidity);
         holder.mLocation.setText(values.get(position).location);
         String wind = String.valueOf(Double.valueOf(values.get(position).weatherResponse.getCurrently().getWindSpeed()) * 1.609);
         holder.mWindSpeed.setText(wind.substring(0, wind.indexOf(".") + 2));

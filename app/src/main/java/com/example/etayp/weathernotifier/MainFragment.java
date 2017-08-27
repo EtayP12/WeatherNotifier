@@ -51,8 +51,7 @@ public class MainFragment extends Fragment {
         mListener = null;
     }
 
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
+    interface OnFragmentInteractionListener {
         void onFragmentInteraction(Uri uri);
     }
 }
