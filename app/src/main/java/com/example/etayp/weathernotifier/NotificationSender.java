@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -136,10 +137,10 @@ public class NotificationSender extends IntentService {
                         + ": "
                         + weatherResponse.getCurrently().getTemperature()
                         + Constants.DEGREE);
-                weatherUpdateItems.add(new WeatherUpdateItem(String.valueOf(numberOfSuccesses),weatherResponse,address.getLocality()));
+                weatherUpdateItems.add(new WeatherUpdateItem(String.valueOf(numberOfSuccesses), weatherResponse, address.getLocality()));
                 if (++numberOfSuccesses == numberOfAddresses) {
                     mBuilder.setStyle(inboxStyle);
-                    notifyIntent.putExtra(Constants.WEATHER_UPDATE_ITEMS,(new Gson()).toJson(weatherUpdateItems));
+                    notifyIntent.putExtra(Constants.WEATHER_UPDATE_ITEMS, (new Gson()).toJson(weatherUpdateItems));
                     PendingIntent pendingIntent =
                             PendingIntent.getActivity(
                                     context,
@@ -150,7 +151,12 @@ public class NotificationSender extends IntentService {
 
                     mBuilder.setContentIntent(pendingIntent);
                     NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                    notificationManager.notify(0, mBuilder.build());
+
+                    // Sends a notification only if there is an anomaly in one of the criteria
+                    // the user choose in one of the locations the user choose
+                    if (userSelectedOptionsApply()) {
+                        notificationManager.notify(0, mBuilder.build());
+                    }
                 }
             }
 
@@ -159,5 +165,33 @@ public class NotificationSender extends IntentService {
                 Log.d(TAG, "Error while calling: " + retrofitError.getUrl());
             }
         });
+    }
+
+    private boolean userSelectedOptionsApply() {
+
+        SharedPreferences sharedPreferences = getSharedPreferences(MainActivity.class.getSimpleName(), MODE_PRIVATE);
+        boolean optionTemprature = sharedPreferences.getBoolean(Constants.OPTION_TEMPRATURE, true);
+        boolean optionWind = sharedPreferences.getBoolean(Constants.OPTION_WIND, true);
+        boolean optionHumidity = sharedPreferences.getBoolean(Constants.OPTION_HUMIDITY, true);
+        boolean optionRain = sharedPreferences.getBoolean(Constants.OPTION_RAIN, true);
+
+        for (WeatherUpdateItem item : weatherUpdateItems) {
+            if (optionHumidity) {
+                if (Double.valueOf(item.weatherResponse.getCurrently().getHumidity()) > 0.6)
+                    return true;
+            }
+            if (optionWind) {
+                if (Double.valueOf(item.weatherResponse.getCurrently().getWindSpeed()) > 35)
+                    return true;
+            }
+            if (optionTemprature) {
+                if (item.weatherResponse.getCurrently().getTemperature() > 35) return true;
+            }
+            if (optionRain) {
+                if (Double.valueOf(item.weatherResponse.getCurrently().getPrecipProbability()) > 0.6)
+                    return true;
+            }
+        }
+        return false;
     }
 }

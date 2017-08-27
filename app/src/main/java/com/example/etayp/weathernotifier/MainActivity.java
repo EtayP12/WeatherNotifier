@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ForecastApi.create(Constants.API_KEY2);
+        ForecastApi.create(Constants.API_KEY1);
 
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         mFragmentStack = new Stack<>();
@@ -250,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements
 
                             @Override
                             public void failure(RetrofitError error) {
-
+                                Log.d(TAG, "failure: ");
                             }
                         });
                     } else {

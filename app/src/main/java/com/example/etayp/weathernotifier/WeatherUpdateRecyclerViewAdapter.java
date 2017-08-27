@@ -9,7 +9,6 @@ import android.widget.TextView;
 
 import com.example.etayp.weathernotifier.dummy.WeatherUpdateItem;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,7 +18,6 @@ import java.util.List;
 public class WeatherUpdateRecyclerViewAdapter extends RecyclerView.Adapter<WeatherUpdateRecyclerViewAdapter.ViewHolder> {
 
     private final List<WeatherUpdateItem> values;
-    private ArrayList<ViewHolder> viewHolders = new ArrayList<>();
 
     public WeatherUpdateRecyclerViewAdapter(List<WeatherUpdateItem> items) {
         values = items;
@@ -29,9 +27,7 @@ public class WeatherUpdateRecyclerViewAdapter extends RecyclerView.Adapter<Weath
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_weather_update, parent, false);
-        WeatherUpdateRecyclerViewAdapter.ViewHolder viewHolder = new WeatherUpdateRecyclerViewAdapter.ViewHolder(view);
-        viewHolders.add(viewHolder);
-        return viewHolder;
+        return new ViewHolder(view);
     }
 
     @Override
@@ -40,7 +36,9 @@ public class WeatherUpdateRecyclerViewAdapter extends RecyclerView.Adapter<Weath
         holder.mTemprature.setText(String.valueOf(values.get(position).weatherResponse.getCurrently().getTemperature()));
         holder.mHumidity.setText(String.valueOf(values.get(position).weatherResponse.getCurrently().getHumidity()));
         holder.mLocation.setText(values.get(position).location);
-        PublicMethods.changeIcon(values.get(position).weatherResponse.getCurrently().getIcon(),holder.mIcon,false);
+        String wind = String.valueOf(Double.valueOf(values.get(position).weatherResponse.getCurrently().getWindSpeed()) * 1.609);
+        holder.mWindSpeed.setText(wind.substring(0, wind.indexOf(".") + 2));
+        PublicMethods.changeIcon(values.get(position).weatherResponse.getCurrently().getIcon(), holder.mIcon, false);
     }
 
     @Override
@@ -56,15 +54,17 @@ public class WeatherUpdateRecyclerViewAdapter extends RecyclerView.Adapter<Weath
         final TextView mHumidity;
         final ImageView mIcon;
         final TextView mLocation;
+        final TextView mWindSpeed;
 
         ViewHolder(View itemView) {
             super(itemView);
             mView = itemView;
-            mApparent= (TextView) itemView.findViewById(R.id.update_apparent_value);
-            mTemprature= (TextView) itemView.findViewById(R.id.update_real_temprature_value);
-            mHumidity= (TextView) itemView.findViewById(R.id.update_humidity_value);
+            mApparent = (TextView) itemView.findViewById(R.id.update_apparent_value);
+            mTemprature = (TextView) itemView.findViewById(R.id.update_real_temprature_value);
+            mHumidity = (TextView) itemView.findViewById(R.id.update_humidity_value);
             mIcon = (ImageView) itemView.findViewById(R.id.update_weather_icon);
             mLocation = (TextView) itemView.findViewById(R.id.update_location_text);
+            mWindSpeed = (TextView) itemView.findViewById(R.id.update_wind_value);
         }
     }
 }

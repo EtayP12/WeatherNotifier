@@ -2,6 +2,7 @@ package com.example.etayp.weathernotifier;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +19,7 @@ import com.example.etayp.weathernotifier.dummy.WeatherUpdateItem;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.gson.Gson;
 import com.johnhiott.darkskyandroidlib.RequestBuilder;
 import com.johnhiott.darkskyandroidlib.models.Request;
 import com.johnhiott.darkskyandroidlib.models.WeatherResponse;
@@ -42,25 +44,21 @@ public class alarmReceiver extends BroadcastReceiver {
     private static final String TAG = "Alarm Receiver";
     private NotificationCompat.Builder mBuilder;
     private HashMap<String, Address> addressHashMap;
-    private List<WeatherUpdateItem> weatherUpdateItems;
+    private List<WeatherUpdateItem> dailyWeatherItems;
     private int numberOfSuccesses = 0;
     private int numberOfAddresses;
-    private NotificationCompat.InboxStyle inboxStyle;
 
     @Override
     public void onReceive(final Context context, Intent intent) {
         Log.d(TAG, "onReceive: Alarm received");
         addressesHashMapSetup(context);
-        weatherUpdateItems = new ArrayList<>();
+        dailyWeatherItems = new ArrayList<>();
         mBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.icon_misc_notification)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setContentTitle("Daily weather update")
                 .setContentText("Daily weather update available");
-
-        inboxStyle = new NotificationCompat.InboxStyle();
-        inboxStyle.setBigContentTitle("Daily weather update:");
 
         numberOfAddresses++;
         FusedLocationProviderClient mFusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
@@ -108,12 +106,11 @@ public class alarmReceiver extends BroadcastReceiver {
         request.setLng(String.valueOf(address.getLongitude()));
         request.setUnits(Request.Units.SI);
         request.setLanguage(Request.Language.ENGLISH);
-//        request.addExcludeBlock(Request.Block.CURRENTLY);
         Log.d(TAG, "handleAddress: request");
         weather.getWeather(request, new Callback<WeatherResponse>() {
             @Override
             public void success(WeatherResponse weatherResponse, Response response) {
-                weatherUpdateItems.add(new WeatherUpdateItem(String.valueOf(numberOfSuccesses), weatherResponse, address.getLocality()));
+                dailyWeatherItems.add(new WeatherUpdateItem(String.valueOf(numberOfSuccesses), weatherResponse, address.getLocality()));
                 if (++numberOfSuccesses == numberOfAddresses) {
                     sendNotification(context);
                 }
@@ -127,19 +124,13 @@ public class alarmReceiver extends BroadcastReceiver {
     }
 
     private void sendNotification(Context context) {
-        for (WeatherUpdateItem item : weatherUpdateItems){
-            handleItem(item);
-        }
 
-        mBuilder.setStyle(inboxStyle);
+        Intent intent = new Intent(context,DailyWeatherUpdateActivity.class);
+        intent.putExtra("last resort",(new Gson()).toJson(dailyWeatherItems));
+        PendingIntent pendingIntent = PendingIntent.getActivity(context,0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
+        mBuilder.setContentIntent(pendingIntent);
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(1, mBuilder.build());
-    }
-
-    private void handleItem(WeatherUpdateItem item) {
-        WeatherResponse weatherResponse = item.weatherResponse;
-        inboxStyle.addLine("Weather in "+item.location+":");
-        inboxStyle.addLine(weatherResponse.getDaily().getSummary());
     }
 }

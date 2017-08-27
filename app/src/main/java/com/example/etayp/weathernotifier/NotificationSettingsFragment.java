@@ -8,8 +8,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Spinner;
 
 
@@ -51,17 +53,54 @@ public class NotificationSettingsFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             final Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_settings, container, false);
+
         ((CheckBox) rootView.findViewById(R.id.option_temperature))
                 .setChecked(sharedPreferences.getBoolean(Constants.OPTION_TEMPRATURE, true));
+        ((CheckBox) rootView.findViewById(R.id.option_temperature)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                sharedPreferencesEditor.putBoolean(Constants.OPTION_TEMPRATURE, isChecked);
+                sharedPreferencesEditor.apply();
+            }
+        });
+
         ((CheckBox) rootView.findViewById(R.id.option_wind))
                 .setChecked(sharedPreferences.getBoolean(Constants.OPTION_WIND, true));
+        ((CheckBox) rootView.findViewById(R.id.option_wind)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                sharedPreferencesEditor.putBoolean(Constants.OPTION_WIND,isChecked);
+                sharedPreferencesEditor.apply();
+            }
+        });
+
         ((CheckBox) rootView.findViewById(R.id.option_rain))
                 .setChecked(sharedPreferences.getBoolean(Constants.OPTION_RAIN, true));
+        ((CheckBox) rootView.findViewById(R.id.option_rain)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                sharedPreferencesEditor.putBoolean(Constants.OPTION_RAIN,isChecked);
+                sharedPreferencesEditor.apply();
+            }
+        });
+
         ((CheckBox) rootView.findViewById(R.id.option_humidity))
                 .setChecked(sharedPreferences.getBoolean(Constants.OPTION_HUMIDITY, true));
+        ((CheckBox) rootView.findViewById(R.id.option_humidity)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                sharedPreferencesEditor.putBoolean(Constants.OPTION_HUMIDITY,isChecked);
+            }
+        });
+
+        setupSpinner();
+        return rootView;
+    }
+
+    private void setupSpinner() {
         updateTimeSpinner = ((Spinner) rootView.findViewById(R.id.spinner));
         updateTimeSpinner
                 .setAdapter(ArrayAdapter.createFromResource(
@@ -69,7 +108,19 @@ public class NotificationSettingsFragment extends Fragment {
                 );
         updateTimeSpinner
                 .setSelection(sharedPreferences.getInt(Constants.UPDATE_TIME_SELECTION, 0));
-        return rootView;
+        updateTimeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                sharedPreferencesEditor.putInt(Constants.UPDATE_TIME_SELECTION
+                        , position);
+                sharedPreferencesEditor.apply();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -104,7 +155,7 @@ public class NotificationSettingsFragment extends Fragment {
                 ((CheckBox) rootView.findViewById(R.id.option_humidity)).isChecked());
         sharedPreferencesEditor.putInt(Constants.UPDATE_TIME_SELECTION
                 , updateTimeSpinner.getSelectedItemPosition());
-        sharedPreferencesEditor.commit();
+        sharedPreferencesEditor.apply();
     }
 
     /**
@@ -117,8 +168,7 @@ public class NotificationSettingsFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
+    interface OnFragmentInteractionListener {
         void onFragmentInteraction(Uri uri);
     }
 }

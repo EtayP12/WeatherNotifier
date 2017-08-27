@@ -39,4 +39,5 @@ final class Constants {
     public static final String OPTION_RAIN = "option_rain";
     public static final String OPTION_HUMIDITY = "option_humidity";
     public static final int LOCATION_PERMISSION_REQUEST_CODE = 0;
+    public static final String DAILY_WEATHER_ITEMS = "daily weather items";
 }

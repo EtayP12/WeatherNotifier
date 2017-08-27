@@ -89,6 +89,15 @@
             android:text="@string/humidity"
             android:textColor="@color/colorWhite" />
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="0.1"
+            android:text="@string/wind_speed"
+            android:textColor="@color/colorWhite" />
+
+
     </LinearLayout>
 
     <LinearLayout
@@ -119,6 +128,15 @@
 
         <TextView
             android:id="@+id/update_humidity_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:gravity="left"
+            android:layout_weight="1"
+            android:text="number"
+            android:textColor="@color/colorWhite" />
+        <TextView
+            android:id="@+id/update_wind_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
