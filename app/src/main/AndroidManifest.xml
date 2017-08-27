@@ -58,7 +58,7 @@
         <receiver android:name=".alarmReceiver" />
 
         <activity android:name=".SplashActivity" />
-        <activity android:name=".DailyWeatherUpdateActivity"></activity>
+        <activity android:name=".DailyWeatherUpdateActivity" />
     </application>
 
 </manifest>

@@ -118,7 +118,7 @@ public class DefineLocationActivity extends FragmentActivity implements OnMapRea
             mMap.addMarker(new MarkerOptions().position(currentLocation).title(city));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 10));
         }
-        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setZoomControlsEnabled(false);
         mMap.getUiSettings().setMapToolbarEnabled(false);
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
