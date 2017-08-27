@@ -9,6 +9,7 @@ import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -194,6 +195,7 @@ public class MainActivity extends AppCompatActivity implements
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     Constants.LOCATION_PERMISSION_REQUEST_CODE);
         } else {
+            final Context context = this;
             Awareness.SnapshotApi.getLocation(mApiClient).setResultCallback(new ResultCallback<LocationResult>() {
                 @Override
                 public void onResult(@NonNull LocationResult locationResult) {
@@ -253,6 +255,8 @@ public class MainActivity extends AppCompatActivity implements
                             @Override
                             public void failure(RetrofitError error) {
                                 Log.d(TAG, "failure: ");
+                                Toast.makeText(context,"Can't connect to dark-sky",Toast.LENGTH_LONG).show();
+                                finish();
                             }
                         });
                     } else {
@@ -292,7 +296,7 @@ public class MainActivity extends AppCompatActivity implements
                         , (ImageView) forecastItem.getChildAt(1), false);
 
                 String s = String.valueOf(weatherResponse.getHourly().getData().get(forecastItemsHandled).getTemperature());
-                s=s.substring(0, s.indexOf(".") + 2) + Constants.DEGREE;
+                s = s.substring(0, s.indexOf(".") + 2) + Constants.DEGREE;
                 ((TextView) forecastItem.getChildAt(2)).setText(s);
             }
         }
@@ -434,7 +438,7 @@ public class MainActivity extends AppCompatActivity implements
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            Location resultLocation = data.getExtras().getParcelable("NewLocation");
+            Location resultLocation = data.getExtras().getParcelable(Constants.NEW_LOCATION);
             if (resultLocation != null) {
                 Intent intent = new Intent(this, FetchAddressIntentService.class);
                 intent.putExtra(Constants.RECEIVER, mResultReceiver);
@@ -442,6 +446,12 @@ public class MainActivity extends AppCompatActivity implements
                 intent.putExtra(Constants.RECEIVE_TYPE_EXTRA, Constants.RECEIVE_TO_FRAGMENT);
                 startService(intent);
             }
+            else{
+                Toast.makeText(this, Constants.NO_LOCATION_SELECTED,Toast.LENGTH_SHORT).show();
+            }
+        }
+        if (requestCode == Constants.FAILURE_RESULT){
+            Toast.makeText(this,"No address found",Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -541,18 +551,51 @@ public class MainActivity extends AppCompatActivity implements
         });
     }
 
-    private void switchFragments(Fragment fragment) {
-        String fragName = fragment.getClass().getName();
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
+    private void switchFragments(final Fragment fragment) {
+        final String fragName = fragment.getClass().getName();
+        final FragmentManager fragmentManager = getSupportFragmentManager();
+        final FragmentTransaction transaction = fragmentManager.beginTransaction();
 
-        if (!mFragmentStack.contains(fragName)) {
+        if (mFragmentStack.peek().matches(NotificationSettingsFragment.class.getName())
+                && !sharedPreferences.getBoolean(Constants.OPTION_HUMIDITY, true)
+                && !sharedPreferences.getBoolean(Constants.OPTION_RAIN, true)
+                && !sharedPreferences.getBoolean(Constants.OPTION_WIND, true)
+                && !sharedPreferences.getBoolean(Constants.OPTION_TEMPRATURE, true)
+                ) {
+            final android.support.v7.app.AlertDialog alertDialog = new android.support.v7.app.AlertDialog.Builder(this).create();
+            alertDialog.setTitle(Constants.NO_OPTION_SELECTED_TITLE);
+            alertDialog.setMessage(Constants.NO_OPTION_SELECTED_TEXT);
+            alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, Constants.GOT_IT, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    fragmentTransactionMaker(fragment, fragName, fragmentManager, transaction);
+                    alertDialog.dismiss();
+                }
+            });
+            alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, Constants.GO_BACK, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    alertDialog.dismiss();
+                }
+            });
+            alertDialog.show();
+        } else {
+            fragmentTransactionMaker(fragment, fragName, fragmentManager, transaction);
+        }
+    }
+
+    private void fragmentTransactionMaker(Fragment fragment, String fragName, FragmentManager fragmentManager, FragmentTransaction transaction) {
+        if (!mFragmentStack.contains(fragName))
+
+        {
             transaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
             transaction.hide(fragmentManager.findFragmentByTag(mFragmentStack.peek()));
             transaction.add(R.id.fragment_container, fragment, fragName);
             transaction.addToBackStack(fragName);
             mFragmentStack.add(fragName);
-        } else {
+        } else
+
+        {
             if (!mFragmentStack.peek().equals(fragName)) {
                 transaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
                 transaction.addToBackStack(fragName);
@@ -606,10 +649,44 @@ public class MainActivity extends AppCompatActivity implements
                 finish();
             }
         } else {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            fragmentManager.popBackStack(MainFragment.class.getName(), 0);
-            mFragmentStack.clear();
-            mFragmentStack.add(mainFragment.getClass().getName());
+            if (fragment instanceof NotificationSettingsFragment) {
+                if (!sharedPreferences.getBoolean(Constants.OPTION_HUMIDITY, true)
+                        && !sharedPreferences.getBoolean(Constants.OPTION_RAIN, true)
+                        && !sharedPreferences.getBoolean(Constants.OPTION_WIND, true)
+                        && !sharedPreferences.getBoolean(Constants.OPTION_TEMPRATURE, true)
+                        ) {
+                    final android.support.v7.app.AlertDialog alertDialog = new android.support.v7.app.AlertDialog.Builder(this).create();
+                    alertDialog.setTitle("No option selected");
+                    alertDialog.setMessage("If you don't select any option, Weather Notifier wont sent you notifications");
+                    alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Got it", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            FragmentManager fragmentManager = getSupportFragmentManager();
+                            fragmentManager.popBackStack(MainFragment.class.getName(), 0);
+                            mFragmentStack.clear();
+                            mFragmentStack.add(mainFragment.getClass().getName());
+                            alertDialog.dismiss();
+                        }
+                    });
+                    alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Go back", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            alertDialog.dismiss();
+                        }
+                    });
+                    alertDialog.show();
+                } else {
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    fragmentManager.popBackStack(MainFragment.class.getName(), 0);
+                    mFragmentStack.clear();
+                    mFragmentStack.add(mainFragment.getClass().getName());
+                }
+            } else {
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                fragmentManager.popBackStack(MainFragment.class.getName(), 0);
+                mFragmentStack.clear();
+                mFragmentStack.add(mainFragment.getClass().getName());
+            }
         }
     }
 

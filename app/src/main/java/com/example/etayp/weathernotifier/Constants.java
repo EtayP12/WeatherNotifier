@@ -40,4 +40,10 @@ final class Constants {
     public static final String OPTION_HUMIDITY = "option_humidity";
     public static final int LOCATION_PERMISSION_REQUEST_CODE = 0;
     public static final String DAILY_WEATHER_ITEMS = "daily weather items";
+    public static final String NO_LOCATION_SELECTED = "No location selected";
+    public static final String NEW_LOCATION = "NewLocation";
+    public static final String NO_OPTION_SELECTED_TITLE = "No option selected";
+    public static final String NO_OPTION_SELECTED_TEXT = "If you don't select any option, Weather Notifier wont sent you notifications";
+    public static final String GOT_IT = "Got it";
+    public static final String GO_BACK = "Go back";
 }
