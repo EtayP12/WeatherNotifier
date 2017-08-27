@@ -1,14 +1,15 @@
 package com.example.etayp.weathernotifier;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
@@ -32,6 +33,7 @@ public class NotificationSettingsFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     private Spinner updateTimeSpinner;
+    private boolean userChooseToLeave;
 
     public NotificationSettingsFragment() {
         // Required empty public constructor
@@ -73,7 +75,7 @@ public class NotificationSettingsFragment extends Fragment {
         ((CheckBox) rootView.findViewById(R.id.option_wind)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                sharedPreferencesEditor.putBoolean(Constants.OPTION_WIND,isChecked);
+                sharedPreferencesEditor.putBoolean(Constants.OPTION_WIND, isChecked);
                 sharedPreferencesEditor.apply();
             }
         });
@@ -83,7 +85,7 @@ public class NotificationSettingsFragment extends Fragment {
         ((CheckBox) rootView.findViewById(R.id.option_rain)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                sharedPreferencesEditor.putBoolean(Constants.OPTION_RAIN,isChecked);
+                sharedPreferencesEditor.putBoolean(Constants.OPTION_RAIN, isChecked);
                 sharedPreferencesEditor.apply();
             }
         });
@@ -93,7 +95,7 @@ public class NotificationSettingsFragment extends Fragment {
         ((CheckBox) rootView.findViewById(R.id.option_humidity)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                sharedPreferencesEditor.putBoolean(Constants.OPTION_HUMIDITY,isChecked);
+                sharedPreferencesEditor.putBoolean(Constants.OPTION_HUMIDITY, isChecked);
             }
         });
 
