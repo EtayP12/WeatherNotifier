@@ -3,6 +3,7 @@
 package com.example.etayp.weathernotifier;
 
 import android.Manifest;
+import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -55,6 +56,7 @@ import com.johnhiott.darkskyandroidlib.models.WeatherResponse;
 
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Stack;
 
 import retrofit.Callback;
@@ -142,8 +144,12 @@ public class MainActivity extends AppCompatActivity implements
                 .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
                     @Override
                     public void onConnected(@Nullable Bundle bundle) {
+
+                        Log.d(TAG, "onConnected: Awareness connected");
+
                         mFenceReceiver = new FenceReceiver();
                         registerReceiver(mFenceReceiver, new IntentFilter(FENCE_RECEIVER_ACTION));
+
                         locationUpdateThread = new Thread(new Runnable() {
                             @Override
                             public void run() {
@@ -193,10 +199,12 @@ public class MainActivity extends AppCompatActivity implements
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     Constants.LOCATION_PERMISSION_REQUEST_CODE);
         } else {
+            Log.d(TAG, "updateLocation: Location request sent");
             Awareness.SnapshotApi.getLocation(mApiClient).setResultCallback(new ResultCallback<LocationResult>() {
                 @Override
                 public void onResult(@NonNull LocationResult locationResult) {
                     mLastLocation = locationResult.getLocation();
+                    Log.d(TAG, "onResult: Location updated");
                     if (mLastLocation != null && activityIsActive) {
                         startFetchAddressIntentService();
                     } else {
@@ -211,11 +219,11 @@ public class MainActivity extends AppCompatActivity implements
         RequestBuilder weather = new RequestBuilder();
 
         Request request = new Request();
-        request.setLat(String.valueOf(mLastLocation.getLatitude()));
-        request.setLng(String.valueOf(mLastLocation.getLongitude()));
+        request.setLat(String.valueOf(mAddress.getLatitude()));
+        request.setLng(String.valueOf(mAddress.getLongitude()));
         request.setUnits(Request.Units.SI);
         request.setLanguage(Request.Language.ENGLISH);
-
+        Log.d(TAG, "FetchWeatherResponse: Weather request sent");
         weather.getWeather(request, new Callback<WeatherResponse>() {
             @Override
             public void success(WeatherResponse weatherResponse, Response response) {
@@ -370,6 +378,7 @@ public class MainActivity extends AppCompatActivity implements
             // Display the currentAddress string
             // or an error message sent from the intent service.
             if (resultCode == Constants.SUCCESS_RESULT) {
+                Log.d(TAG, "onReceiveResult: Address received");
                 switch (resultData.getInt(Constants.RECEIVE_TYPE_EXTRA)) {
                     case Constants.RECEIVE_TO_MAIN:
                         Address newAddress = resultData.getParcelable("currentAddress");
@@ -406,11 +415,18 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onPause() {
         super.onPause();
-        if (notificationThreadNotActive) notificationThreadSetup();
+        if (notificationThreadNotActive && !firstUpdate) notificationThreadSetup();
         saveAddressesToPreference();
         activityIsActive = false;
         if (mFenceReceiver != null) unregisterReceiver(mFenceReceiver);
+        if (isBackgroundRunning(this)){
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.popBackStack(MainFragment.class.getName(), 0);
+            mFragmentStack.clear();
+            mFragmentStack.add(mainFragment.getClass().getName());
+        }
     }
+
 
     private void notificationThreadSetup() {
         notificationThreadNotActive = false;
@@ -429,7 +445,7 @@ public class MainActivity extends AppCompatActivity implements
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                while (true) {
+                while (!notificationThreadNotActive) {
                     Log.d(TAG, "run: starting NotificationSender service");
                     intent.putExtra(Constants.ADDRESSES_HASH_MAP, (new Gson()).toJson(addressHashMap));
                     startService(intent);
@@ -442,6 +458,24 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
         notificationThread.start();
+    }
+
+    public static boolean isBackgroundRunning(Context context) {
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> runningProcesses = am.getRunningAppProcesses();
+        for (ActivityManager.RunningAppProcessInfo processInfo : runningProcesses) {
+            if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+                for (String activeProcess : processInfo.pkgList) {
+                    if (activeProcess.equals(context.getPackageName())) {
+                        //If your app is the process in foreground, then it's not in running in background
+                        return false;
+                    }
+                }
+            }
+        }
+
+
+        return true;
     }
 
     private void saveAddressesToPreference() {
