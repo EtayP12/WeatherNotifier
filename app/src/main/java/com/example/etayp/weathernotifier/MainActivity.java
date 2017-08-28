@@ -7,6 +7,7 @@ import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,7 +15,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -126,8 +126,9 @@ public class MainActivity extends AppCompatActivity implements
 
         //
         addressesHashMapSetup();
-        if (!sharedPreferences.getBoolean(Constants.EXIT_WITH_BACK_BUTTON,false)) recyclerViewSetup();
-        sharedPreferences.edit().putBoolean(Constants.EXIT_WITH_BACK_BUTTON,false).apply();
+        if (!sharedPreferences.getBoolean(Constants.EXIT_WITH_BACK_BUTTON, false))
+            recyclerViewSetup();
+        sharedPreferences.edit().putBoolean(Constants.EXIT_WITH_BACK_BUTTON, false).apply();
 
         updateTimeMillis = getResources().getIntArray(R.array.update_times_millis);
         mApiClient = new GoogleApiClient.Builder(this)
@@ -409,10 +410,15 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onPause() {
         super.onPause();
-        if (notificationThreadNotActive && !firstUpdate && isBackgroundRunning(this)) notificationThreadSetup();
+        if (notificationThreadNotActive && !firstUpdate) {
+            notificationThreadSetup();
+        }
         saveAddressesToPreference();
         activityIsActive = false;
-        if (isBackgroundRunning(this)) {
+
+        //If the application is in background, resets fragments.
+        //will not work if phone takes to long to move application to background.
+        if (isApplicationInBackground()) {
             FragmentManager fragmentManager = getSupportFragmentManager();
             fragmentManager.popBackStack(MainFragment.class.getName(), 0);
             mFragmentStack.clear();
@@ -438,37 +444,33 @@ public class MainActivity extends AppCompatActivity implements
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                while (!notificationThreadNotActive) {
-                    Log.d(TAG, "run: starting NotificationSender service");
-                    intent.putExtra(Constants.ADDRESSES_HASH_MAP, (new Gson()).toJson(addressHashMap));
-                    startService(intent);
-                    try {
-                        Thread.sleep(updateTimeMillis[sharedPreferences.getInt(Constants.UPDATE_TIME_SELECTION, 0)]);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                if (isApplicationInBackground()) {
+                    while (!notificationThreadNotActive) {
+                        Log.d(TAG, "run: starting NotificationSender service");
+                        intent.putExtra(Constants.ADDRESSES_HASH_MAP, (new Gson()).toJson(addressHashMap));
+                        startService(intent);
+                        try {
+                            Thread.sleep(updateTimeMillis[sharedPreferences.getInt(Constants.UPDATE_TIME_SELECTION, 0)]);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
+                } else {
+                    notificationThreadNotActive = true;
                 }
             }
         });
         notificationThread.start();
     }
 
-    public static boolean isBackgroundRunning(Context context) {
-        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> runningProcesses = am.getRunningAppProcesses();
-        for (ActivityManager.RunningAppProcessInfo processInfo : runningProcesses) {
-            if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
-                for (String activeProcess : processInfo.pkgList) {
-                    if (activeProcess.equals(context.getPackageName())) {
-                        //If your app is the process in foreground, then it's not in running in background
-                        return false;
-                    }
-                }
-            }
+    private boolean isApplicationInBackground() {
+        final ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        final List<ActivityManager.RunningTaskInfo> tasks = manager.getRunningTasks(1);
+        if (!tasks.isEmpty()) {
+            final ComponentName topActivity = tasks.get(0).topActivity;
+            return !topActivity.getPackageName().equals(getPackageName());
         }
-
-
-        return true;
+        return false;
     }
 
     private void saveAddressesToPreference() {
@@ -708,7 +710,7 @@ public class MainActivity extends AppCompatActivity implements
                 }).start();
 
             } else {
-                sharedPreferences.edit().putBoolean(Constants.EXIT_WITH_BACK_BUTTON,true).apply();
+                sharedPreferences.edit().putBoolean(Constants.EXIT_WITH_BACK_BUTTON, true).apply();
                 finish();
             }
         } else {
