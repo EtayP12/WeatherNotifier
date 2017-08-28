@@ -54,6 +54,7 @@ public class alarmReceiver extends BroadcastReceiver {
         addressesHashMapSetup(context);
         dailyWeatherItems = new ArrayList<>();
         mBuilder = new NotificationCompat.Builder(context)
+                .setAutoCancel(true)
                 .setSmallIcon(R.drawable.icon_misc_notification)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setDefaults(Notification.DEFAULT_ALL)

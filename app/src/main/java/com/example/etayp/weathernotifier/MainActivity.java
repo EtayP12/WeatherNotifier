@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements
     private boolean removeSplashOnResume;
     private AlertDialog timeOutAlertDialog;
     private boolean notificationThreadNotActive = true;
+    private boolean exitWithBackButton = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,8 +124,10 @@ public class MainActivity extends AppCompatActivity implements
         // for data saving and loading
         sharedPreferences = getSharedPreferences(MainActivity.class.getSimpleName(), MODE_PRIVATE);
 
+        //
         addressesHashMapSetup();
-        recyclerViewSetup();
+        if (!sharedPreferences.getBoolean(Constants.EXIT_WITH_BACK_BUTTON,false)) recyclerViewSetup();
+        sharedPreferences.edit().putBoolean(Constants.EXIT_WITH_BACK_BUTTON,false).apply();
 
         updateTimeMillis = getResources().getIntArray(R.array.update_times_millis);
         mApiClient = new GoogleApiClient.Builder(this)
@@ -170,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements
                     Log.d(TAG, "onRequestPermissionsResult: Permission granted");
                     updateLocation();
                 } else {
-                    Toast.makeText(this, "Application needs permission", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, Constants.APPLICATION_NEEDS_PERMISSION, Toast.LENGTH_LONG).show();
                     finish();
                 }
             }
@@ -406,7 +409,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onPause() {
         super.onPause();
-        if (notificationThreadNotActive && !firstUpdate) notificationThreadSetup();
+        if (notificationThreadNotActive && !firstUpdate && isBackgroundRunning(this)) notificationThreadSetup();
         saveAddressesToPreference();
         activityIsActive = false;
         if (isBackgroundRunning(this)) {
@@ -705,6 +708,7 @@ public class MainActivity extends AppCompatActivity implements
                 }).start();
 
             } else {
+                sharedPreferences.edit().putBoolean(Constants.EXIT_WITH_BACK_BUTTON,true).apply();
                 finish();
             }
         } else {

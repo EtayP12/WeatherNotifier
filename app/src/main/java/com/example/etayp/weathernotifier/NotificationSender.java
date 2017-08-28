@@ -53,6 +53,7 @@ public class NotificationSender extends IntentService {
     private NotificationCompat.InboxStyle inboxStyle;
     private Intent notifyIntent;
     private NotificationCompat.Builder mBuilder;
+    private boolean userSelectedOptionsApply = false;
 
 
     /**
@@ -132,12 +133,13 @@ public class NotificationSender extends IntentService {
         weather.getWeather(request, new Callback<WeatherResponse>() {
             @Override
             public void success(WeatherResponse weatherResponse, Response response) {
-                inboxStyle.addLine("Temperature in "
-                        + address.getLocality()
-                        + ": "
-                        + weatherResponse.getCurrently().getTemperature()
-                        + Constants.DEGREE);
-                weatherUpdateItems.add(new WeatherUpdateItem(String.valueOf(numberOfSuccesses), weatherResponse, address.getLocality()));
+                WeatherUpdateItem item = new WeatherUpdateItem(String.valueOf(numberOfSuccesses), weatherResponse, address.getLocality());
+                weatherUpdateItems.add(item);
+                String toNotification = stringToNotification(item);
+                if (toNotification != null) {
+                    inboxStyle.addLine(toNotification);
+                    userSelectedOptionsApply = true;
+                }
                 if (++numberOfSuccesses == numberOfAddresses) {
                     mBuilder.setStyle(inboxStyle);
                     notifyIntent.putExtra(Constants.WEATHER_UPDATE_ITEMS, (new Gson()).toJson(weatherUpdateItems));
@@ -154,7 +156,7 @@ public class NotificationSender extends IntentService {
 
                     // Sends a notification only if there is an anomaly in one of the criteria
                     // the user choose in one of the locations the user choose
-                    if (userSelectedOptionsApply()) {
+                    if (userSelectedOptionsApply) {
                         notificationManager.notify(0, mBuilder.build());
                     }
                 }
@@ -167,7 +169,7 @@ public class NotificationSender extends IntentService {
         });
     }
 
-    private boolean userSelectedOptionsApply() {
+    private String stringToNotification(WeatherUpdateItem item) {
 
         SharedPreferences sharedPreferences = getSharedPreferences(MainActivity.class.getSimpleName(), MODE_PRIVATE);
         boolean optionTemprature = sharedPreferences.getBoolean(Constants.OPTION_TEMPRATURE, true);
@@ -175,23 +177,35 @@ public class NotificationSender extends IntentService {
         boolean optionHumidity = sharedPreferences.getBoolean(Constants.OPTION_HUMIDITY, true);
         boolean optionRain = sharedPreferences.getBoolean(Constants.OPTION_RAIN, true);
 
-        for (WeatherUpdateItem item : weatherUpdateItems) {
-            if (optionHumidity) {
-                if (Double.valueOf(item.weatherResponse.getCurrently().getHumidity()) > 0.6)
-                    return true;
-            }
-            if (optionWind) {
-                if (Double.valueOf(item.weatherResponse.getCurrently().getWindSpeed()) > 35)
-                    return true;
-            }
-            if (optionTemprature) {
-                if (item.weatherResponse.getCurrently().getTemperature() > 35) return true;
-            }
-            if (optionRain) {
-                if (Double.valueOf(item.weatherResponse.getCurrently().getPrecipProbability()) > 0.6)
-                    return true;
+        if (optionRain) {
+            if (Double.valueOf(item.weatherResponse.getCurrently().getPrecipProbability()) > 0.6) {
+                String precipitation = String.valueOf(Double.valueOf(item.weatherResponse.getCurrently().getPrecipProbability()) * 100);
+                precipitation = precipitation.substring(0, precipitation.indexOf(".")) + Constants.PERCENT;
+                return "Probability for " + item.weatherResponse.getCurrently().getPrecipType() + " in " + item.location + ": " + precipitation;
             }
         }
-        return false;
+
+        if (optionTemprature) {
+            if (item.weatherResponse.getCurrently().getTemperature() > 35) {
+                String temprature = (int) item.weatherResponse.getCurrently().getTemperature() + Constants.DEGREE;
+                return "Temprature in " + item.location + ": " + temprature;
+            }
+        }
+
+        if (optionHumidity) {
+            if (Double.valueOf(item.weatherResponse.getCurrently().getHumidity()) > 0.6) {
+                String humidity = (int) (Double.valueOf(item.weatherResponse.getCurrently().getHumidity()) * 100) + Constants.PERCENT;
+                return "Humidity in " + item.location + ": " + humidity;
+            }
+        }
+
+        if (optionWind) {
+            if (Double.valueOf(item.weatherResponse.getCurrently().getWindSpeed()) > 35) {
+                String wind = String.valueOf((int) (Double.valueOf(item.weatherResponse.getCurrently().getWindSpeed()) * 1.609));
+                return "Wind speed in " + item.location + ": " + wind;
+            }
+        }
+
+        return null;
     }
 }
