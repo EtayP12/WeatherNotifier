@@ -7,11 +7,9 @@ import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -28,7 +26,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.os.ResultReceiver;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -44,7 +41,6 @@ import android.widget.Toast;
 
 import com.example.etayp.weathernotifier.items.RecyclerItems;
 import com.google.android.gms.awareness.Awareness;
-import com.google.android.gms.awareness.fence.FenceState;
 import com.google.android.gms.awareness.snapshot.LocationResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -65,7 +61,7 @@ import retrofit.client.Response;
 
 
 public class MainActivity extends AppCompatActivity implements
-        MainFragment.OnFragmentInteractionListener, NotificationSettingsFragment.OnFragmentInteractionListener
+        NotificationSettingsFragment.onUpdateTimeSelectedListener
         , LocationsFragment.OnListFragmentInteractionListener, SplashFragment.OnFragmentTimeOutListener {
 
 
@@ -79,14 +75,7 @@ public class MainActivity extends AppCompatActivity implements
     protected Location mLastLocation;
     private AddressResultReceiver mResultReceiver;
 
-    private FenceReceiver mFenceReceiver;
     private GoogleApiClient mApiClient;
-
-
-    private final String FENCE_RECEIVER_ACTION =
-            BuildConfig.APPLICATION_ID + "FENCE_RECEIVER_ACTION";
-
-    private final String FENCE_KEY = "fence_key";
 
     private boolean activityIsActive = true;
     private AlarmManager alarmManager;
@@ -147,9 +136,6 @@ public class MainActivity extends AppCompatActivity implements
 
                         Log.d(TAG, "onConnected: Awareness connected");
 
-                        mFenceReceiver = new FenceReceiver();
-                        registerReceiver(mFenceReceiver, new IntentFilter(FENCE_RECEIVER_ACTION));
-
                         locationUpdateThread = new Thread(new Runnable() {
                             @Override
                             public void run() {
@@ -158,6 +144,7 @@ public class MainActivity extends AppCompatActivity implements
                                     try {
                                         Thread.sleep(15000);
                                     } catch (InterruptedException e) {
+                                        Log.d(TAG, "run: sleep failed");
                                         e.printStackTrace();
                                     }
                                 }
@@ -169,7 +156,6 @@ public class MainActivity extends AppCompatActivity implements
 
                     @Override
                     public void onConnectionSuspended(int i) {
-                        unregisterReceiver(mFenceReceiver);
                     }
                 })
                 .build();
@@ -181,12 +167,11 @@ public class MainActivity extends AppCompatActivity implements
             case Constants.LOCATION_PERMISSION_REQUEST_CODE: {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "onRequestPermissionsResult: Permission granted");
                     updateLocation();
                 } else {
-
                     Toast.makeText(this, "Application needs permission", Toast.LENGTH_LONG).show();
                     finish();
-
                 }
             }
         }
@@ -366,6 +351,12 @@ public class MainActivity extends AppCompatActivity implements
         });
     }
 
+    @Override
+    public void onUpdateTimeSelected() {
+        Log.d(TAG, "onUpdateTimeSelected: Update time selected");
+        notificationThreadNotActive = true;
+    }
+
     private class AddressResultReceiver extends ResultReceiver {
 
         AddressResultReceiver(Handler handler) {
@@ -418,8 +409,7 @@ public class MainActivity extends AppCompatActivity implements
         if (notificationThreadNotActive && !firstUpdate) notificationThreadSetup();
         saveAddressesToPreference();
         activityIsActive = false;
-        if (mFenceReceiver != null) unregisterReceiver(mFenceReceiver);
-        if (isBackgroundRunning(this)){
+        if (isBackgroundRunning(this)) {
             FragmentManager fragmentManager = getSupportFragmentManager();
             fragmentManager.popBackStack(MainFragment.class.getName(), 0);
             mFragmentStack.clear();
@@ -691,12 +681,6 @@ public class MainActivity extends AppCompatActivity implements
         return mAddress;
     }
 
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
-    }
-
-
     private void displayAddressOutput(String locality) {
         ((TextView) findViewById(R.id.location_value)).setText(locality);
     }
@@ -784,27 +768,4 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    private class FenceReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            FenceState fenceState = FenceState.extract(intent);
-
-            if (TextUtils.equals(fenceState.getFenceKey(), FENCE_KEY)) {
-                String fenceStateStr;
-                switch (fenceState.getCurrentState()) {
-                    case FenceState.TRUE:
-                        fenceStateStr = "true";
-                        break;
-                    case FenceState.FALSE:
-                        fenceStateStr = "false";
-                        break;
-                    case FenceState.UNKNOWN:
-                        fenceStateStr = "unknown";
-                        break;
-                    default:
-                        fenceStateStr = "unknown value";
-                }
-            }
-        }
-    }
 }

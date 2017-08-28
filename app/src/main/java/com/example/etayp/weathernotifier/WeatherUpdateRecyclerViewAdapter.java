@@ -32,13 +32,22 @@ class WeatherUpdateRecyclerViewAdapter extends RecyclerView.Adapter<WeatherUpdat
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.mApparent.setText(String.valueOf(values.get(position).weatherResponse.getCurrently().getApparentTemperature()));
-        holder.mTemprature.setText(String.valueOf(values.get(position).weatherResponse.getCurrently().getTemperature()));
+        holder.mLocation.setText(values.get(position).location);
+
+        String apparent = String.valueOf(values.get(position).weatherResponse.getCurrently().getApparentTemperature());
+        apparent = apparent.substring(0,apparent.indexOf("."))+Constants.DEGREE;
+        holder.mApparent.setText(apparent);
+
+        String temprature = String.valueOf(values.get(position).weatherResponse.getCurrently().getTemperature());
+        temprature = temprature.substring(0,temprature.indexOf("."))+Constants.DEGREE;
+        holder.mTemprature.setText(temprature);
+
         String humidity =(int)(Double.valueOf(values.get(position).weatherResponse.getCurrently().getHumidity())*100)+Constants.PERCENT;
         holder.mHumidity.setText(humidity);
-        holder.mLocation.setText(values.get(position).location);
+
         String wind = String.valueOf(Double.valueOf(values.get(position).weatherResponse.getCurrently().getWindSpeed()) * 1.609);
         holder.mWindSpeed.setText(wind.substring(0, wind.indexOf(".") + 2));
+
         PublicMethods.changeIcon(values.get(position).weatherResponse.getCurrently().getIcon(), holder.mIcon, false);
     }
 

@@ -1,12 +1,9 @@
 package com.example.etayp.weathernotifier;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,34 +14,19 @@ import android.widget.CompoundButton;
 import android.widget.Spinner;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link NotificationSettingsFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link NotificationSettingsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class NotificationSettingsFragment extends Fragment {
 
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor sharedPreferencesEditor;
     private View rootView;
 
-    private OnFragmentInteractionListener mListener;
+    private onUpdateTimeSelectedListener mListener;
     private Spinner updateTimeSpinner;
-    private boolean userChooseToLeave;
 
     public NotificationSettingsFragment() {
         // Required empty public constructor
     }
 
-    public static NotificationSettingsFragment newInstance() {
-        NotificationSettingsFragment fragment = new NotificationSettingsFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -113,6 +95,7 @@ public class NotificationSettingsFragment extends Fragment {
         updateTimeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (mListener!=null && position!=sharedPreferences.getInt(Constants.UPDATE_TIME_SELECTION,0)) mListener.onUpdateTimeSelected();
                 sharedPreferencesEditor.putInt(Constants.UPDATE_TIME_SELECTION
                         , position);
                 sharedPreferencesEditor.apply();
@@ -125,18 +108,12 @@ public class NotificationSettingsFragment extends Fragment {
         });
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+        if (context instanceof onUpdateTimeSelectedListener) {
+            mListener = (onUpdateTimeSelectedListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentTimeOutListener");
@@ -170,7 +147,7 @@ public class NotificationSettingsFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
+    interface onUpdateTimeSelectedListener {
+        void onUpdateTimeSelected();
     }
 }
