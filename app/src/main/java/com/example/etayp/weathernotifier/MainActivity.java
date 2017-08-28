@@ -66,7 +66,7 @@ import retrofit.client.Response;
 
 public class MainActivity extends AppCompatActivity implements
         MainFragment.OnFragmentInteractionListener, NotificationSettingsFragment.OnFragmentInteractionListener
-        , LocationsFragment.OnListFragmentInteractionListener {
+        , LocationsFragment.OnListFragmentInteractionListener, SplashFragment.OnFragmentTimeOutListener {
 
 
     private Address mAddress;
@@ -100,6 +100,8 @@ public class MainActivity extends AppCompatActivity implements
     private Thread locationUpdateThread;
     private boolean firstUpdate = true;
     private SplashFragment splashFragment;
+    private boolean connectionOngoing = true;
+    private boolean removeSplashOnResume;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,9 +128,7 @@ public class MainActivity extends AppCompatActivity implements
         notificationSettingsFragment = new NotificationSettingsFragment();
         locationsFragment = new LocationsFragment();
 
-        // for addresses
         mResultReceiver = new AddressResultReceiver(new Handler());
-//        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         // for data saving and loading
         sharedPreferences = getSharedPreferences(MainActivity.class.getSimpleName(), MODE_PRIVATE);
@@ -148,10 +148,9 @@ public class MainActivity extends AppCompatActivity implements
                         locationUpdateThread = new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                while (true) {
+                                while (connectionOngoing) {
                                     updateLocation();
                                     try {
-//                                        Thread.sleep((long) updateTimeMillis[sharedPreferences.getInt(Constants.UPDATE_TIME_SELECTION, 0)]);
                                         Thread.sleep(15000);
                                     } catch (InterruptedException e) {
                                         e.printStackTrace();
@@ -201,70 +200,78 @@ public class MainActivity extends AppCompatActivity implements
                 public void onResult(@NonNull LocationResult locationResult) {
                     mLastLocation = locationResult.getLocation();
                     if (mLastLocation != null && activityIsActive) {
-                        startIntentService();
-                        RequestBuilder weather = new RequestBuilder();
-
-                        Request request = new Request();
-                        request.setLat(String.valueOf(mLastLocation.getLatitude()));
-                        request.setLng(String.valueOf(mLastLocation.getLongitude()));
-                        request.setUnits(Request.Units.SI);
-                        request.setLanguage(Request.Language.ENGLISH);
-
-                        weather.getWeather(request, new Callback<WeatherResponse>() {
-                            @Override
-                            public void success(WeatherResponse weatherResponse, Response response) {
-
-                                String temp = String.valueOf(weatherResponse.getCurrently().getTemperature());
-                                temp = temp.substring(0, temp.indexOf(".") + 2) + Constants.DEGREE;
-                                ((TextView) findViewById(R.id.temperature_value)).setText(temp);
-
-                                String app_temp = String.valueOf(weatherResponse.getCurrently().getApparentTemperature());
-                                app_temp = app_temp.substring(0, temp.indexOf(".") + 2) + Constants.DEGREE;
-                                ((TextView) findViewById(R.id.apparent_temperature_value)).setText(app_temp);
-
-                                String humidity = (int) (Double.valueOf(weatherResponse.getCurrently().getHumidity()) * 100) + Constants.PERCENT;
-                                ((TextView) findViewById(R.id.Humidity_value)).setText(humidity);
-                                ((TextView) findViewById(R.id.precip_probability_value)).setText(humidity);
-
-                                String wind = String.valueOf(Double.valueOf(weatherResponse.getCurrently().getWindSpeed()) * 1.609);
-                                wind = wind.substring(0, wind.indexOf(".") + 2);
-                                ((TextView) findViewById(R.id.wind_speed_value)).setText(wind);
-
-                                PublicMethods.changeIcon(weatherResponse.getCurrently().getIcon(), (ImageView) findViewById(R.id.current_icon), true);
-
-                                handleForecast(weatherResponse);
-
-                                //removes splash screen
-                                if (firstUpdate) {
-                                    (new Handler()).postDelayed(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-                                            setSupportActionBar(toolbar);
-                                            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                                            transaction.setCustomAnimations(R.anim.grow_from_middle, R.anim.shrink_to_middle);
-                                            transaction.replace(R.id.fragment_container, mainFragment, mainFragment.getClass().getName());
-                                            transaction.commit();
-                                            findViewById(R.id.app_bar).setVisibility(View.VISIBLE);
-                                            firstUpdate = false;
-                                        }
-                                    }, 1000);
-                                }
-                            }
-
-                            @Override
-                            public void failure(RetrofitError error) {
-                                Log.d(TAG, "failure: ");
-                                Toast.makeText(context,"Can't connect to dark-sky",Toast.LENGTH_LONG).show();
-                                finish();
-                            }
-                        });
+                        startFetchAddressIntentService();
                     } else {
                         Log.d(TAG, "onResult: unable to get location");
                     }
                 }
             });
         }
+    }
+
+    private void FetchWeatherResponse() {
+        RequestBuilder weather = new RequestBuilder();
+
+        Request request = new Request();
+        request.setLat(String.valueOf(mLastLocation.getLatitude()));
+        request.setLng(String.valueOf(mLastLocation.getLongitude()));
+        request.setUnits(Request.Units.SI);
+        request.setLanguage(Request.Language.ENGLISH);
+
+        weather.getWeather(request, new Callback<WeatherResponse>() {
+            @Override
+            public void success(WeatherResponse weatherResponse, Response response) {
+                Log.d(TAG, "success: received weather response");
+                String temp = String.valueOf(weatherResponse.getCurrently().getTemperature());
+                temp = temp.substring(0, temp.indexOf(".") + 2) + Constants.DEGREE;
+                ((TextView) findViewById(R.id.temperature_value)).setText(temp);
+
+                String app_temp = String.valueOf(weatherResponse.getCurrently().getApparentTemperature());
+                app_temp = app_temp.substring(0, temp.indexOf(".") + 2) + Constants.DEGREE;
+                ((TextView) findViewById(R.id.apparent_temperature_value)).setText(app_temp);
+
+                String humidity = (int) (Double.valueOf(weatherResponse.getCurrently().getHumidity()) * 100) + Constants.PERCENT;
+                ((TextView) findViewById(R.id.Humidity_value)).setText(humidity);
+                ((TextView) findViewById(R.id.precip_probability_value)).setText(humidity);
+
+                String wind = String.valueOf(Double.valueOf(weatherResponse.getCurrently().getWindSpeed()) * 1.609);
+                wind = wind.substring(0, wind.indexOf(".") + 2);
+                ((TextView) findViewById(R.id.wind_speed_value)).setText(wind);
+
+                PublicMethods.changeIcon(weatherResponse.getCurrently().getIcon(), (ImageView) findViewById(R.id.current_icon), true);
+
+                handleForecast(weatherResponse);
+
+                //removes splash screen
+                if (firstUpdate) {
+                    (new Handler()).postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (activityIsActive) {
+                                Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+                                setSupportActionBar(toolbar);
+                                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+//                                            transaction.setCustomAnimations(R.anim.grow_from_middle, R.anim.shrink_to_middle);
+                                transaction.replace(R.id.fragment_container, mainFragment, mainFragment.getClass().getName());
+                                transaction.commit();
+                                findViewById(R.id.app_bar).setVisibility(View.VISIBLE);
+                            } else {
+                                removeSplashOnResume = true;
+                            }
+                            splashFragment.cancelTimeOutTimer();
+                            firstUpdate = false;
+                        }
+                    }, 1000);
+                }
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d(TAG, "failure: ");
+//                                Toast.makeText(context, "Can't connect to dark-sky", Toast.LENGTH_LONG).show();
+//                                finish();
+            }
+        });
     }
 
     private void setupMainFragment() {
@@ -322,6 +329,36 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    @Override
+    public void onFragmentTimeOut() {
+        final Context context = this;
+        connectionOngoing = false;
+        runOnUiThread(new Runnable() {
+            public void run() {
+                AlertDialog alertDialog = new AlertDialog.Builder(context).create();
+                alertDialog.setTitle("Connection time out");
+                alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Try again", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        splashFragment.startTimeOutTimer(context);
+                        connectionOngoing = true;
+                        locationUpdateThread.start();
+                    }
+                });
+                alertDialog.setCancelable(false);
+                alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "leave", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                });
+                alertDialog.show();
+                splashFragment.stopLoadingAnimation();
+            }
+        });
+    }
+
     private class AddressResultReceiver extends ResultReceiver {
 
         AddressResultReceiver(Handler handler) {
@@ -336,7 +373,16 @@ public class MainActivity extends AppCompatActivity implements
             if (resultCode == Constants.SUCCESS_RESULT) {
                 switch (resultData.getInt(Constants.RECEIVE_TYPE_EXTRA)) {
                     case Constants.RECEIVE_TO_MAIN:
-                        mAddress = resultData.getParcelable("currentAddress");
+                        Address newAddress = resultData.getParcelable("currentAddress");
+                        if (firstUpdate) {
+                            mAddress = newAddress;
+                            FetchWeatherResponse();
+                        } else {
+                            if ((newAddress.getLocality() != null && !newAddress.getLocality().matches(mAddress.getLocality()))) {
+                                FetchWeatherResponse();
+                            }
+                            mAddress = newAddress;
+                        }
                         displayAddressOutput(mAddress.getLocality() != null ? mAddress.getLocality() : "Current location");
                         break;
                     case Constants.RECEIVE_TO_FRAGMENT:
@@ -348,6 +394,10 @@ public class MainActivity extends AppCompatActivity implements
                         );
                         locationsFragment.getRecyclerViewAdapter().notifyItemInserted(RecyclerItems.ITEMS.size());
                         break;
+                }
+            } else {
+                if(resultData.getInt(Constants.RECEIVE_TYPE_EXTRA)==Constants.RECEIVE_TO_FRAGMENT){
+                    Toast.makeText(getApplicationContext(),"No address found",Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -429,7 +479,15 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-//        registerReceiver(mFenceReceiver, new IntentFilter(FENCE_RECEIVER_ACTION));
+        if (removeSplashOnResume) {
+            removeSplashOnResume = false;
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_container, mainFragment, mainFragment.getClass().getName());
+            transaction.commit();
+            findViewById(R.id.app_bar).setVisibility(View.VISIBLE);
+        }
         activityIsActive = true;
     }
 
@@ -445,13 +503,12 @@ public class MainActivity extends AppCompatActivity implements
                 intent.putExtra(Constants.LOCATION_DATA_EXTRA, resultLocation);
                 intent.putExtra(Constants.RECEIVE_TYPE_EXTRA, Constants.RECEIVE_TO_FRAGMENT);
                 startService(intent);
-            }
-            else{
-                Toast.makeText(this, Constants.NO_LOCATION_SELECTED,Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, Constants.NO_LOCATION_SELECTED, Toast.LENGTH_SHORT).show();
             }
         }
-        if (requestCode == Constants.FAILURE_RESULT){
-            Toast.makeText(this,"No address found",Toast.LENGTH_SHORT).show();
+        if (requestCode == Constants.FAILURE_RESULT) {
+            Toast.makeText(this, "No address found", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -562,20 +619,20 @@ public class MainActivity extends AppCompatActivity implements
                 && !sharedPreferences.getBoolean(Constants.OPTION_WIND, true)
                 && !sharedPreferences.getBoolean(Constants.OPTION_TEMPRATURE, true)
                 ) {
-            final android.support.v7.app.AlertDialog alertDialog = new android.support.v7.app.AlertDialog.Builder(this).create();
+            AlertDialog alertDialog = new AlertDialog.Builder(this).create();
             alertDialog.setTitle(Constants.NO_OPTION_SELECTED_TITLE);
             alertDialog.setMessage(Constants.NO_OPTION_SELECTED_TEXT);
             alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, Constants.GOT_IT, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     fragmentTransactionMaker(fragment, fragName, fragmentManager, transaction);
-                    alertDialog.dismiss();
+                    dialog.dismiss();
                 }
             });
             alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, Constants.GO_BACK, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    alertDialog.dismiss();
+                    dialog.dismiss();
                 }
             });
             alertDialog.show();
@@ -690,7 +747,7 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    protected void startIntentService() {
+    protected void startFetchAddressIntentService() {
         Intent intent = new Intent(this, FetchAddressIntentService.class);
         intent.putExtra(Constants.RECEIVER, mResultReceiver);
         intent.putExtra(Constants.LOCATION_DATA_EXTRA, mLastLocation);

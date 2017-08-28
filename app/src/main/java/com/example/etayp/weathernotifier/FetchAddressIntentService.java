@@ -78,7 +78,7 @@ public class FetchAddressIntentService extends IntentService {
         } else {
             Address address = addresses.get(0);
 
-            Log.i(TAG, getString(R.string.address_found));
+            Log.i(TAG, getString(R.string.address_found) +": "+ address.getLocality());
             deliverResultToReceiver(Constants.SUCCESS_RESULT, address, receiveType);
         }
     }
