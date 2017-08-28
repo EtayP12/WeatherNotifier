@@ -1,4 +1,4 @@
-package com.example.etayp.weathernotifier.dummy;
+package com.example.etayp.weathernotifier.items;
 
 import java.util.ArrayList;
 import java.util.HashMap;

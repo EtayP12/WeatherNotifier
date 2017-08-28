@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
-import com.example.etayp.weathernotifier.dummy.WeatherUpdateItem;
+import com.example.etayp.weathernotifier.items.WeatherUpdateItem;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -23,7 +23,7 @@ public class DailyWeatherUpdateActivity extends AppCompatActivity {
         }.getType();
 
         List<WeatherUpdateItem> WeatherUpdateItems =
-                (new Gson()).fromJson(getIntent().getExtras().getString("last resort"), type);
+                (new Gson()).fromJson(getIntent().getExtras().getString(Constants.DAILY_WEATHER_ITEMS), type);
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.daily_weather_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));

@@ -15,7 +15,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.example.etayp.weathernotifier.dummy.WeatherUpdateItem;
+import com.example.etayp.weathernotifier.items.WeatherUpdateItem;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -126,7 +126,7 @@ public class alarmReceiver extends BroadcastReceiver {
     private void sendNotification(Context context) {
 
         Intent intent = new Intent(context,DailyWeatherUpdateActivity.class);
-        intent.putExtra("last resort",(new Gson()).toJson(dailyWeatherItems));
+        intent.putExtra(Constants.DAILY_WEATHER_ITEMS,(new Gson()).toJson(dailyWeatherItems));
         PendingIntent pendingIntent = PendingIntent.getActivity(context,0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentIntent(pendingIntent);
 

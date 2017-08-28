@@ -10,7 +10,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.etayp.weathernotifier.LocationsFragment.OnListFragmentInteractionListener;
-import com.example.etayp.weathernotifier.dummy.RecyclerItems.RecyclerItem;
+import com.example.etayp.weathernotifier.items.RecyclerItems.RecyclerItem;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -3,7 +3,6 @@
 package com.example.etayp.weathernotifier;
 
 import android.Manifest;
-import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -42,7 +41,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.example.etayp.weathernotifier.dummy.RecyclerItems;
+import com.example.etayp.weathernotifier.items.RecyclerItems;
 import com.google.android.gms.awareness.Awareness;
 import com.google.android.gms.awareness.fence.FenceState;
 import com.google.android.gms.awareness.snapshot.LocationResult;
@@ -56,7 +55,6 @@ import com.johnhiott.darkskyandroidlib.models.WeatherResponse;
 
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Stack;
 
 import retrofit.Callback;
@@ -71,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private Address mAddress;
 
-    HashMap<String, Address> addressHashMap;
+    HashMap<String, Address> addressHashMap = new HashMap<>();
 
     private static final String TAG = "MainActivity";
     private SharedPreferences sharedPreferences;
@@ -89,7 +87,6 @@ public class MainActivity extends AppCompatActivity implements
     private final String FENCE_KEY = "fence_key";
 
     private boolean activityIsActive = true;
-    private Thread thread;
     private AlarmManager alarmManager;
     private MainFragment mainFragment;
     private NotificationSettingsFragment notificationSettingsFragment;
@@ -102,6 +99,8 @@ public class MainActivity extends AppCompatActivity implements
     private SplashFragment splashFragment;
     private boolean connectionOngoing = true;
     private boolean removeSplashOnResume;
+    private AlertDialog timeOutAlertDialog;
+    private boolean notificationThreadNotActive = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -194,7 +193,6 @@ public class MainActivity extends AppCompatActivity implements
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     Constants.LOCATION_PERMISSION_REQUEST_CODE);
         } else {
-            final Context context = this;
             Awareness.SnapshotApi.getLocation(mApiClient).setResultCallback(new ResultCallback<LocationResult>() {
                 @Override
                 public void onResult(@NonNull LocationResult locationResult) {
@@ -255,6 +253,8 @@ public class MainActivity extends AppCompatActivity implements
                                 transaction.replace(R.id.fragment_container, mainFragment, mainFragment.getClass().getName());
                                 transaction.commit();
                                 findViewById(R.id.app_bar).setVisibility(View.VISIBLE);
+                                if (timeOutAlertDialog != null && timeOutAlertDialog.isShowing())
+                                    timeOutAlertDialog.dismiss();
                             } else {
                                 removeSplashOnResume = true;
                             }
@@ -318,7 +318,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void addressesHashMapSetup() {
-        addressHashMap = new HashMap<>();
         SharedPreferences addressesSharedPreferences = getSharedPreferences(Constants.ADDRESSES_PREFERENCE, MODE_PRIVATE);
         int numberOfAddresses = addressesSharedPreferences.getInt(Constants.NUMBER_OF_ADDRESSES, 0);
         for (int i = 0; i < numberOfAddresses; i++) {
@@ -335,9 +334,9 @@ public class MainActivity extends AppCompatActivity implements
         connectionOngoing = false;
         runOnUiThread(new Runnable() {
             public void run() {
-                AlertDialog alertDialog = new AlertDialog.Builder(context).create();
-                alertDialog.setTitle("Connection time out");
-                alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Try again", new DialogInterface.OnClickListener() {
+                timeOutAlertDialog = new AlertDialog.Builder(context).create();
+                timeOutAlertDialog.setTitle("Connection time out");
+                timeOutAlertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Try again", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
@@ -346,14 +345,14 @@ public class MainActivity extends AppCompatActivity implements
                         locationUpdateThread.start();
                     }
                 });
-                alertDialog.setCancelable(false);
-                alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "leave", new DialogInterface.OnClickListener() {
+                timeOutAlertDialog.setCancelable(false);
+                timeOutAlertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "leave", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         finish();
                     }
                 });
-                alertDialog.show();
+                timeOutAlertDialog.show();
                 splashFragment.stopLoadingAnimation();
             }
         });
@@ -396,8 +395,8 @@ public class MainActivity extends AppCompatActivity implements
                         break;
                 }
             } else {
-                if(resultData.getInt(Constants.RECEIVE_TYPE_EXTRA)==Constants.RECEIVE_TO_FRAGMENT){
-                    Toast.makeText(getApplicationContext(),"No address found",Toast.LENGTH_SHORT).show();
+                if (resultData.getInt(Constants.RECEIVE_TYPE_EXTRA) == Constants.RECEIVE_TO_FRAGMENT) {
+                    Toast.makeText(getApplicationContext(), "No address found", Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -407,57 +406,42 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onPause() {
         super.onPause();
-        activityIsActive = false;
+        if (notificationThreadNotActive) notificationThreadSetup();
         saveAddressesToPreference();
-        final long selectedUpdateTime = (long) updateTimeMillis[sharedPreferences.getInt(Constants.UPDATE_TIME_SELECTION, 0)];
+        activityIsActive = false;
+        if (mFenceReceiver != null) unregisterReceiver(mFenceReceiver);
+    }
+
+    private void notificationThreadSetup() {
+        notificationThreadNotActive = false;
         final Intent intent = new Intent(this, NotificationSender.class);
         final Context context = this;
-        thread = new Thread(new Runnable() {
+        Thread notificationThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    notificationThreadNotActive = true;
                     return;
                 }
-                Log.d(TAG, "run: pausing");
+                Log.d(TAG, "run: NotificationThread is running");
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                while (!activityIsActive && isBackgroundRunning(context)) {
-                    Log.d(TAG, "run: background");
+                while (true) {
+                    Log.d(TAG, "run: starting NotificationSender service");
                     intent.putExtra(Constants.ADDRESSES_HASH_MAP, (new Gson()).toJson(addressHashMap));
                     startService(intent);
                     try {
-                        Thread.sleep(selectedUpdateTime);
+                        Thread.sleep(updateTimeMillis[sharedPreferences.getInt(Constants.UPDATE_TIME_SELECTION, 0)]);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
             }
         });
-        thread.start();
-        if (mFenceReceiver != null) {
-            unregisterReceiver(mFenceReceiver);
-        }
-    }
-
-    public static boolean isBackgroundRunning(Context context) {
-        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> runningProcesses = am.getRunningAppProcesses();
-        for (ActivityManager.RunningAppProcessInfo processInfo : runningProcesses) {
-            if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
-                for (String activeProcess : processInfo.pkgList) {
-                    if (activeProcess.equals(context.getPackageName())) {
-                        //If your app is the process in foreground, then it's not in running in background
-                        return false;
-                    }
-                }
-            }
-        }
-
-
-        return true;
+        notificationThread.start();
     }
 
     private void saveAddressesToPreference() {

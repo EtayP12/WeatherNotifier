@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.etayp.weathernotifier.dummy.WeatherUpdateItem;
+import com.example.etayp.weathernotifier.items.WeatherUpdateItem;
 
 import java.util.List;
 
@@ -34,7 +34,7 @@ class WeatherUpdateRecyclerViewAdapter extends RecyclerView.Adapter<WeatherUpdat
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.mApparent.setText(String.valueOf(values.get(position).weatherResponse.getCurrently().getApparentTemperature()));
         holder.mTemprature.setText(String.valueOf(values.get(position).weatherResponse.getCurrently().getTemperature()));
-        String humidity =Double.valueOf(values.get(position).weatherResponse.getCurrently().getHumidity())*100+Constants.PERCENT;
+        String humidity =(int)(Double.valueOf(values.get(position).weatherResponse.getCurrently().getHumidity())*100)+Constants.PERCENT;
         holder.mHumidity.setText(humidity);
         holder.mLocation.setText(values.get(position).location);
         String wind = String.valueOf(Double.valueOf(values.get(position).weatherResponse.getCurrently().getWindSpeed()) * 1.609);

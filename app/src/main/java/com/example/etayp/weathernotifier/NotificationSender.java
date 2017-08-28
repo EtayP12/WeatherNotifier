@@ -17,7 +17,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.example.etayp.weathernotifier.dummy.WeatherUpdateItem;
+import com.example.etayp.weathernotifier.items.WeatherUpdateItem;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;

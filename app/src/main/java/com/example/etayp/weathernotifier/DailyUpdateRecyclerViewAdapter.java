@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.etayp.weathernotifier.dummy.WeatherUpdateItem;
+import com.example.etayp.weathernotifier.items.WeatherUpdateItem;
 
 import java.util.List;
 

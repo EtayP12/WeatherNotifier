@@ -13,8 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.etayp.weathernotifier.dummy.RecyclerItems;
-import com.example.etayp.weathernotifier.dummy.RecyclerItems.RecyclerItem;
+import com.example.etayp.weathernotifier.items.RecyclerItems;
+import com.example.etayp.weathernotifier.items.RecyclerItems.RecyclerItem;
 
 /**
  * A fragment representing a list of Items.

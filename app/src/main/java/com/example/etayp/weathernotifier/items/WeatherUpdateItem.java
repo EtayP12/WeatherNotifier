@@ -1,4 +1,4 @@
-package com.example.etayp.weathernotifier.dummy;
+package com.example.etayp.weathernotifier.items;
 
 import com.johnhiott.darkskyandroidlib.models.WeatherResponse;
 
