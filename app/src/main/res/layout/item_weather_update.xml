@@ -31,7 +31,7 @@
         android:orientation="vertical">
 
         <ImageView
-            android:id="@+id/imageView2"
+            android:id="@+id/feelslikeicon"
             android:layout_width="38dp"
             android:layout_height="38dp"
             android:layout_gravity="center"
@@ -39,7 +39,7 @@
             app:srcCompat="@drawable/icon_data_feelslike" />
 
         <ImageView
-            android:id="@+id/imageView3"
+            android:id="@+id/tempratureicon"
             android:layout_width="38dp"
             android:layout_height="38dp"
             android:layout_gravity="center"
@@ -47,12 +47,20 @@
             app:srcCompat="@drawable/icon_data_temprature" />
 
         <ImageView
-            android:id="@+id/imageView6"
+            android:id="@+id/humidityicon"
             android:layout_width="38dp"
             android:layout_height="38dp"
             android:layout_gravity="center"
             android:layout_weight="1"
             app:srcCompat="@drawable/icon_data_humidity" />
+
+        <ImageView
+            android:id="@+id/windicon"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/icon_data_wind" />
     </LinearLayout>
 
     <LinearLayout
@@ -90,6 +98,7 @@
             android:textColor="@color/colorWhite" />
 
         <TextView
+            android:id="@+id/update_wind_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
