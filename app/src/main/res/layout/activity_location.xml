@@ -49,10 +49,10 @@
 
             <ImageView
                 android:id="@+id/search_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_weight="4"
+                android:layout_marginRight="1dp"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
                 android:background="@drawable/icon_misc_search" />
         </LinearLayout>
 
