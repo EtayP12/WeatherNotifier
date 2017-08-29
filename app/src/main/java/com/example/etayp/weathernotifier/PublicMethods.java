@@ -125,7 +125,7 @@ public class PublicMethods {
         }
         switch (icon) {
             case "clear-day": {
-                stringBuilder.append("Sunglasses, hat, sunscreen");
+                stringBuilder.append("Sunglasses, Hat, Sunscreen");
             }
             break;
             case "clear-night": {
@@ -133,11 +133,11 @@ public class PublicMethods {
             }
             break;
             case "rain": {
-                stringBuilder.append("Rain suit, boots, umbrella");
+                stringBuilder.append("Rain suit, Boots, Umbrella");
             }
             break;
             case "snow": {
-                stringBuilder.append("coat, boots");
+                stringBuilder.append("Coat, Boots");
             }
             break;
             case "sleet": {

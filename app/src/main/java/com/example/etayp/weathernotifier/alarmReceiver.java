@@ -79,6 +79,11 @@ public class alarmReceiver extends BroadcastReceiver {
                                 e.printStackTrace();
                             }
                         }
+                        else {
+                            if (--numberOfAddresses==numberOfSuccesses){
+                                sendNotification(context);
+                            }
+                        }
                     }
                 });
         for (String key : addressHashMap.keySet()){

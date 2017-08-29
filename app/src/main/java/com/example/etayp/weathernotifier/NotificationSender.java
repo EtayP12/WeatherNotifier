@@ -107,29 +107,26 @@ public class NotificationSender extends IntentService {
                             Geocoder geocoder = new Geocoder(context, Locale.getDefault());
                             try {
                                 currentAddress = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1).get(0);
-                                handleAddress(mBuilder, numberOfAddresses, inboxStyle, currentAddress);
+                                handleAddress(currentAddress);
                             } catch (IOException e) {
                                 e.printStackTrace();
                                 Log.d(TAG, "onSuccess: No address received from geocoder");
                             }
+                        } else {
+                            Log.d(TAG, "onSuccess: No location found");
+                            if (--numberOfAddresses==numberOfSuccesses)
+                                sendNotification();
                         }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        numberOfAddresses--;
-                        Log.d(TAG, "onFailure: No location found");
                     }
                 });
         assert addressHashMap != null;
         for (String addressKey : addressHashMap.keySet()) {
             Address address = addressHashMap.get(addressKey);
-            handleAddress(mBuilder, numberOfAddresses, inboxStyle, address);
+            handleAddress(address);
         }
     }
 
-    private void handleAddress(final NotificationCompat.Builder mBuilder, final int numberOfAddresses, final NotificationCompat.InboxStyle inboxStyle, final Address address) {
+    private void handleAddress(final Address address) {
         RequestBuilder weather = new RequestBuilder();
 
         Request request = new Request();
@@ -151,24 +148,7 @@ public class NotificationSender extends IntentService {
                     userSelectedOptionsApply = true;
                 }
                 if (++numberOfSuccesses == numberOfAddresses) {
-                    mBuilder.setStyle(inboxStyle);
-                    notifyIntent.putExtra(Constants.WEATHER_UPDATE_ITEMS, (new Gson()).toJson(weatherUpdateItems));
-                    PendingIntent pendingIntent =
-                            PendingIntent.getActivity(
-                                    context,
-                                    0,
-                                    notifyIntent,
-                                    PendingIntent.FLAG_UPDATE_CURRENT
-                            );
-
-                    mBuilder.setContentIntent(pendingIntent);
-                    NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
-                    // Sends a notification only if there is an anomaly in one of the criteria
-                    // the user choose in one of the locations the user choose
-                    if (userSelectedOptionsApply) {
-                        notificationManager.notify(0, mBuilder.build());
-                    }
+                    sendNotification();
                 }
             }
 
@@ -177,6 +157,27 @@ public class NotificationSender extends IntentService {
                 Log.d(TAG, "Error while calling: " + retrofitError.getUrl());
             }
         });
+    }
+
+    private void sendNotification() {
+        mBuilder.setStyle(inboxStyle);
+        notifyIntent.putExtra(Constants.WEATHER_UPDATE_ITEMS, (new Gson()).toJson(weatherUpdateItems));
+        PendingIntent pendingIntent =
+                PendingIntent.getActivity(
+                        this,
+                        0,
+                        notifyIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+
+        mBuilder.setContentIntent(pendingIntent);
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        // Sends a notification only if there is an anomaly in one of the criteria
+        // the user choose in one of the locations the user choose
+        if (userSelectedOptionsApply) {
+            notificationManager.notify(0, mBuilder.build());
+        }
     }
 
     private String stringToNotification(WeatherUpdateItem item) {

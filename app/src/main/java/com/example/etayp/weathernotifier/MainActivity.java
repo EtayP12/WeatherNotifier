@@ -189,15 +189,25 @@ public class MainActivity extends AppCompatActivity implements
                     Constants.LOCATION_PERMISSION_REQUEST_CODE);
         } else {
             Log.d(TAG, "updateLocation: Location request sent");
+            final Context context = this;
             Awareness.SnapshotApi.getLocation(mApiClient).setResultCallback(new ResultCallback<LocationResult>() {
                 @Override
                 public void onResult(@NonNull LocationResult locationResult) {
                     mLastLocation = locationResult.getLocation();
                     Log.d(TAG, "onResult: Location updated");
-                    if (mLastLocation != null && activityIsActive) {
-                        startFetchAddressIntentService();
-                    } else {
-                        Log.d(TAG, "onResult: unable to get location");
+                    if (activityIsActive) {
+                        if (mLastLocation != null) {
+                            startFetchAddressIntentService();
+                        } else {
+                            Log.d(TAG, "onResult: unable to get location");
+                            if (sharedPreferences.getString(Constants.LAST_KNOWN_LOCATION, null) != null) {
+                                Toast.makeText(context, "Using last known location", Toast.LENGTH_SHORT).show();
+                                mLastLocation = (new Gson()).fromJson(sharedPreferences.getString(Constants.LAST_KNOWN_LOCATION, null), Location.class);
+                                startFetchAddressIntentService();
+                            }else{
+                                Log.d(TAG, "onResult: No last known location");
+                            }
+                        }
                     }
                 }
             });
@@ -424,6 +434,7 @@ public class MainActivity extends AppCompatActivity implements
             mFragmentStack.clear();
             mFragmentStack.add(mainFragment.getClass().getName());
         }
+        sharedPreferences.edit().putString(Constants.LAST_KNOWN_LOCATION, (new Gson()).toJson(mLastLocation)).apply();
     }
 
 
@@ -615,12 +626,12 @@ public class MainActivity extends AppCompatActivity implements
                     }
 
                     alarmManager.setInexactRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, alarmPendingIntent);
-                    Toast.makeText(context,"Alarm set!",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Alarm set!", Toast.LENGTH_SHORT).show();
 //                        alarmManager.setRepeating(AlarmManager.RTC, calendar.getTimeInMillis(),3000,alarmPendingIntent );
                 } else {
                     editor.putBoolean(Constants.ALARM_IS_ACTIVE, false);
                     alarmManager.cancel(alarmPendingIntent);
-                    Toast.makeText(context,"Alarm canceled",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Alarm canceled", Toast.LENGTH_SHORT).show();
                 }
                 editor.apply();
                 alertDialog.dismiss();

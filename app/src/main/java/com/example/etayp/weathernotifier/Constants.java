@@ -21,6 +21,7 @@ final class Constants {
             ".LOCATION_DATA_EXTRA";
     static final String RECEIVE_TYPE_EXTRA = PACKAGE_NAME +
             ".RECEIVE_TYPE_EXTRA";
+    public static final String LAST_KNOWN_LOCATION = "last known location";
 
 
     //Api keys
