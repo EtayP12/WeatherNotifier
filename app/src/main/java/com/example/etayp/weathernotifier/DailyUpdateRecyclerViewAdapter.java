@@ -35,10 +35,17 @@ class DailyUpdateRecyclerViewAdapter extends RecyclerView.Adapter<DailyUpdateRec
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.mLocation.setText(values.get(position).location);
         holder.mDescription.setText(values.get(position).weatherResponse.getHourly().getSummary());
+
         PublicMethods.changeIcon(
                 values.get(position).weatherResponse.getHourly().getIcon()
                 , holder.mIcon
                 , false
+        );
+
+        PublicMethods.changeRecommendationText(
+                values.get(position).weatherResponse
+                , holder.mRecommendation
+                , holder.mRecommendationText
         );
     }
 
@@ -53,6 +60,8 @@ class DailyUpdateRecyclerViewAdapter extends RecyclerView.Adapter<DailyUpdateRec
         final TextView mLocation;
         final TextView mDescription;
         final ImageView mIcon;
+        final TextView mRecommendation;
+        final TextView mRecommendationText;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -60,6 +69,8 @@ class DailyUpdateRecyclerViewAdapter extends RecyclerView.Adapter<DailyUpdateRec
             mLocation = (TextView) itemView.findViewById(R.id.daily_weather_location);
             mDescription = (TextView) itemView.findViewById(R.id.daily_weather_description);
             mIcon = (ImageView) itemView.findViewById(R.id.daily_weather_icon);
+            mRecommendation = (TextView) itemView.findViewById(R.id.update_recommendation);
+            mRecommendationText = (TextView) itemView.findViewById(R.id.update_recommendation_text);
         }
     }
 }

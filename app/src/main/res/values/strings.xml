@@ -46,10 +46,10 @@
     <string name="how_frequently_should_weather_notifier_check_for_updates">How frequently should\nWeather Notifier check for updates?</string>
     <string name="what_should_weather_notifier_keep_track_of">What should Weather Notifier\nkeep track of?</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="search_for_an_address">Search for an address</string>
     <string name="title_activity_main2">Main2Activity</string>
     <string name="alarm_demo">Alarm demo</string>
     <string name="update_demo">Update demo</string>
+    <string name="recommendation_text"><u>Wear recommendation</u></string>
 </resources>

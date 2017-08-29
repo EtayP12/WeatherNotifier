@@ -4,8 +4,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.johnhiott.darkskyandroidlib.models.DataBlock;
+import com.johnhiott.darkskyandroidlib.models.WeatherResponse;
 
 /**
  * Created by EtayP on 08-Aug-17.
@@ -107,5 +110,71 @@ public class PublicMethods {
                 break;
         }
         imageToChange.setVisibility(View.VISIBLE);
+    }
+
+    public static void changeRecommendationText(WeatherResponse weatherResponse, TextView recommendation, TextView recommendationText) {
+        String icon = weatherResponse.getHourly().getIcon();
+        StringBuilder stringBuilder = new StringBuilder();
+        double maxTemprature = weatherResponse.getDaily().getData().get(0).getTemperatureMax();
+        if (maxTemprature > 30) {
+            stringBuilder.append("Short t-shirt, ");
+        }
+        double minTemprature = weatherResponse.getDaily().getData().get(0).getTemperatureMin();
+        if (minTemprature < 10) {
+            stringBuilder.append("Warm clothing, ");
+        }
+        switch (icon) {
+            case "clear-day": {
+                stringBuilder.append("Sunglasses, hat, sunscreen");
+            }
+            break;
+            case "clear-night": {
+
+            }
+            break;
+            case "rain": {
+                stringBuilder.append("Rain suit, boots, umbrella");
+            }
+            break;
+            case "snow": {
+                stringBuilder.append("coat, boots");
+            }
+            break;
+            case "sleet": {
+
+            }
+            break;
+            case "wind": {
+                stringBuilder.append("Wind suit");
+            }
+            break;
+            case "fog": {
+
+            }
+            break;
+            case "cloudy": {
+                stringBuilder.append("Umbrella");
+            }
+            break;
+            case "partly-cloudy-day": {
+                stringBuilder.append("Umbrella");
+            }
+            break;
+            case "partly-cloudy-night": {
+                stringBuilder.append("Umbrella");
+            }
+            break;
+            default:
+
+                break;
+        }
+
+        String text = stringBuilder.toString();
+        if (!text.matches("")) {
+            recommendation.setText(text);
+        }else{
+            recommendation.setVisibility(View.GONE);
+            recommendationText.setVisibility(View.GONE);
+        }
     }
 }

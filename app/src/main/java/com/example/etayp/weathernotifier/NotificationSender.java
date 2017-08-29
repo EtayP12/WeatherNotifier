@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
@@ -20,6 +21,7 @@ import android.util.Log;
 import com.example.etayp.weathernotifier.items.WeatherUpdateItem;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -108,8 +110,16 @@ public class NotificationSender extends IntentService {
                                 handleAddress(mBuilder, numberOfAddresses, inboxStyle, currentAddress);
                             } catch (IOException e) {
                                 e.printStackTrace();
+                                Log.d(TAG, "onSuccess: No address received from geocoder");
                             }
                         }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        numberOfAddresses--;
+                        Log.d(TAG, "onFailure: No location found");
                     }
                 });
         assert addressHashMap != null;
