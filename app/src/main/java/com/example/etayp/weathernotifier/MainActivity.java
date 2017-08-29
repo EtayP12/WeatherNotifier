@@ -92,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements
     private boolean removeSplashOnResume;
     private AlertDialog timeOutAlertDialog;
     private boolean notificationThreadNotActive = true;
-    private boolean exitWithBackButton = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
