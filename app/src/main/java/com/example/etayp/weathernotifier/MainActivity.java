@@ -199,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements
                         } else {
                             Log.d(TAG, "onResult: unable to get location");
                             String lastLocationString = sharedPreferences.getString(Constants.LAST_KNOWN_LOCATION, null);
-                            if (!lastLocationString.equals("null")) {
+                            if (!(lastLocationString != null && lastLocationString.equals("null"))) {
                                 Log.d(TAG, "onResult: "+ lastLocationString);
                                 Toast.makeText(context, "Using last known location", Toast.LENGTH_SHORT).show();
                                 mLastLocation = (new Gson()).fromJson(lastLocationString, Location.class);
