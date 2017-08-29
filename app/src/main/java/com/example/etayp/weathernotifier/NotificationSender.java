@@ -57,16 +57,6 @@ public class NotificationSender extends IntentService {
     private NotificationCompat.Builder mBuilder;
     private boolean userSelectedOptionsApply = false;
 
-
-    /**
-     * Creates an IntentService.  Invoked by your subclass's constructor.
-     *
-     * @param name Used to name the worker thread, important only for debugging.
-     */
-    public NotificationSender(String name) {
-        super(name);
-    }
-
     public NotificationSender() {
         super("NotificationSender");
     }
@@ -136,7 +126,6 @@ public class NotificationSender extends IntentService {
         request.setLanguage(Request.Language.ENGLISH);
 //        request.addExcludeBlock(Request.Block.CURRENTLY);
         Log.d(TAG, "weatherRequestBuilder: request");
-        final Context context = this;
         weather.getWeather(request, new Callback<WeatherResponse>() {
             @Override
             public void success(WeatherResponse weatherResponse, Response response) {

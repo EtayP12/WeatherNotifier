@@ -15,11 +15,6 @@ import com.example.etayp.weathernotifier.items.RecyclerItems.RecyclerItem;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * {@link RecyclerView.Adapter} that can display a {@link RecyclerItem} and makes a call to the
- * specified {@link OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
- */
 public class LocationsRecyclerViewAdapter extends RecyclerView.Adapter<LocationsRecyclerViewAdapter.ViewHolder> {
 
     private final List<RecyclerItem> mValues;
@@ -55,14 +50,14 @@ public class LocationsRecyclerViewAdapter extends RecyclerView.Adapter<Locations
         return mValues.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final TextView mIdView;
-        public final TextView mContentView;
-        public final Button mButton;
-        public RecyclerItem mItem;
+    class ViewHolder extends RecyclerView.ViewHolder {
+        final View mView;
+        final TextView mIdView;
+        final TextView mContentView;
+        final Button mButton;
+        RecyclerItem mItem;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             mView = view;
             mIdView = (TextView) view.findViewById(R.id.id);

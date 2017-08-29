@@ -7,15 +7,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
-import com.johnhiott.darkskyandroidlib.models.DataBlock;
 import com.johnhiott.darkskyandroidlib.models.WeatherResponse;
 
-/**
- * Created by EtayP on 08-Aug-17.
- */
-
-public class PublicMethods {
-    public static void saveObjectToSharedPreference(Context context, String preferenceFileName, String serializedObjectKey, Object object) {
+class PublicMethods {
+    static void saveObjectToSharedPreference(Context context, String preferenceFileName, String serializedObjectKey, Object object) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(preferenceFileName, 0);
         SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
         final Gson gson = new Gson();
@@ -24,7 +19,7 @@ public class PublicMethods {
         sharedPreferencesEditor.apply();
     }
 
-    public static <GenericClass> GenericClass getSavedObjectFromPreference(Context context, String preferenceFileName, String preferenceKey, Class<GenericClass> classType) {
+    static <GenericClass> GenericClass getSavedObjectFromPreference(Context context, String preferenceFileName, String preferenceKey, Class<GenericClass> classType) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(preferenceFileName, 0);
         if (sharedPreferences.contains(preferenceKey)) {
             final Gson gson = new Gson();
@@ -33,7 +28,7 @@ public class PublicMethods {
         return null;
     }
 
-    public static void changeIcon(String icon, ImageView imageToChange, boolean bigIcon) {
+    static void changeIcon(String icon, ImageView imageToChange, boolean bigIcon) {
         switch (icon) {
             case "clear-day":
                 if (bigIcon) {
@@ -112,7 +107,7 @@ public class PublicMethods {
         imageToChange.setVisibility(View.VISIBLE);
     }
 
-    public static void changeRecommendationText(WeatherResponse weatherResponse, TextView recommendation, TextView recommendationText) {
+    static void changeRecommendationText(WeatherResponse weatherResponse, TextView recommendation, TextView recommendationText) {
         String icon = weatherResponse.getHourly().getIcon();
         StringBuilder stringBuilder = new StringBuilder();
         double maxTemprature = weatherResponse.getDaily().getData().get(0).getTemperatureMax();
@@ -172,7 +167,7 @@ public class PublicMethods {
         String text = stringBuilder.toString();
         if (!text.matches("")) {
             recommendation.setText(text);
-        }else{
+        } else {
             recommendation.setVisibility(View.GONE);
             recommendationText.setVisibility(View.GONE);
         }

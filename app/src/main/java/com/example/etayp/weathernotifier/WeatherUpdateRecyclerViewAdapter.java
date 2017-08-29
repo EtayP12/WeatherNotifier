@@ -11,10 +11,6 @@ import com.example.etayp.weathernotifier.items.WeatherUpdateItem;
 
 import java.util.List;
 
-/**
- * Created by EtayP on 17-Aug-17.
- */
-
 class WeatherUpdateRecyclerViewAdapter extends RecyclerView.Adapter<WeatherUpdateRecyclerViewAdapter.ViewHolder> {
 
     private final List<WeatherUpdateItem> values;
@@ -35,14 +31,14 @@ class WeatherUpdateRecyclerViewAdapter extends RecyclerView.Adapter<WeatherUpdat
         holder.mLocation.setText(values.get(position).location);
 
         String apparent = String.valueOf(values.get(position).weatherResponse.getCurrently().getApparentTemperature());
-        apparent = apparent.substring(0,apparent.indexOf("."))+Constants.DEGREE;
+        apparent = apparent.substring(0, apparent.indexOf(".")) + Constants.DEGREE;
         holder.mApparent.setText(apparent);
 
         String temprature = String.valueOf(values.get(position).weatherResponse.getCurrently().getTemperature());
-        temprature = temprature.substring(0,temprature.indexOf("."))+Constants.DEGREE;
+        temprature = temprature.substring(0, temprature.indexOf(".")) + Constants.DEGREE;
         holder.mTemprature.setText(temprature);
 
-        String humidity =(int)(Double.valueOf(values.get(position).weatherResponse.getCurrently().getHumidity())*100)+Constants.PERCENT;
+        String humidity = (int) (Double.valueOf(values.get(position).weatherResponse.getCurrently().getHumidity()) * 100) + Constants.PERCENT;
         holder.mHumidity.setText(humidity);
 
         String wind = String.valueOf(Double.valueOf(values.get(position).weatherResponse.getCurrently().getWindSpeed()) * 1.609);

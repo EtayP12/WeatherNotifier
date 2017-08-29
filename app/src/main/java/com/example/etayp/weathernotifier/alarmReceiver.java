@@ -36,10 +36,6 @@ import retrofit.client.Response;
 
 import static android.content.Context.MODE_PRIVATE;
 
-/**
- * Created by EtayP on 19-Aug-17.
- */
-
 public class alarmReceiver extends BroadcastReceiver {
     private static final String TAG = "Alarm Receiver";
     private NotificationCompat.Builder mBuilder;

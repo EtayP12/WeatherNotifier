@@ -1,11 +1,5 @@
 package com.example.etayp.weathernotifier;
 
-import android.content.SharedPreferences;
-
-/**
- * Created by EtayP on 31-Jul-17.
- */
-
 final class Constants {
     //codes
     static final int SUCCESS_RESULT = 0;
@@ -21,7 +15,7 @@ final class Constants {
             ".LOCATION_DATA_EXTRA";
     static final String RECEIVE_TYPE_EXTRA = PACKAGE_NAME +
             ".RECEIVE_TYPE_EXTRA";
-    public static final String LAST_KNOWN_LOCATION = "last known location";
+    static final String LAST_KNOWN_LOCATION = "last known location";
 
 
     //Api keys

@@ -11,10 +11,6 @@ import com.example.etayp.weathernotifier.items.WeatherUpdateItem;
 
 import java.util.List;
 
-/**
- * Created by EtayP on 27-Aug-17.
- */
-
 class DailyUpdateRecyclerViewAdapter extends RecyclerView.Adapter<DailyUpdateRecyclerViewAdapter.ViewHolder> {
 
     private List<WeatherUpdateItem> values;

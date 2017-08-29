@@ -1,4 +1,3 @@
-//GitHub try
 
 package com.example.etayp.weathernotifier;
 

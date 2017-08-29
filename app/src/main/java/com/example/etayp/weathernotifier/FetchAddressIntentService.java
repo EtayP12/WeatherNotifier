@@ -25,10 +25,6 @@ public class FetchAddressIntentService extends IntentService {
     private static final String TAG = "IntentService";
     protected ResultReceiver mReceiver;
 
-    public FetchAddressIntentService(String name) {
-        super(name);
-    }
-
     public FetchAddressIntentService() {
         super("FetchAddressIntentService");
     }
