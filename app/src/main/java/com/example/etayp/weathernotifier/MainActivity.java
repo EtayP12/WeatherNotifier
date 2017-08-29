@@ -342,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements
         runOnUiThread(new Runnable() {
             public void run() {
                 timeOutAlertDialog = new AlertDialog.Builder(context).create();
-                timeOutAlertDialog.setTitle("Connection time out");
+                timeOutAlertDialog.setTitle("Connection timed out");
                 timeOutAlertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Try again", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
