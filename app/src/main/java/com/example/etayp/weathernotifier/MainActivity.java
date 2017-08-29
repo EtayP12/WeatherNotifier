@@ -551,10 +551,15 @@ public class MainActivity extends AppCompatActivity implements
             makeAlarmDialogBox();
             return true;
         }
-        if (id == R.id.debug) {
+        if (id == R.id.alarm_demo) {
             Intent intent = new Intent(this, alarmReceiver.class);
             PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
             alarmManager.setExact(AlarmManager.RTC, System.currentTimeMillis(), alarmPendingIntent);
+        }
+        if (id == R.id.update_demo) {
+            Intent intent = new Intent(this, NotificationSender.class);
+            intent.putExtra(Constants.ADDRESSES_HASH_MAP, (new Gson()).toJson(addressHashMap));
+            startService(intent);
         }
 
 
@@ -587,6 +592,7 @@ public class MainActivity extends AppCompatActivity implements
         });
         Intent intent = new Intent(this, alarmReceiver.class);
         final PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+        final Context context = this;
         alertDialog.findViewById(R.id.set_alarm_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -609,11 +615,12 @@ public class MainActivity extends AppCompatActivity implements
                     }
 
                     alarmManager.setInexactRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, alarmPendingIntent);
-
+                    Toast.makeText(context,"Alarm set!",Toast.LENGTH_SHORT).show();
 //                        alarmManager.setRepeating(AlarmManager.RTC, calendar.getTimeInMillis(),3000,alarmPendingIntent );
                 } else {
                     editor.putBoolean(Constants.ALARM_IS_ACTIVE, false);
                     alarmManager.cancel(alarmPendingIntent);
+                    Toast.makeText(context,"Alarm canceled",Toast.LENGTH_SHORT).show();
                 }
                 editor.apply();
                 alertDialog.dismiss();
@@ -626,6 +633,8 @@ public class MainActivity extends AppCompatActivity implements
         final FragmentManager fragmentManager = getSupportFragmentManager();
         final FragmentTransaction transaction = fragmentManager.beginTransaction();
 
+        //checks if all options are false while the user leaves the settings fragment
+        //and sets up a dialog box
         if (mFragmentStack.peek().matches(NotificationSettingsFragment.class.getName())
                 && !sharedPreferences.getBoolean(Constants.OPTION_HUMIDITY, true)
                 && !sharedPreferences.getBoolean(Constants.OPTION_RAIN, true)

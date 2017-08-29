@@ -50,4 +50,6 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="search_for_an_address">Search for an address</string>
     <string name="title_activity_main2">Main2Activity</string>
+    <string name="alarm_demo">Alarm demo</string>
+    <string name="update_demo">Update demo</string>
 </resources>

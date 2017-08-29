@@ -13,6 +13,10 @@
         android:id="@+id/settings"
         android:title="@string/settings" />
     <item
-        android:id="@+id/debug"
-        android:title="debug"/>
+        android:id="@+id/alarm_demo"
+        android:title="@string/alarm_demo" />
+
+    <item
+        android:id="@+id/update_demo"
+        android:title="@string/update_demo"/>
 </menu>
