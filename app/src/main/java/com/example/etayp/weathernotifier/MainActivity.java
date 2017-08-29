@@ -198,9 +198,11 @@ public class MainActivity extends AppCompatActivity implements
                             startFetchAddressIntentService();
                         } else {
                             Log.d(TAG, "onResult: unable to get location");
-                            if (sharedPreferences.getString(Constants.LAST_KNOWN_LOCATION, null) != null) {
+                            String lastLocationString = sharedPreferences.getString(Constants.LAST_KNOWN_LOCATION, null);
+                            if (!lastLocationString.equals("null")) {
+                                Log.d(TAG, "onResult: "+ lastLocationString);
                                 Toast.makeText(context, "Using last known location", Toast.LENGTH_SHORT).show();
-                                mLastLocation = (new Gson()).fromJson(sharedPreferences.getString(Constants.LAST_KNOWN_LOCATION, null), Location.class);
+                                mLastLocation = (new Gson()).fromJson(lastLocationString, Location.class);
                                 startFetchAddressIntentService();
                             }else{
                                 Log.d(TAG, "onResult: No last known location");
